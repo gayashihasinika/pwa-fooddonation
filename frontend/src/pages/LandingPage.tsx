@@ -8,6 +8,7 @@ import { HiMenu, HiX } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
+
 export default function HomeWireframe() {
   const [heroText, setHeroText] = useState("Loading...");
   const [menuOpen, setMenuOpen] = useState(false);
