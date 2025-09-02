@@ -11,3 +11,8 @@ Route::get('/test', function () {
 });
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+// Protected route to get current user
+Route::middleware('auth:sanctum')->get('/users/me', function (Request $request) {
+    return response()->json($request->user());
+});

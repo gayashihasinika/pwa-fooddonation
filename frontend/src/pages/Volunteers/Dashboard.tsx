@@ -1,8 +1,10 @@
-//src/pages/Volunteers/Dashboard.tsx
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+
 export default function VolunteerDashboard() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-3xl font-bold">Volunteers Dashboard</h1>
-    </div>
+    <AuthenticatedLayout>
+      <h1 className="text-3xl font-bold text-[#065F46]">Volunteer Dashboard</h1>
+      {/* volunteer content */}
+    </AuthenticatedLayout>
   );
 }

@@ -1,8 +1,10 @@
-//src/pages/Receivers/Dashboard.tsx
-export default function ReceiverDashboard() {
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+
+export default function DonorDashboard() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-3xl font-bold">Receivers Dashboard</h1>
-    </div>
+    <AuthenticatedLayout>
+      <h1 className="text-3xl font-bold text-[#065F46]">Receiver Dashboard</h1>
+      {/* donor specific content */}
+    </AuthenticatedLayout>
   );
 }
