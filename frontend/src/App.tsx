@@ -13,6 +13,11 @@ import VolunteerDashboard from "./pages/Volunteers/Dashboard";
 import ReceiverDashboard from "./pages/Receivers/Dashboard";
 import AdminDashboard from "./pages/Admin/Dashboard";
 
+// PostDonation components
+import PostDonationList from "./pages/Donors/PostDonation/PostDonationList";
+import PostDonationAdd from "./pages/Donors/PostDonation/PostDonationAdd";
+import PostDonationEdit from "./pages/Donors/PostDonation/PostDonationEdit";
+
 export default function App() {
   return (
     <Router>
@@ -55,6 +60,11 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* PostDonation routes */}
+        <Route path="/donors/post-donation/post-donation-list" element={<PostDonationList />} />
+        <Route path="/donors/post-donation/post-donation-add" element={<PostDonationAdd />} />
+        <Route path="/donors/post-donation/post-donation-edit/:id" element={<PostDonationEdit />} />
       </Routes>
     </Router>
   );

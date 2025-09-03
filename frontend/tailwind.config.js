@@ -1,4 +1,4 @@
-import { shadcnPreset } from "tailwind-config/shadcn-preset";
+import { fontFamily } from "tailwindcss/defaultTheme";
 
 export default {
   darkMode: ["class"],
@@ -7,8 +7,11 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)", ...fontFamily.sans],
+      },
+    },
   },
   plugins: [require("tailwindcss-animate")],
-  presets: [shadcnPreset],
 };

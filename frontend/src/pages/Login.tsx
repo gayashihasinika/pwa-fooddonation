@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
@@ -28,17 +28,18 @@ export default function Login() {
                 { headers: { "Content-Type": "application/json" } }
             );
 
-            const { access_token, role } = res.data;
+            const { access_token, role, user } = res.data;
 
-            // Always store in localStorage
             localStorage.setItem("auth_token", access_token);
+            localStorage.setItem("authUser", JSON.stringify(user));
             localStorage.setItem("user_role", role);
 
-            // (Optional) If you want rememberMe = session only, store in sessionStorage instead:
             if (!rememberMe) {
                 sessionStorage.setItem("auth_token", access_token);
+                sessionStorage.setItem("authUser", JSON.stringify(user));
                 sessionStorage.setItem("user_role", role);
             }
+
 
             toast.success("Login successful!");
             redirectUser(role);

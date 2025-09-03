@@ -1,4 +1,4 @@
-import React from "react";
+// src/components/Navbar.tsx
 
 export default function Navbar() {
   return (
