@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\DonationImage;
+
 class Donation extends Model
 {
     use HasFactory;
@@ -14,16 +15,13 @@ class Donation extends Model
         'description',
         'quantity',
         'pickup_address',
+        'expiry_date',
         'status',
     ];
 
-public function images()
-{
-    return $this->hasMany(DonationImage::class);
-}
-
-    public function user()
+    public function images()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(DonationImage::class);
     }
 }
+

@@ -1,10 +1,11 @@
 // src/Layouts/AuthenticatedLayout.tsx
-import React, { ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import axios from "axios";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { Menu, X, LogOut, Settings, Home, Plus, Package, Trophy, Users, ClipboardList } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { LogOut, Settings, Home, Plus, Package, Trophy, Users, ClipboardList } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 interface User {
@@ -26,15 +27,15 @@ export default function AuthenticatedLayout({ children }: Props) {
     const [language, setLanguage] = useState("English");
 
     const location = useLocation();
+    const navigate = useNavigate();
 
     // Fetch logged-in user info
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                // Try sessionStorage first, fallback to localStorage
                 const token = sessionStorage.getItem("auth_token") || localStorage.getItem("auth_token");
                 if (!token) {
-                    window.location.href = "/login";
+                    navigate("/login");
                     return;
                 }
 
@@ -47,12 +48,12 @@ export default function AuthenticatedLayout({ children }: Props) {
                 if (res.data) setCurrentUser(res.data);
             } catch (error) {
                 console.error("Failed to fetch user:", error);
-                window.location.href = "/login";
+                navigate("/login");
             }
         };
 
         fetchUser();
-    }, []);
+    }, [navigate]);
 
     if (!currentUser) {
         return (
@@ -75,7 +76,7 @@ export default function AuthenticatedLayout({ children }: Props) {
                 group: "Donor Tools",
                 items: [
                     { icon: <Home size={18} />, label: "Dashboard", href: "#" },
-                    { icon: <Plus size={18} />, label: "Post Donation", href: "/donor/post-donation" },
+                    { icon: <Plus size={18} />, label: "Post Donation", href: "/donors/post-donation/post-donation-list" },
                     { icon: <Package size={18} />, label: "My Donations", href: "/donor/my-donations" },
                     { icon: <Trophy size={18} />, label: "Leaderboard", href: "/donor/leaderboard" },
                 ],
@@ -114,7 +115,12 @@ export default function AuthenticatedLayout({ children }: Props) {
 
     const currentGroups = sidebarGroups[currentUser.role || "donor"] || [];
 
-    const handleLogout = () => (window.location.href = "/logout");
+    const handleLogout = () => {
+        localStorage.removeItem("auth_token");
+        sessionStorage.removeItem("auth_token");
+        setCurrentUser(null);
+        navigate("/"); // redirect to LandingPage
+    };
 
     return (
         <div className="flex min-h-screen bg-[#ECFDF5]">
@@ -154,7 +160,7 @@ export default function AuthenticatedLayout({ children }: Props) {
                                         <Button
                                             key={i}
                                             variant="ghost"
-                                            onClick={() => (window.location.href = item.href)}
+                                            onClick={() => navigate(item.href)}
                                             className={`w-full justify-start rounded-md pl-3 border-l-4 transition ${isActive
                                                     ? "bg-white text-[#065F46] font-semibold border-white"
                                                     : "text-white border-transparent hover:bg-white/20 hover:border-white"
