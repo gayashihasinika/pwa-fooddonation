@@ -18,6 +18,11 @@ Route::middleware('auth:sanctum')->get('/users/me', function (Request $request) 
     return response()->json($request->user());
 });
 
+Route::get('/translations/{lang}', function ($lang) {
+    App::setLocale($lang);
+    return response()->json(trans('messages'));
+});
+
 
 
 Route::prefix('donations')->group(function () {

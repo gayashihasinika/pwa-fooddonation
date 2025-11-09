@@ -18,54 +18,56 @@ import PostDonationList from "./pages/Donors/PostDonation/PostDonationList";
 import PostDonationAdd from "./pages/Donors/PostDonation/PostDonationAdd";
 import PostDonationEdit from "./pages/Donors/PostDonation/PostDonationEdit";
 
+
+
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Public routes */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
+      <Router>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
 
-        {/* Role-based protected dashboards */}
-        <Route
-          path="/Donors/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["donor"]}>
-              <DonorDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/Volunteers/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["volunteer"]}>
-              <VolunteerDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/Receivers/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["receiver"]}>
-              <ReceiverDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/Admin/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
+          {/* Role-based protected dashboards */}
+          <Route
+            path="/Donors/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["donor"]}>
+                <DonorDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Volunteers/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["volunteer"]}>
+                <VolunteerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Receivers/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["receiver"]}>
+                <ReceiverDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Admin/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* PostDonation routes */}
-        <Route path="/donors/post-donation/post-donation-list" element={<PostDonationList />} />
-        <Route path="/donors/post-donation/post-donation-add" element={<PostDonationAdd />} />
-        <Route path="/donors/post-donation/post-donation-edit/:id" element={<PostDonationEdit />} />
-      </Routes>
-    </Router>
+          {/* PostDonation routes */}
+          <Route path="/donors/post-donation/post-donation-list" element={<PostDonationList />} />
+          <Route path="/donors/post-donation/post-donation-add" element={<PostDonationAdd />} />
+          <Route path="/donors/post-donation/post-donation-edit/:id" element={<PostDonationEdit />} />
+        </Routes>
+      </Router>
   );
 }

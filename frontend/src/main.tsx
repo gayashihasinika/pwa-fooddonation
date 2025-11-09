@@ -3,19 +3,21 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import axios from 'axios'
+import { LanguageProvider } from "./context/LanguageContext"
 
 // ----------------------
 // Global Axios settings
 // ----------------------
-
-// Base URL for your Laravel API
 axios.defaults.baseURL = 'http://127.0.0.1:8001/api'
-
-// Send cookies with every request (required for Sanctum authentication)
 axios.defaults.withCredentials = true
 
+// ----------------------
+// Render App
+// ----------------------
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <LanguageProvider>
+      <App />
+    </LanguageProvider>
   </StrictMode>,
 )

@@ -1,11 +1,19 @@
+// src/pages/HomeWireframe.tsx
 import { useEffect, useState } from "react";
 import { Button } from "../components/Button";
 import CountUp from "react-countup";
 import { HiMenu, HiX } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useLang } from "../context/LanguageContext";
+
+interface Stat {
+  value: number;
+  label: string;
+}
 
 export default function HomeWireframe() {
+  const { t, language, changeLanguage } = useLang();
   const [heroText, setHeroText] = useState("Loading...");
   const [menuOpen, setMenuOpen] = useState(false);
   const [donationProgress, setDonationProgress] = useState(68);
@@ -25,11 +33,17 @@ export default function HomeWireframe() {
     setDonationProgress((p) => Math.min(100, p + 7));
   };
 
-  const stats = [
-    { value: 3200, label: "Meals Shared" },
-    { value: 17, label: "Cities Covered" },
-    { value: 850, label: "Active Donors" },
-    { value: 120, label: "Volunteers" },
+  const stats: Stat[] = [
+    { value: 3200, label: t("mealsShared") },
+    { value: 17, label: t("citiesCovered") },
+    { value: 850, label: t("activeDonors") },
+    { value: 120, label: t("volunteers") },
+  ];
+
+  const featureCards = [
+    { title: t("leaderboard"), desc: t("leaderboardDesc"), icon: "🏆" },
+    { title: t("badges"), desc: t("badgesDesc"), icon: "🥇" },
+    { title: t("challenges"), desc: t("challengesDesc"), icon: "🔥" },
   ];
 
   // Motion variants
@@ -50,79 +64,142 @@ export default function HomeWireframe() {
     },
   };
 
+  // -----------------------------
+  // Falling food animation
+  // -----------------------------
+  const foodItems = ["🍎", "🍞", "🍛", "🍲", "🥗", "🍕", "🍌", "🍚", "🍪", "🍇"];
+  const [visibleFoods, setVisibleFoods] = useState<
+    { id: number; emoji: string; left: string; size: number }[]
+  >([]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newFood = {
+        id: Date.now(),
+        emoji: foodItems[Math.floor(Math.random() * foodItems.length)],
+        left: `${Math.random() * 100}%`,
+        size: Math.random() * 1.5 + 1,
+      };
+      setVisibleFoods((prev) => [...prev.slice(-10), newFood]);
+      setTimeout(
+        () => setVisibleFoods((prev) => prev.filter((f) => f.id !== newFood.id)),
+        8000
+      );
+    }, 800);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="font-sans text-gray-900 bg-white relative min-h-screen overflow-x-hidden">
-      {/* Decorative gradient background (page) */}
-      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        {/* Large soft gradient */}
-        <div
-          aria-hidden
-          className="absolute -left-40 -top-40 w-[1200px] h-[800px] rounded-full blur-3xl opacity-30"
-          style={{
-            background:
-              "radial-gradient(closest-side,#ff7a59, #ff5774 35%, #8b5cf6 70%, transparent 80%)",
-            transform: "rotate(10deg)",
-          }}
-        />
-        {/* Right soft overlay */}
-        <div
-          aria-hidden
-          className="absolute -right-40 bottom-0 w-[900px] h-[700px] rounded-full blur-3xl opacity-25"
-          style={{
-            background:
-              "radial-gradient(closest-side,#60a5fa, #7c3aed 40%, #fb7185 70%, transparent 80%)",
-            transform: "rotate(-10deg)",
-          }}
-        />
-      </div>
+     {/* 🌟 Decorative gradient background */}
+<div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+  <div
+    aria-hidden
+    className="absolute -left-40 -top-40 w-[1200px] h-[800px] rounded-full blur-3xl opacity-30"
+    style={{
+      background:
+        "radial-gradient(closest-side,#ff7a59, #ff5774 35%, #8b5cf6 70%, transparent 80%)",
+      transform: "rotate(10deg)",
+    }}
+  />
+  <div
+    aria-hidden
+    className="absolute -right-40 bottom-0 w-[900px] h-[700px] rounded-full blur-3xl opacity-25"
+    style={{
+      background:
+        "radial-gradient(closest-side,#60a5fa, #7c3aed 40%, #fb7185 70%, transparent 80%)",
+      transform: "rotate(-10deg)",
+    }}
+  />
+</div>
+
+
+      {/* 🍱 Falling food animation layer*/}
+<div className="pointer-events-none fixed inset-0 overflow-hidden z-50">
+  {visibleFoods.map((food) => (
+    <motion.div
+      key={food.id}
+      initial={{ y: -50, opacity: 0 }}
+      animate={{
+        y: "100vh",
+        opacity: [1, 0.9, 0.7, 0],
+        rotate: [0, 30, -30, 0],
+      }}
+      transition={{
+        duration: 8 + Math.random() * 4, // slower and smoother
+        ease: "easeInOut",
+      }}
+      className="absolute"
+      style={{
+        left: food.left,
+        top: "-10%",
+        fontSize: `${food.size}rem`,
+        zIndex: 9999,
+      }}
+    >
+      {food.emoji}
+    </motion.div>
+  ))}
+</div>
+
 
       {/* Header */}
       <header className="fixed w-full z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-4">
-            <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45 }}
-              className="flex items-center gap-3"
-            >
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400 shadow-lg flex items-center justify-center text-white font-bold">
-                FS
-              </div>
-              <span className="text-lg md:text-xl font-semibold text-gray-900">
-                FeedSriLanka
-              </span>
-            </motion.div>
-
-            <nav className="hidden md:flex items-center gap-6">
-              <Link className="text-sm text-gray-700 hover:text-gray-900" to="#features">
-                Features
-              </Link>
-              <Link className="text-sm text-gray-700 hover:text-gray-900" to="#how">
-                How it works
-              </Link>
-              <Link className="text-sm text-gray-700 hover:text-gray-900" to="#impact">
-                Impact
-              </Link>
-
-              <Link
-                to="/signup"
-                className="ml-2 inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400 text-white text-sm font-semibold shadow-md hover:shadow-lg transition"
-              >
-                Get Started
-              </Link>
-            </nav>
-
-            {/* Mobile toggle */}
-            <div className="md:hidden">
-              <button
-                onClick={() => setMenuOpen((s) => !s)}
-                aria-label="Toggle Menu"
-                className="p-2 rounded-md text-gray-800 hover:bg-gray-100"
-              >
-                {menuOpen ? <HiX size={22} /> : <HiMenu size={22} />}
-              </button>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-4">
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45 }}
+            className="flex items-center gap-3"
+          >
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400 shadow-lg flex items-center justify-center text-white font-bold">
+              FS
             </div>
+            <span className="text-lg md:text-xl font-semibold text-gray-900">
+              FeedSriLanka
+            </span>
+          </motion.div>
+
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-6">
+            <Link className="text-sm text-gray-700 hover:text-gray-900" to="#features">
+              {t("featuresTitle")}
+            </Link>
+            <Link className="text-sm text-gray-700 hover:text-gray-900" to="#how">
+              {t("howTitle")}
+            </Link>
+            <Link className="text-sm text-gray-700 hover:text-gray-900" to="#impact">
+              {t("impactTitle")}
+            </Link>
+
+            <Link
+              to="/signup"
+              className="ml-2 inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400 text-white text-sm font-semibold shadow-md hover:shadow-lg transition"
+            >
+              {t("signUp")}
+            </Link>
+
+            {/* Language Dropdown */}
+            <select
+              value={language}
+              onChange={(e) => changeLanguage(e.target.value)}
+              className="ml-4 border border-gray-300 rounded px-2 py-1 text-sm"
+            >
+              <option value="en">English</option>
+              <option value="si">සිංහල</option>
+              <option value="ta">தமிழ்</option>
+            </select>
+          </nav>
+
+          {/* Mobile toggle */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setMenuOpen((s) => !s)}
+              aria-label="Toggle Menu"
+              className="p-2 rounded-md text-gray-800 hover:bg-gray-100"
+            >
+              {menuOpen ? <HiX size={22} /> : <HiMenu size={22} />}
+            </button>
           </div>
 
           {/* Mobile menu */}
@@ -134,17 +211,27 @@ export default function HomeWireframe() {
             >
               <div className="flex flex-col gap-3">
                 <Link to="#features" onClick={() => setMenuOpen(false)} className="py-2 px-3 rounded hover:bg-gray-50">
-                  Features
+                  {t("featuresTitle")}
                 </Link>
                 <Link to="#how" onClick={() => setMenuOpen(false)} className="py-2 px-3 rounded hover:bg-gray-50">
-                  How it works
+                  {t("howTitle")}
                 </Link>
                 <Link to="#impact" onClick={() => setMenuOpen(false)} className="py-2 px-3 rounded hover:bg-gray-50">
                   Impact
                 </Link>
                 <Link to="/signup" onClick={() => setMenuOpen(false)} className="py-2 px-3 rounded bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400 text-white text-center">
-                  Get Started
+                  {t("signUp")}
                 </Link>
+
+                <select
+                  value={language}
+                  onChange={(e) => changeLanguage(e.target.value)}
+                  className="mt-2 border border-gray-300 rounded px-2 py-1 text-sm"
+                >
+                  <option value="en">English</option>
+                  <option value="si">සිංහල</option>
+                  <option value="ta">தமிழ்</option>
+                </select>
               </div>
             </motion.div>
           )}
@@ -164,15 +251,14 @@ export default function HomeWireframe() {
                   transition={{ duration: 0.7 }}
                   className="text-3xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight"
                 >
-                  <span className="block text-gray-900 mb-3">
-                    <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400">
-                      Help Feed Sri Lanka
-                    </span>
-                    <span className="ml-2 text-gray-700 font-medium text-lg">—</span>
+                  <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400">
+                    {t("heroTitle")}
                   </span>
+                  <span className="ml-2 text-gray-700 font-medium text-lg">—</span>
                   <span className="block text-gray-700 text-lg md:text-xl font-medium">
-                    Donate meals, join community drives and volunteer locally.
+                    {t("heroSubtitle")}
                   </span>
+
                 </motion.h1>
 
                 <motion.p
@@ -181,8 +267,7 @@ export default function HomeWireframe() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
                 >
-                  We match surplus food from donors with neighbourhoods and nonprofits in need — safely,
-                  quickly and with respect. Join donors, volunteers and receivers across Sri Lanka.
+                  {t("heroDescription")}
                 </motion.p>
 
                 <motion.div className="mt-8 flex flex-wrap gap-4 items-center">
@@ -190,23 +275,8 @@ export default function HomeWireframe() {
                     whileHover={{ scale: 1.03 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
-                    <Button
-                      onClick={handleStartClick}
-                      className="px-6 py-3 rounded-full bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400 text-white font-semibold shadow-md"
-                    >
-                      Join the Movement
-                    </Button>
-                  </motion.div>
 
-                  <motion.a
-                    href="#how"
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 }}
-                    className="inline-flex items-center text-sm text-gray-700 hover:underline ml-2"
-                  >
-                    How it works →
-                  </motion.a>
+                  </motion.div>
                 </motion.div>
 
                 {/* Small stats */}
@@ -258,16 +328,16 @@ export default function HomeWireframe() {
                   <div className="rounded-2xl p-4 bg-white shadow-2xl border border-white/30">
                     <div className="h-52 w-full rounded-lg bg-gradient-to-b from-emerald-50 to-emerald-100 flex items-center justify-center text-gray-700">
                       <div className="text-center px-6">
-                        <div className="text-sm font-semibold text-rose-500 mb-2">Nearby Donation</div>
-                        <div className="text-base font-bold">Rice & Curry — 6 portions</div>
-                        <div className="text-xs text-gray-500 mt-2">Pickup: Colombo 07 · 30m ago</div>
+                        <div className="text-sm font-semibold text-rose-500 mb-2">{t("nearbyDonation")}</div>
+                        <div className="text-base font-bold">{t("sampleMealTitle")}</div>
+                        <div className="text-xs text-gray-500 mt-2">{t("samplePickupInfo")}</div>
                       </div>
                     </div>
 
                     <div className="mt-4 grid grid-cols-3 gap-2">
-                      <div className="text-center text-xs">Safe pickup</div>
-                      <div className="text-center text-xs">Verified</div>
-                      <div className="text-center text-xs">Volunteer</div>
+                      <div className="text-center text-xs">{t("safePickup")}</div>
+                      <div className="text-center text-xs">{t("verified")}</div>
+                      <div className="text-center text-xs">{t("volunteerLabel")}</div>
                     </div>
                   </div>
 
@@ -278,8 +348,8 @@ export default function HomeWireframe() {
                     transition={{ delay: 0.2 }}
                     className="absolute -right-8 -top-6 w-36 p-3 rounded-xl bg-white/90 backdrop-blur-sm border border-white/30 shadow"
                   >
-                    <div className="text-sm font-semibold text-emerald-700">Top Donor</div>
-                    <div className="text-xs text-gray-600 mt-1">S. Perera · 14 donations</div>
+                    <div className="text-sm font-semibold text-emerald-700">{t("topDonor")}</div>
+                    <div className="text-xs text-gray-600 mt-1">{t("sampleDonorInfo")}</div>
                   </motion.div>
 
                   <motion.div
@@ -288,8 +358,8 @@ export default function HomeWireframe() {
                     transition={{ delay: 0.35 }}
                     className="absolute -left-6 -bottom-6 w-36 p-3 rounded-xl bg-white/90 backdrop-blur-sm border border-white/30 shadow"
                   >
-                    <div className="text-sm font-semibold text-rose-500">Drive</div>
-                    <div className="text-xs text-gray-600 mt-1">Area: Colombo North</div>
+                    <div className="text-sm font-semibold text-rose-500">{t("drive")}</div>
+                    <div className="text-xs text-gray-600 mt-1">{t("areaColombo")}</div>
                   </motion.div>
                 </motion.div>
               </div>
@@ -300,8 +370,8 @@ export default function HomeWireframe() {
         {/* FEATURES / WHO CAN USE */}
         <section id="features" className="py-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h3 className="text-sm font-semibold text-rose-500">Who can use</h3>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">Donors, Receivers & Volunteers</h2>
+            <h3 className="text-sm font-semibold text-rose-500">{t("featuresTitle")}</h3>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">{t("featuresDesc")}</h2>
 
             <motion.div
               className="mt-8 grid gap-6 grid-cols-1 md:grid-cols-3"
@@ -312,18 +382,18 @@ export default function HomeWireframe() {
             >
               {[
                 {
-                  title: "Donors",
-                  desc: "Share excess food safely with local pick-up options and verification.",
+                  title: t("donorsTitle"),
+                  desc: t("donorsDesc"),
                   icon: "🍱",
                 },
                 {
-                  title: "Receivers",
-                  desc: "Find nearby available meals and request safe pickup.",
+                  title: t("receiversTitle"),
+                  desc: t("receiversDesc"),
                   icon: "🎯",
                 },
                 {
-                  title: "Volunteers",
-                  desc: "Join drives, help collect and distribute food in your neighbourhood.",
+                  title: t("volunteersTitle"),
+                  desc: t("volunteersDesc"),
                   icon: "🙋‍♂️",
                 },
               ].map((it, i) => (
@@ -340,8 +410,8 @@ export default function HomeWireframe() {
         {/* HOW IT WORKS */}
         <section id="how" className="py-20 bg-gray-50">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h3 className="text-sm font-semibold text-rose-500">How it works</h3>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">Three simple steps</h2>
+            <h3 className="text-sm font-semibold text-rose-500">{t("howTitle")}</h3>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">{t("howStepsTitle")}</h2>
 
             <motion.div
               className="mt-8 grid gap-6 grid-cols-1 md:grid-cols-3"
@@ -351,9 +421,9 @@ export default function HomeWireframe() {
               variants={stagger}
             >
               {[
-                { title: "Post", desc: "Donors post meals with pickup info.", icon: "📦" },
-                { title: "Connect", desc: "Receivers request and coordinate pickup.", icon: "🔗" },
-                { title: "Share", desc: "Volunteers help distribution locally.", icon: "🍲" },
+                { title: t("postStep"), desc: t("postStepDesc"), icon: "📦" },
+                { title: t("connectStep"), desc: t("connectStepDesc"), icon: "🔗" },
+                { title: t("shareStep"), desc: t("shareStepDesc"), icon: "🍲" },
               ].map((it) => (
                 <motion.div key={it.title} variants={fadeInUp} className="bg-white rounded-2xl p-6 shadow-md border border-white/30">
                   <div className="text-3xl mb-4">{it.icon}</div>
@@ -368,16 +438,15 @@ export default function HomeWireframe() {
         {/* GAMIFICATION / PREVIEW */}
         <section className="py-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h3 className="text-sm font-semibold text-rose-500">Engage</h3>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">Leaderboard, Badges & Challenges</h2>
+            <h3 className="text-sm font-semibold text-rose-500">{t("engageTitle")}</h3>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">{t("leaderboard")}, {t("badges")} & {t("challenges")}</h2>
 
             <div className="mt-8 grid gap-6 grid-cols-1 md:grid-cols-3">
-              {[
-                { title: "Leaderboard", desc: "Top donor rankings and community goals", icon: "🏆" },
-                { title: "Badges", desc: "Earn badges for consistent support", icon: "🥇" },
-                { title: "Challenges", desc: "Community drives and events", icon: "🔥" },
-              ].map((it) => (
-                <div key={it.title} className="bg-white rounded-2xl p-6 shadow-md border border-white/30">
+              {featureCards.map((it) => (
+                <div
+                  key={it.title}
+                  className="bg-white rounded-2xl p-6 shadow-md border border-white/30"
+                >
                   <div className="text-3xl mb-4">{it.icon}</div>
                   <h4 className="text-lg font-semibold text-gray-900">{it.title}</h4>
                   <p className="mt-2 text-gray-600 text-sm">{it.desc}</p>
@@ -390,8 +459,8 @@ export default function HomeWireframe() {
         {/* IMPACT */}
         <section id="impact" className="py-20 bg-gray-50">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h3 className="text-sm font-semibold text-rose-500">Impact</h3>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">Real results, real people</h2>
+            <h3 className="text-sm font-semibold text-rose-500">{t("impactTitle")}</h3>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">{t("impactSubtitle")}</h2>
 
             <motion.div
               className="mt-8 grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-4"
@@ -416,27 +485,33 @@ export default function HomeWireframe() {
         <section className="py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <motion.h3 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="text-2xl font-bold">
-              Ready to help your community?
+              {t("ctaReady")}
             </motion.h3>
             <motion.div className="mt-6 flex justify-center gap-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <Button onClick={handleStartClick} className="px-6 py-3 rounded-full bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400 text-white font-semibold">
-                Start Donating
+                {t("startDonating")}
               </Button>
               <Link to="/signup" className="px-6 py-3 rounded-full border border-gray-200 text-gray-700 hover:bg-gray-50">
-                Sign Up
+                {t("signUp")}
               </Link>
             </motion.div>
           </div>
         </section>
 
-        {/* FOOTER */}
+        {/* 🧾 Footer */}
         <footer className="bg-white border-t border-gray-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="text-sm text-gray-600">© {new Date().getFullYear()} FeedSriLanka — All rights reserved.</div>
+              <div className="text-sm text-gray-600">
+                © {new Date().getFullYear()} FeedSriLanka — {t("rightsReserved")}
+              </div>
               <div className="flex gap-4">
-                <a className="text-sm text-gray-600 hover:text-gray-900" href="#">Privacy</a>
-                <a className="text-sm text-gray-600 hover:text-gray-900" href="#">Terms</a>
+                <a className="text-sm text-gray-600 hover:text-gray-900" href="#">
+                  {t("privacy")}
+                </a>
+                <a className="text-sm text-gray-600 hover:text-gray-900" href="#">
+                  {t("terms")}
+                </a>
               </div>
             </div>
           </div>
