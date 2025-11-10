@@ -30,11 +30,15 @@ export default function PostDonationList() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Get token & user from localStorage (set these after login)
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
   const authUser: AuthUser | null = useMemo(() => {
     try {
-      const raw = typeof window !== "undefined" ? localStorage.getItem("authUser") : null;
+      const raw =
+        typeof window !== "undefined"
+          ? localStorage.getItem("authUser")
+          : null;
       return raw ? (JSON.parse(raw) as AuthUser) : null;
     } catch {
       return null;
@@ -45,9 +49,7 @@ export default function PostDonationList() {
     const instance = axios.create({
       baseURL: "http://127.0.0.1:8001/api",
     });
-    if (token) {
-      instance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    }
+    if (token) instance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     return instance;
   }, [token]);
 
@@ -70,10 +72,7 @@ export default function PostDonationList() {
     fetchDonations();
   }, [api, authUser?.id]);
 
-  const handleEdit = (id: number) => {
-    navigate(`/donors/post-donation/post-donation-edit/${id}`);
-  };
-
+  const handleEdit = (id: number) => navigate(`/donors/post-donation/post-donation-edit/${id}`);
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this donation?")) return;
     try {
@@ -84,64 +83,126 @@ export default function PostDonationList() {
     }
   };
 
+  const getStatusBadge = (status: string) => {
+    const base = "px-3 py-1 rounded-full text-xs font-semibold";
+    switch (status.toLowerCase()) {
+      case "active":
+        return `${base} bg-green-100 text-green-700 border border-green-300`;
+      case "expired":
+        return `${base} bg-red-100 text-red-700 border border-red-300`;
+      default:
+        return `${base} bg-yellow-100 text-yellow-700 border border-yellow-300`;
+    }
+  };
+
   return (
     <AuthenticatedLayout>
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold">My Donations</h2>
-          <Button onClick={() => navigate("/donors/post-donation/post-donation-add")}>
+      <div className="p-6 md:p-8 lg:p-10 bg-gray-50 min-h-screen">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
+            My Donations
+          </h2>
+          <Button
+            className="bg-rose-600 hover:bg-rose-700 text-white shadow-md transition-all"
+            onClick={() => navigate("/donors/post-donation/post-donation-add")}
+          >
             + Add Donation
           </Button>
         </div>
 
+        {/* Content */}
         {!authUser?.id ? (
-          <div className="text-sm text-muted-foreground">
-            No logged-in user found. Make sure you save{" "}
-            <code>authUser</code> (with an <code>id</code>) in <code>localStorage</code> after login.
+          <div className="text-sm text-gray-500 bg-white p-4 rounded shadow text-center">
+            No logged-in user found. Please save{" "}
+            <code className="bg-gray-100 px-1 rounded">authUser</code> in{" "}
+            <code className="bg-gray-100 px-1 rounded">localStorage</code> after login.
           </div>
         ) : loading ? (
-          <div className="text-sm text-muted-foreground">Loading…</div>
+          <div className="text-center py-10 text-gray-500">Loading…</div>
+        ) : donations.length === 0 ? (
+          <div className="text-center py-10 text-gray-500 text-lg bg-white rounded shadow">
+            No donations found.
+          </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Expiry Date</TableHead>
-                <TableHead>Quantity</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {donations.length === 0 ? (
+          <div className="overflow-x-auto rounded-xl shadow bg-white">
+            <Table className="min-w-full divide-y divide-gray-200">
+              <TableHeader className="bg-gray-50">
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-4">
-                    No donations found.
-                  </TableCell>
+                  <TableHead className="text-gray-700">Image</TableHead>
+                  <TableHead className="text-gray-700">Title</TableHead>
+                  <TableHead className="text-gray-700 hidden sm:table-cell">
+                    Description
+                  </TableHead>
+                  <TableHead className="text-gray-700 hidden md:table-cell">
+                    Quantity
+                  </TableHead>
+                  <TableHead className="text-gray-700">Expiry Date</TableHead>
+                  <TableHead className="text-gray-700">Status</TableHead>
+                  <TableHead className="text-right text-gray-700">Actions</TableHead>
                 </TableRow>
-              ) : (
-                donations.map((donation) => (
-                  <TableRow key={donation.id}>
-                    <TableCell className="font-medium">{donation.title}</TableCell>
-                    <TableCell>{donation.description || "-"}</TableCell>
-                    <TableCell>{donation.expiry_date || "N/A"}</TableCell>
-                    <TableCell>{donation.quantity || "-"}</TableCell>
-                    <TableCell>{donation.status}</TableCell>
-                    
-                    <TableCell className="text-right space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(donation.id)}>
-                        Edit
-                      </Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleDelete(donation.id)}>
-                        Delete
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+
+              <TableBody className="bg-white divide-y divide-gray-100">
+                {donations.map((donation) => {
+                  const imageUrl =
+                    donation.images && donation.images.length > 0
+                      ? `http://127.0.0.1:8001/storage/${donation.images[0].image_path}`
+                      : "https://via.placeholder.com/80x80.png?text=No+Image";
+
+                  return (
+                    <TableRow
+                      key={donation.id}
+                      className="hover:bg-gray-50 transition duration-200"
+                    >
+                      <TableCell>
+                        <img
+                          src={imageUrl}
+                          alt={donation.title}
+                          className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium text-gray-800">
+                        {donation.title}
+                      </TableCell>
+                      <TableCell className="text-gray-600 hidden sm:table-cell">
+                        {donation.description || "-"}
+                      </TableCell>
+                      <TableCell className="text-gray-600 hidden md:table-cell">
+                        {donation.quantity || "-"}
+                      </TableCell>
+                      <TableCell className="text-gray-600">
+                        {donation.expiry_date || "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        <span className={getStatusBadge(donation.status)}>
+                          {donation.status}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-blue-600 hover:bg-blue-50 border-blue-200"
+                          onClick={() => handleEdit(donation.id)}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="hover:bg-red-600 hover:text-white transition"
+                          onClick={() => handleDelete(donation.id)}
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </div>
     </AuthenticatedLayout>
