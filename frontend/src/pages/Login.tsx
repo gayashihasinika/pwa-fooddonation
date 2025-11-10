@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { motion } from "framer-motion";
 import { HiMail, HiLockClosed } from "react-icons/hi";
+import { useLang } from "../context/LanguageContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { t, language, changeLanguage } = useLang();
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -79,10 +81,10 @@ export default function Login() {
           className="text-center p-12"
         >
           <h1 className="text-5xl font-extrabold mb-4 tracking-tight drop-shadow-md">
-            Feed<span className="text-yellow-300">SriLanka</span>
+            {t("leftTitle")}
           </h1>
           <p className="text-lg text-white/90 leading-relaxed max-w-md mx-auto">
-            Welcome back! Let’s continue your journey to make a difference.
+            {t("leftDesc")}
           </p>
         </motion.div>
 
@@ -104,7 +106,7 @@ export default function Login() {
             animate="visible"
             className="text-3xl font-bold text-gray-900 text-center mb-2"
           >
-            Welcome Back
+            {t("welcomeBack")}
           </motion.h2>
           <motion.p
             variants={fadeUp}
@@ -113,20 +115,20 @@ export default function Login() {
             transition={{ delay: 0.1 }}
             className="text-center text-gray-500 mb-8"
           >
-            Login to continue your journey.
+            {t("loginSubtitle")}
           </motion.p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible">
-              <label className="text-sm font-medium text-gray-600">Email</label>
+              <label className="text-sm font-medium text-gray-600">{t("email")}</label>
               <div className="relative mt-1">
                 <HiMail className="absolute left-3 top-3.5 text-gray-400" />
                 <input
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="Enter your email"
+                  placeholder={t("email")}
                   className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none"
                   required
                 />
@@ -140,14 +142,14 @@ export default function Login() {
               animate="visible"
               transition={{ delay: 0.1 }}
             >
-              <label className="text-sm font-medium text-gray-600">Password</label>
+              <label className="text-sm font-medium text-gray-600"> {t("password")}</label>
               <div className="relative mt-1">
                 <HiLockClosed className="absolute left-3 top-3.5 text-gray-400" />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  placeholder="Enter your password"
+                  placeholder={t("password")}
                   className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none"
                   required
                 />
@@ -175,13 +177,13 @@ export default function Login() {
                   onChange={() => setRememberMe(!rememberMe)}
                   className="h-4 w-4 accent-rose-500"
                 />
-                Remember Me
+                {t("rememberMe")}
               </label>
               <span
                 onClick={() => navigate("/forgot-password")}
                 className="text-rose-500 hover:underline cursor-pointer"
               >
-                Forgot Password?
+                {t("forgotPassword")}
               </span>
             </motion.div>
 
@@ -194,7 +196,7 @@ export default function Login() {
               type="submit"
               className="w-full py-3 mt-4 rounded-lg bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95"
             >
-              Login
+              {t("login")}
             </motion.button>
 
             {/* Signup Redirect */}
@@ -205,12 +207,12 @@ export default function Login() {
               transition={{ delay: 0.4 }}
               className="text-center text-sm text-gray-600 mt-5"
             >
-              Don’t have an account?{" "}
+              {t("noAccount")}{" "}
               <span
                 onClick={() => navigate("/signup")}
                 className="text-rose-500 font-semibold hover:underline cursor-pointer"
               >
-                Sign up here
+                {t("signup")}
               </span>
             </motion.p>
           </form>

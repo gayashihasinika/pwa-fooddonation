@@ -1,4 +1,5 @@
 export default {
+  //Landing Page
   "heroTitle": "Help Feed Sri Lanka",
   "heroSubtitle": "Donate Food • Receive Support • Volunteer Today",
   "heroDescription" : "We match surplus food from donors with neighbourhoods and nonprofits in need — safely, quickly and with respect. Join donors, volunteers and receivers across Sri Lanka.",
@@ -46,5 +47,38 @@ export default {
   "signUp": "Sign Up",
   "privacy": "Privacy",
   "terms": "Terms",
-  "rightsReserved": "All rights reserved."
+  "rightsReserved": "All rights reserved.",
+
+  //Login Page
+  "welcomeBack" : "Welcome Back",
+  "loginSubtitle" : "Login to continue your journey.",
+  "email" : "Email",
+  "password" : "Password",
+  "rememberMe" : "Remember Me",
+  "forgotPassword" : "Forgot Password?",
+  "login" : "Login",
+  "noAccount" : "Don’t have an account?",
+  "signup" : "Sign up here",
+  "leftTitle" : "FeedSriLanka",
+  "leftDesc" : "Welcome back! Let’s continue your journey to make a difference.",
+
+  //Signup Page
+  "createAccount": "Create an Account",
+  "signupSubtitle": "Sign up to get started on your journey.",
+  "fullName": "Full Name",
+  "enterName": "Enter your name",
+  "enterEmail": "Enter your email",
+  "createPassword": "Create a password",
+  "hide": "Hide",
+  "show": "Show",
+  "phoneOptional": "Phone (Optional)",
+  "enterPhone": "Enter phone number",
+  "role": "Role",
+  "donor": "Donor",
+  "receiver": "Receiver",
+  "volunteer": "Volunteer",
+  "organizationOptional": "Organization (Optional)",
+  "organizationName": "Organization name",
+  "alreadyAccount": "Already have an account?",
+  "loginHere": "Login here",
 };

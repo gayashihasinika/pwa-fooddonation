@@ -71,10 +71,10 @@ export default function Signup() {
           className="text-center p-12"
         >
           <h1 className="text-5xl font-extrabold mb-4 tracking-tight drop-shadow-md">
-            Feed<span className="text-yellow-300">SriLanka</span>
+            {t("leftTitle")}
           </h1>
           <p className="text-lg text-white/90 leading-relaxed max-w-md mx-auto">
-            Join our mission to connect donors, volunteers, and receivers — together we can end hunger.
+            {t("leftDesc")}
           </p>
         </motion.div>
 
@@ -96,7 +96,7 @@ export default function Signup() {
             animate="visible"
             className="text-3xl font-bold text-gray-900 text-center mb-2"
           >
-            Create an Account
+            {t("createAccount")}
           </motion.h2>
           <motion.p
             variants={fadeUp}
@@ -105,20 +105,20 @@ export default function Signup() {
             transition={{ delay: 0.1 }}
             className="text-center text-gray-500 mb-8"
           >
-            Sign up to get started on your journey.
+            {t("signupSubtitle")}
           </motion.p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Full Name */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible">
-              <label className="text-sm font-medium text-gray-600">Full Name</label>
+              <label className="text-sm font-medium text-gray-600">{t("fullName")}</label>
               <div className="relative mt-1">
                 <HiUser className="absolute left-3 top-3.5 text-gray-400" />
                 <input
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Enter your name"
+                  placeholder={t("enterName")}
                   className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none"
                   required
                 />
@@ -127,14 +127,14 @@ export default function Signup() {
 
             {/* Email */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.1 }}>
-              <label className="text-sm font-medium text-gray-600">Email</label>
+              <label className="text-sm font-medium text-gray-600">{t("email")}</label>
               <div className="relative mt-1">
                 <HiMail className="absolute left-3 top-3.5 text-gray-400" />
                 <input
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="Enter your email"
+                  placeholder={t("enterEmail")}
                   className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none"
                   required
                 />
@@ -143,14 +143,14 @@ export default function Signup() {
 
             {/* Password */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.2 }}>
-              <label className="text-sm font-medium text-gray-600">Password</label>
+              <label className="text-sm font-medium text-gray-600">{t("password")}</label>
               <div className="relative mt-1">
                 <HiLockClosed className="absolute left-3 top-3.5 text-gray-400" />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  placeholder="Create a password"
+                  placeholder={t("createPassword")}
                   className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none"
                   required
                 />
@@ -165,14 +165,14 @@ export default function Signup() {
 
             {/* Phone */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.3 }}>
-              <label className="text-sm font-medium text-gray-600">Phone (Optional)</label>
+              <label className="text-sm font-medium text-gray-600">{t("phoneOptional")}</label>
               <div className="relative mt-1">
                 <HiPhone className="absolute left-3 top-3.5 text-gray-400" />
                 <input
                   type="text"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  placeholder="Enter phone number"
+                  placeholder={t("enterPhone")}
                   className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none"
                 />
               </div>
@@ -180,27 +180,27 @@ export default function Signup() {
 
             {/* Role */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.4 }}>
-              <label className="text-sm font-medium text-gray-600">Role</label>
+              <label className="text-sm font-medium text-gray-600">{t("role")}</label>
               <select
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value })}
                 className="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none"
               >
-                <option value="donor">Donor</option>
-                <option value="receiver">Receiver</option>
-                <option value="volunteer">Volunteer</option>
+                <option value="donor">{t("donor")}</option>
+                <option value="receiver">{t("receiver")}</option>
+                <option value="volunteer">{t("volunteer")}</option>
               </select>
             </motion.div>
 
             {/* Organization */}
             {(form.role === "donor" || form.role === "volunteer") && (
               <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.5 }}>
-                <label className="text-sm font-medium text-gray-600">Organization (Optional)</label>
+                <label className="text-sm font-medium text-gray-600">{t("organizationOptional")}</label>
                 <input
                   type="text"
                   value={form.organization}
                   onChange={(e) => setForm({ ...form, organization: e.target.value })}
-                  placeholder="Organization name"
+                  placeholder={t("organizationName")}
                   className="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none"
                 />
               </motion.div>
@@ -226,12 +226,12 @@ export default function Signup() {
               transition={{ delay: 0.7 }}
               className="text-center text-sm text-gray-600 mt-5"
             >
-              Already have an account?{" "}
+              {t("alreadyAccount")}{" "}
               <span
                 onClick={() => navigate("/login")}
                 className="text-rose-500 font-semibold hover:underline cursor-pointer"
               >
-                Login here
+                {t("loginHere")}
               </span>
             </motion.p>
           </form>
