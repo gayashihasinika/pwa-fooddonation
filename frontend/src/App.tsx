@@ -18,6 +18,12 @@ import PostDonationList from "./pages/Donors/PostDonation/PostDonationList";
 import PostDonationAdd from "./pages/Donors/PostDonation/PostDonationAdd";
 import PostDonationEdit from "./pages/Donors/PostDonation/PostDonationEdit";
 
+// MyDonation page
+import MyDonation from "./pages/Donors/Mydonation";
+
+// Leaderboard page
+import Leaderboard from "./pages/Donors/Leaderboard";
+
 
 
 export default function App() {
@@ -35,6 +41,7 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={["donor"]}>
                 <DonorDashboard />
+
               </ProtectedRoute>
             }
           />
@@ -67,6 +74,12 @@ export default function App() {
           <Route path="/donors/post-donation/post-donation-list" element={<PostDonationList />} />
           <Route path="/donors/post-donation/post-donation-add" element={<PostDonationAdd />} />
           <Route path="/donors/post-donation/post-donation-edit/:id" element={<PostDonationEdit />} />
+
+          {/* MyDonation route */}
+          <Route path="/donor/my-donation" element={<MyDonation />} />
+
+          {/* Leaderboard route */}
+          <Route path="/donor/leaderboard" element={<Leaderboard />} />
         </Routes>
       </Router>
   );

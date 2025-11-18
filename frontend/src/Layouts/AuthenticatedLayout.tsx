@@ -101,7 +101,7 @@ export default function AuthenticatedLayout({ children }: Props) {
           {
             icon: <Package size={18} />,
             label: "My Donations",
-            href: "/donor/my-donations",
+            href: "/donor/my-donation",
           },
           {
             icon: <Trophy size={18} />,
