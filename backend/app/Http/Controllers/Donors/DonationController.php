@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Donors;
 use App\Http\Controllers\Controller;
 use App\Models\Donation;
 use App\Models\DonationImage;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class DonationController extends Controller
@@ -85,41 +86,55 @@ class DonationController extends Controller
 
     // Update donation
     public function update(Request $request, $id)
-    {
-        $donation = Donation::findOrFail($id);
+{
+    $donation = Donation::with('images')->findOrFail($id);
 
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'quantity' => 'required|integer|min:1',
-            'pickup_address' => 'required|string|max:255',
-            'expiry_date' => 'nullable|date',
-            'status' => 'nullable|string|in:pending,approved,completed',
-            'images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'quantity' => 'required|integer|min:1',
+        'pickup_address' => 'required|string|max:255',
+        'expiry_date' => 'nullable|date',
+        'status' => 'nullable|string|in:pending,approved,completed',
+        'images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        'existing_images' => 'nullable|array', // IDs of images to keep
+        'existing_images.*' => 'integer|exists:donation_images,id',
+    ]);
 
-        $donation->update($request->only([
-            'title',
-            'description',
-            'quantity',
-            'pickup_address',
-            'expiry_date',
-            'status',
-        ]));
+    $donation->update($request->only([
+        'title',
+        'description',
+        'quantity',
+        'pickup_address',
+        'expiry_date',
+        'status',
+    ]));
 
-        // Optional: handle new images
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $file) {
-                $path = $file->store('donations', 'public');
-                DonationImage::create([
-                    'donation_id' => $donation->id,
-                    'image_path' => $path,
-                ]);
-            }
+    // Handle removed images
+    $keepImageIds = $request->input('existing_images', []); // IDs sent from frontend
+    $donation->images->each(function($image) use ($keepImageIds) {
+        if (!in_array($image->id, $keepImageIds)) {
+            // Delete file from storage
+            \Storage::disk('public')->delete($image->image_path);
+            // Delete record from database
+            $image->delete();
         }
+    });
 
-        return response()->json($donation->load('images'));
+    // Handle new uploaded images
+    if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $file) {
+            $path = $file->store('donations', 'public');
+            DonationImage::create([
+                'donation_id' => $donation->id,
+                'image_path' => $path,
+            ]);
+        }
     }
+
+    return response()->json($donation->load('images'));
+}
+
 
     // Delete donation
     public function destroy($id)
@@ -136,4 +151,21 @@ class DonationController extends Controller
 
         return response()->json(['message' => 'Donation deleted successfully']);
     }
+
+    public function myDonations(Request $request)
+{
+    $user = $request->user(); // Authenticated user
+
+    if (!$user) {
+        return response()->json(['message' => 'Unauthenticated'], 401);
+    }
+
+    $donations = Donation::with('images')
+        ->where('user_id', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return response()->json($donations);
+}
+
 }
