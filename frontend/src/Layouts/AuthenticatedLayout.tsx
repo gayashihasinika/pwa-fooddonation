@@ -23,6 +23,14 @@ import {
   ClipboardList,
   Menu,
   X,
+  ShieldCheck, // For Verification & Safety
+  BarChart, // For Dashboard & Statistics
+  Truck, // For Claim & Delivery Management
+  Star, // For Gamification Management
+  Bell, // For Content & Notification Management
+  FileText, // For Report Generation
+  Sliders, // For System Settings
+  MessageSquare, // For Feedback & Issue Management
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -143,16 +151,39 @@ export default function AuthenticatedLayout({ children }: Props) {
       },
     ],
     admin: [
-      {
-        group: "Admin Tools",
-        items: [
-          { icon: <Home size={18} />, label: "Dashboard", href: "/admin/dashboard" },
-          { icon: <Users size={18} />, label: "Users", href: "/admin/users" },
-          { icon: <Package size={18} />, label: "All Donations", href: "/admin/donations" },
-        ],
-      },
-    ],
-  };
+    {
+      group: "Core Management",
+      items: [
+        { icon: <Home size={18} />, label: "Dashboard", href: "/admin/dashboard" }, // Existing + your #4 Dashboard & Statistics
+        { icon: <Users size={18} />, label: "User Management", href: "/admin/users" }, // Your #1 User Management
+        { icon: <Package size={18} />, label: "Donation Management", href: "/admin/donation-management" }, // Your #2 Donation Management + existing "All Donations"
+        { icon: <Truck size={18} />, label: "Claim & Delivery", href: "/admin/claim-delivery" }, // Your #3 Claim & Delivery Management
+      ],
+    },
+    {
+      group: "Analytics & Reports",
+      items: [
+        { icon: <BarChart size={18} />, label: "Statistics", href: "/admin/statistics" }, // Part of your #4 Dashboard & Statistics (separate page for deep dives)
+        { icon: <FileText size={18} />, label: "Report Generation", href: "/admin/reports" }, // Your #8 Report Generation
+      ],
+    },
+    {
+      group: "Engagement & Safety",
+      items: [
+        { icon: <Star size={18} />, label: "Gamification", href: "/admin/gamification" }, // Your #5 Gamification Management
+        { icon: <Bell size={18} />, label: "Notifications", href: "/admin/notifications" }, // Your #6 Content & Notification Management
+        { icon: <ShieldCheck size={18} />, label: "Verification & Safety", href: "/admin/verification-safety" }, // Your #7 Verification & Safety
+        { icon: <MessageSquare size={18} />, label: "Feedback & Issues", href: "/admin/feedback-issues" }, // Your #10 Feedback & Issue Management
+      ],
+    },
+    {
+      group: "System Controls",
+      items: [
+        { icon: <Sliders size={18} />, label: "System Settings", href: "/admin/system-settings" }, // Your #9 System Settings
+      ],
+    },
+  ],
+};
 
   const currentGroups = sidebarGroups[currentUser.role || "donor"] || [];
 
