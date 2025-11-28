@@ -1,6 +1,5 @@
 // src/pages/Admin/Dashboard.tsx
 import { useEffect, useState } from "react";
-import axios from "axios";
 import {
   Users,
   Package,
@@ -14,8 +13,6 @@ import {
 import {
   LineChart,
   Line,
-  BarChart,
-  Bar,
   PieChart,
   Pie,
   Cell,

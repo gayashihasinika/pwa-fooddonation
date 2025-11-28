@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.tsx'
 import axios from 'axios'
 import { LanguageProvider } from "./context/LanguageContext"
+import QueryProvider from './providers/QueryProvider';
 
 // ----------------------
 // Global Axios settings
@@ -17,7 +18,9 @@ axios.defaults.withCredentials = true
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <LanguageProvider>
+      <QueryProvider>
       <App />
+      </QueryProvider>
     </LanguageProvider>
   </StrictMode>,
 )

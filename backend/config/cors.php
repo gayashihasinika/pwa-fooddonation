@@ -8,11 +8,11 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'paths' => ['api/*', 'donations', 'donations/*'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'login', 'logout'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173'],
+    'allowed_origins' => ['http://localhost:5173', 'http://localhost:5174'],
 
     'allowed_origins_patterns' => [],
 

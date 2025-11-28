@@ -1,0 +1,18 @@
+// src/lib/api.ts
+import axios from 'axios'
+
+const api = axios.create({
+  baseURL: '/api',
+  withCredentials: false, // We are using Bearer token, not cookies
+})
+
+// Automatically add Bearer token to every request
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('auth_token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
+export default api
