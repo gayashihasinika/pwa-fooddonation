@@ -30,6 +30,23 @@ Route::get('/translations/{lang}', function ($lang) {
 });
 
 
+// Admin Routes 
+Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
+
+    // User Management
+    Route::get('/users', [App\Http\Controllers\Admin\AdminUserController::class, 'index']);                    // List all users
+    Route::get('/users/{id}', [App\Http\Controllers\Admin\AdminUserController::class, 'show']);                 // View single user
+    Route::post('/users', [App\Http\Controllers\Admin\AdminUserController::class, 'store']);                   // Add new user (manual)
+    Route::put('/users/{id}', [App\Http\Controllers\Admin\AdminUserController::class, 'update']);              // Edit user
+    Route::delete('/users/{id}', [App\Http\Controllers\Admin\AdminUserController::class, 'destroy']);          // Delete user
+
+    // Actions
+    Route::post('/users/{id}/suspend', [App\Http\Controllers\Admin\AdminUserController::class, 'suspend']);    // Suspend
+    Route::post('/users/{id}/unsuspend', [App\Http\Controllers\Admin\AdminUserController::class, 'unsuspend']); // Unsuspend
+    Route::post('/users/{id}/verify', [App\Http\Controllers\Admin\AdminUserController::class, 'verify']);      // Verify user/NGO
+    Route::post('/users/{id}/reset-password', [App\Http\Controllers\Admin\AdminUserController::class, 'resetPassword']); // Reset password
+});
+
 // Donor-specific routes
 Route::prefix('donations')->group(function () {
     Route::get('/', [DonationController::class, 'index']);          // GET /api/donations?user_id=1
