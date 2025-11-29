@@ -1,22 +1,39 @@
+// src/pages/Signup.tsx
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { motion } from "framer-motion";
-import { HiLockClosed, HiMail, HiUser, HiPhone } from "react-icons/hi";
+import { HiLockClosed, HiMail, HiUser, HiPhone, HiEye, HiEyeOff } from "react-icons/hi";
 import { useLang } from "../context/LanguageContext";
 
+// Fixed Framer Motion variants — TypeScript fully happy!
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (custom: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: custom,
+      duration: 0.6,
+      ease: "easeOut" as const,
+    },
+  }),
+};
+
 export default function Signup() {
-  const { t, language, changeLanguage } = useLang();
+  const { t } = useLang(); // Removed unused: language, changeLanguage
   const navigate = useNavigate();
+
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
     phone: "",
-    role: "donor",
+    role: "donor" as const,
     organization: "",
   });
+
   const [showPassword, setShowPassword] = useState(false);
 
   const validateForm = () => {
@@ -24,167 +41,170 @@ export default function Signup() {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     const phoneRegex = /^[0-9]{7,15}$/;
 
-    if (!form.name.trim()) return toast.error("Name is required");
-    if (!emailRegex.test(form.email)) return toast.error("Invalid email format");
+    if (!form.name.trim()) return toast.error(t("nameRequired") || "Name is required");
+    if (!emailRegex.test(form.email)) return toast.error(t("invalidEmail") || "Invalid email format");
     if (!passwordRegex.test(form.password))
-      return toast.error(
-        "Password must include uppercase, lowercase & number (min 8 chars)"
-      );
+      return toast.error(t("passwordStrength") || "Password must include uppercase, lowercase & number (min 8 chars)");
     if (form.phone && !phoneRegex.test(form.phone))
-      return toast.error("Phone must be 7–15 digits");
+      return toast.error(t("invalidPhone") || "Phone must be 7–15 digits");
+
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
+
     try {
       await axios.post("http://127.0.0.1:8001/api/register", form, {
         headers: { "Content-Type": "application/json" },
       });
-      toast.success("Signup successful!");
+      toast.success(t("signupSuccess") || "Account created successfully!");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Signup failed");
+      toast.error(err.response?.data?.message || t("signupFailed") || "Signup failed");
     }
-  };
-
-  const fadeUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: (delay = 0) => ({
-      opacity: 1,
-      y: 0,
-      transition: { delay, duration: 0.6, ease: "easeOut" },
-    }),
   };
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-50 font-sans text-gray-800">
       <Toaster position="top-center" />
 
-      {/* Left Side - Gradient / Image */}
+      {/* Left Side - Beautiful Gradient */}
       <div className="hidden md:flex w-1/2 bg-gradient-to-br from-rose-500 via-orange-400 to-amber-400 items-center justify-center text-white relative overflow-hidden">
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1 }}
-          className="text-center p-12"
+          className="text-center p-12 z-10"
         >
-          <h1 className="text-5xl font-extrabold mb-4 tracking-tight drop-shadow-md">
-            {t("leftTitle")}
+          <h1 className="text-5xl font-extrabold mb-6 tracking-tight drop-shadow-lg">
+            {t("joinFeedSriLanka")}
           </h1>
-          <p className="text-lg text-white/90 leading-relaxed max-w-md mx-auto">
-            {t("leftDesc")}
+          <p className="text-xl text-white/90 leading-relaxed max-w-lg mx-auto">
+            {t("togetherWeFeed")}
           </p>
         </motion.div>
-
-        {/* Decorative blur circle */}
-        <div className="absolute w-96 h-96 bg-white/20 rounded-full blur-3xl top-20 left-10 opacity-20" />
+        <div className="absolute inset-0 bg-black/10" />
+        <div className="absolute w-96 h-96 bg-white/20 rounded-full blur-3xl -bottom-20 -right-20" />
       </div>
 
-      {/* Right Side - Form */}
+      {/* Right Side - Signup Form */}
       <div className="flex-1 flex items-center justify-center p-8 md:p-16">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="w-full max-w-md bg-white shadow-xl rounded-2xl px-8 py-10"
+          transition={{ duration: 0.8 }}
+          className="w-full max-w-lg bg-white shadow-2xl rounded-3xl px-10 py-12"
         >
           <motion.h2
-            variants={fadeUp}
+            custom={0}
             initial="hidden"
             animate="visible"
-            className="text-3xl font-bold text-gray-900 text-center mb-2"
+            variants={fadeUp}
+            className="text-4xl font-bold text-center text-gray-900 mb-3"
           >
             {t("createAccount")}
           </motion.h2>
+
           <motion.p
-            variants={fadeUp}
+            custom={0.1}
             initial="hidden"
             animate="visible"
-            transition={{ delay: 0.1 }}
-            className="text-center text-gray-500 mb-8"
+            variants={fadeUp}
+            className="text-center text-gray-600 mb-10"
           >
             {t("signupSubtitle")}
           </motion.p>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Full Name */}
-            <motion.div variants={fadeUp} initial="hidden" animate="visible">
-              <label className="text-sm font-medium text-gray-600">{t("fullName")}</label>
-              <div className="relative mt-1">
-                <HiUser className="absolute left-3 top-3.5 text-gray-400" />
+            <motion.div custom={0.1} initial="hidden" animate="visible" variants={fadeUp}>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t("fullName")}
+              </label>
+              <div className="relative">
+                <HiUser className="absolute left-4 top-4 text-gray-400" size={20} />
                 <input
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder={t("enterName")}
-                  className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none"
+                  className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none transition"
                   required
                 />
               </div>
             </motion.div>
 
             {/* Email */}
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.1 }}>
-              <label className="text-sm font-medium text-gray-600">{t("email")}</label>
-              <div className="relative mt-1">
-                <HiMail className="absolute left-3 top-3.5 text-gray-400" />
+            <motion.div custom={0.2} initial="hidden" animate="visible" variants={fadeUp}>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t("email")}
+              </label>
+              <div className="relative">
+                <HiMail className="absolute left-4 top-4 text-gray-400" size={20} />
                 <input
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder={t("enterEmail")}
-                  className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none"
+                  className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-rose-500 focus:border-transparent outline-none transition"
                   required
                 />
               </div>
             </motion.div>
 
             {/* Password */}
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.2 }}>
-              <label className="text-sm font-medium text-gray-600">{t("password")}</label>
-              <div className="relative mt-1">
-                <HiLockClosed className="absolute left-3 top-3.5 text-gray-400" />
+            <motion.div custom={0.3} initial="hidden" animate="visible" variants={fadeUp}>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t("password")}
+              </label>
+              <div className="relative">
+                <HiLockClosed className="absolute left-4 top-4 text-gray-400" size={20} />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  placeholder={t("createPassword")}
-                  className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none"
+                  placeholder="••••••••"
+                  className="w-full pl-12 pr-14 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none"
                   required
                 />
-                <span
+                <button
+                  type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-gray-500 text-sm cursor-pointer select-none"
+                  className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
                 >
-                  {showPassword ? "Hide" : "Show"}
-                </span>
+                  {showPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
+                </button>
               </div>
             </motion.div>
 
             {/* Phone */}
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.3 }}>
-              <label className="text-sm font-medium text-gray-600">{t("phoneOptional")}</label>
-              <div className="relative mt-1">
-                <HiPhone className="absolute left-3 top-3.5 text-gray-400" />
+            <motion.div custom={0.4} initial="hidden" animate="visible" variants={fadeUp}>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t("phoneOptional")}
+              </label>
+              <div className="relative">
+                <HiPhone className="absolute left-4 top-4 text-gray-400" size={20} />
                 <input
                   type="text"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   placeholder={t("enterPhone")}
-                  className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none"
+                  className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none"
                 />
               </div>
             </motion.div>
 
-            {/* Role */}
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.4 }}>
-              <label className="text-sm font-medium text-gray-600">{t("role")}</label>
+            {/* Role Selection */}
+            <motion.div custom={0.5} initial="hidden" animate="visible" variants={fadeUp}>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t("iAmA")}
+              </label>
               <select
                 value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
-                className="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none"
+                onChange={(e) => setForm({ ...form, role: e.target.value as any })}
+                className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none bg-white"
               >
                 <option value="donor">{t("donor")}</option>
                 <option value="receiver">{t("receiver")}</option>
@@ -192,44 +212,46 @@ export default function Signup() {
               </select>
             </motion.div>
 
-            {/* Organization */}
+            {/* Organization (Conditional) */}
             {(form.role === "donor" || form.role === "volunteer") && (
-              <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.5 }}>
-                <label className="text-sm font-medium text-gray-600">{t("organizationOptional")}</label>
+              <motion.div custom={0.6} initial="hidden" animate="visible" variants={fadeUp}>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  {t("organizationOptional")}
+                </label>
                 <input
                   type="text"
                   value={form.organization}
                   onChange={(e) => setForm({ ...form, organization: e.target.value })}
                   placeholder={t("organizationName")}
-                  className="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none"
+                  className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none"
                 />
               </motion.div>
             )}
 
             {/* Submit Button */}
             <motion.button
-              variants={fadeUp}
+              custom={0.7}
               initial="hidden"
               animate="visible"
-              transition={{ delay: 0.6 }}
+              variants={fadeUp}
               type="submit"
-              className="w-full py-3 mt-4 rounded-lg bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95"
+              className="w-full py-4 mt-8 text-lg font-bold text-white bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 rounded-xl shadow-lg hover:shadow-2xl transform transition-all duration-300 hover:scale-[1.02] active:scale-98"
             >
-              {t("signUp")}
+              {t("createAccount")}
             </motion.button>
 
-            {/* Login Redirect */}
+            {/* Login Link */}
             <motion.p
-              variants={fadeUp}
+              custom={0.8}
               initial="hidden"
               animate="visible"
-              transition={{ delay: 0.7 }}
-              className="text-center text-sm text-gray-600 mt-5"
+              variants={fadeUp}
+              className="text-center text-gray-600 mt-8"
             >
               {t("alreadyAccount")}{" "}
               <span
                 onClick={() => navigate("/login")}
-                className="text-rose-500 font-semibold hover:underline cursor-pointer"
+                className="text-rose-600 font-bold hover:underline cursor-pointer"
               >
                 {t("loginHere")}
               </span>
