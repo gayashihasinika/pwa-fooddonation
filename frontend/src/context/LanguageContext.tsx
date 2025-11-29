@@ -1,5 +1,5 @@
 // src/context/LanguageContext.tsx
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import en from "../locales/en";
 import si from "../locales/si";
 import ta from "../locales/ta";
@@ -26,8 +26,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const translations: Record<Language, Record<string, string>> = { en, si, ta };
 
   const t = (key: string): string => {
-    const value = translations[language]?.[key];
-    return value || key;
+    return translations[language][key] ?? key;
   };
 
   const changeLanguage = (lang: Language) => {

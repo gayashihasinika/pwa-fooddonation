@@ -11,6 +11,10 @@ use App\Http\Controllers\Donors\LeaderboardController;
 // Receiver Controllers
 use App\Http\Controllers\Receivers\DonationController as ReceiverDonationController;
 
+// Admin Controllers
+use App\Http\Controllers\Admin\AdminDonationController;
+use App\Http\Controllers\Admin\AdminUserController;
+
 Route::get('/test', function () {
     return response()->json([
         'message' => 'Hello from Laravel API 🚀'
@@ -34,17 +38,24 @@ Route::get('/translations/{lang}', function ($lang) {
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
 
     // User Management
-    Route::get('/users', [App\Http\Controllers\Admin\AdminUserController::class, 'index']);                    // List all users
-    Route::get('/users/{id}', [App\Http\Controllers\Admin\AdminUserController::class, 'show']);                 // View single user
-    Route::post('/users', [App\Http\Controllers\Admin\AdminUserController::class, 'store']);                   // Add new user (manual)
-    Route::put('/users/{id}', [App\Http\Controllers\Admin\AdminUserController::class, 'update']);              // Edit user
-    Route::delete('/users/{id}', [App\Http\Controllers\Admin\AdminUserController::class, 'destroy']);          // Delete user
+    Route::get('/users', [AdminUserController::class, 'index']);                    // List all users
+    Route::get('/users/{id}', [AdminUserController::class, 'show']);                 // View single user
+    Route::post('/users', [AdminUserController::class, 'store']);                   // Add new user (manual)
+    Route::put('/users/{id}', [AdminUserController::class, 'update']);              // Edit user
+    Route::delete('/users/{id}', [AdminUserController::class, 'destroy']);          // Delete user
 
     // Actions
-    Route::post('/users/{id}/suspend', [App\Http\Controllers\Admin\AdminUserController::class, 'suspend']);    // Suspend
-    Route::post('/users/{id}/unsuspend', [App\Http\Controllers\Admin\AdminUserController::class, 'unsuspend']); // Unsuspend
-    Route::post('/users/{id}/verify', [App\Http\Controllers\Admin\AdminUserController::class, 'verify']);      // Verify user/NGO
-    Route::post('/users/{id}/reset-password', [App\Http\Controllers\Admin\AdminUserController::class, 'resetPassword']); // Reset password
+    Route::post('/users/{id}/suspend', [AdminUserController::class, 'suspend']);    // Suspend
+    Route::post('/users/{id}/unsuspend', [AdminUserController::class, 'unsuspend']); // Unsuspend
+    Route::post('/users/{id}/verify', [AdminUserController::class, 'verify']);      // Verify user/NGO
+    Route::post('/users/{id}/reset-password', [AdminUserController::class, 'resetPassword']); // Reset password
+
+    // Donation Management
+    Route::get('/donations', [AdminDonationController::class, 'index']);                    // List all donations
+    Route::get('/donations/{id}', [AdminDonationController::class, 'show']);                 // View single donation
+    Route::delete('/donations/{id}', [AdminDonationController::class, 'destroy']);          // Delete donation
+    Route::post('/donations/{id}/approve', [AdminDonationController::class, 'approve']);
+    Route::post('/donations/{id}/reject', [AdminDonationController::class, 'reject']);
 });
 
 // Donor-specific routes

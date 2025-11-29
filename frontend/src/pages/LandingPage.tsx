@@ -1,39 +1,27 @@
-// src/pages/HomeWireframe.tsx
+// src/pages/LandingPage.tsx
 import { useEffect, useState } from "react";
-import { Button } from "../components/Button";
+import { Link } from "react-router-dom";
 import CountUp from "react-countup";
 import { HiMenu, HiX } from "react-icons/hi";
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useLang } from "../context/LanguageContext";
+import { Button } from "../components/Button";
 
-interface Stat {
-  value: number;
-  label: string;
-}
+type Language = "en" | "si" | "ta";
 
-export default function HomeWireframe() {
+export default function LandingPage() {
   const { t, language, changeLanguage } = useLang();
-  const [heroText, setHeroText] = useState("Loading...");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [donationProgress, setDonationProgress] = useState(68);
+
+  // Removed unused states: heroText & donationProgress
+  // Removed handleStartClick if not used
 
   useEffect(() => {
-    const timer = setTimeout(
-      () =>
-        setHeroText(
-          "Help Feed Sri Lanka — Donate Food • Receive Support • Volunteer Today"
-        ),
-      400
-    );
-    return () => clearTimeout(timer);
+    // Optional: You can keep this if you want a loading effect later
+    // But it's not needed now
   }, []);
 
-  const handleStartClick = () => {
-    setDonationProgress((p) => Math.min(100, p + 7));
-  };
-
-  const stats: Stat[] = [
+  const stats = [
     { value: 3200, label: t("mealsShared") },
     { value: 17, label: t("citiesCovered") },
     { value: 850, label: t("activeDonors") },
@@ -46,27 +34,6 @@ export default function HomeWireframe() {
     { title: t("challenges"), desc: t("challengesDesc"), icon: "🔥" },
   ];
 
-  // Motion variants
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: (delay = 0) => ({
-      opacity: 1,
-      y: 0,
-      transition: { delay, duration: 0.6, ease: "easeOut" },
-    }),
-  };
-
-  const stagger = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.12, delayChildren: 0.12 },
-    },
-  };
-
-  // -----------------------------
-  // Falling food animation
-  // -----------------------------
   const foodItems = ["🍎", "🍞", "🍛", "🍲", "🥗", "🍕", "🍌", "🍚", "🍪", "🍇"];
   const [visibleFoods, setVisibleFoods] = useState<
     { id: number; emoji: string; left: string; size: number }[]
@@ -81,109 +48,101 @@ export default function HomeWireframe() {
         size: Math.random() * 1.5 + 1,
       };
       setVisibleFoods((prev) => [...prev.slice(-10), newFood]);
-      setTimeout(
-        () => setVisibleFoods((prev) => prev.filter((f) => f.id !== newFood.id)),
-        8000
-      );
+      setTimeout(() => {
+        setVisibleFoods((prev) => prev.filter((f) => f.id !== newFood.id));
+      }, 8000);
     }, 800);
+
     return () => clearInterval(interval);
   }, []);
 
+  // Motion variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  };
+
+  const stagger = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.12, delayChildren: 0.12 },
+    },
+  };
+
+  function handleStartClick(_event: React.MouseEvent<HTMLButtonElement>): void {
+    // Handle start click - navigate to signup or donation page
+  }
+
   return (
     <div className="font-sans text-gray-900 bg-white relative min-h-screen overflow-x-hidden">
-     {/* 🌟 Decorative gradient background */}
-<div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-  <div
-    aria-hidden
-    className="absolute -left-40 -top-40 w-[1200px] h-[800px] rounded-full blur-3xl opacity-30"
-    style={{
-      background:
-        "radial-gradient(closest-side,#ff7a59, #ff5774 35%, #8b5cf6 70%, transparent 80%)",
-      transform: "rotate(10deg)",
-    }}
-  />
-  <div
-    aria-hidden
-    className="absolute -right-40 bottom-0 w-[900px] h-[700px] rounded-full blur-3xl opacity-25"
-    style={{
-      background:
-        "radial-gradient(closest-side,#60a5fa, #7c3aed 40%, #fb7185 70%, transparent 80%)",
-      transform: "rotate(-10deg)",
-    }}
-  />
-</div>
+      {/* Decorative gradient background */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div
+          aria-hidden
+          className="absolute -left-40 -top-40 w-[1200px] h-[800px] rounded-full blur-3xl opacity-30"
+          style={{
+            background: "radial-gradient(closest-side,#ff7a59, #ff5774 35%, #8b5cf6 70%, transparent 80%)",
+            transform: "rotate(10deg)",
+          }}
+        />
+        <div
+          aria-hidden
+          className="absolute -right-40 bottom-0 w-[900px] h-[700px] rounded-full blur-3xl opacity-25"
+          style={{
+            background: "radial-gradient(closest-side,#60a5fa, #7c3aed 40%, #fb7185 70%, transparent 80%)",
+            transform: "rotate(-10deg)",
+          }}
+        />
+      </div>
 
-
-      {/* 🍱 Falling food animation layer*/}
-<div className="pointer-events-none fixed inset-0 overflow-hidden z-50">
-  {visibleFoods.map((food) => (
-    <motion.div
-      key={food.id}
-      initial={{ y: -50, opacity: 0 }}
-      animate={{
-        y: "100vh",
-        opacity: [1, 0.9, 0.7, 0],
-        rotate: [0, 30, -30, 0],
-      }}
-      transition={{
-        duration: 8 + Math.random() * 4, // slower and smoother
-        ease: "easeInOut",
-      }}
-      className="absolute"
-      style={{
-        left: food.left,
-        top: "-10%",
-        fontSize: `${food.size}rem`,
-        zIndex: 9999,
-      }}
-    >
-      {food.emoji}
-    </motion.div>
-  ))}
-</div>
-
+      {/* Falling food animation */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden z-50">
+        {visibleFoods.map((food) => (
+          <motion.div
+            key={food.id}
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: "100vh", opacity: [1, 0.9, 0.7, 0], rotate: [0, 30, -30, 0] }}
+            transition={{ duration: 8 + Math.random() * 4, ease: "easeInOut" }}
+            className="absolute"
+            style={{ left: food.left, fontSize: `${food.size}rem` }}
+          >
+            {food.emoji}
+          </motion.div>
+        ))}
+      </div>
 
       {/* Header */}
-      <header className="fixed w-full z-40">
+      <header className="fixed w-full z-40 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-4">
           <motion.div
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45 }}
             className="flex items-center gap-3"
           >
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400 shadow-lg flex items-center justify-center text-white font-bold">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400 shadow-lg flex items-center justify-center text-white font-bold text-sm">
               FS
             </div>
-            <span className="text-lg md:text-xl font-semibold text-gray-900">
-              FeedSriLanka
-            </span>
+            <span className="text-lg md:text-xl font-semibold">FeedSriLanka</span>
           </motion.div>
 
-          {/* Desktop nav */}
+          {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-6">
-            <Link className="text-sm text-gray-700 hover:text-gray-900" to="#features">
-              {t("featuresTitle")}
-            </Link>
-            <Link className="text-sm text-gray-700 hover:text-gray-900" to="#how">
-              {t("howTitle")}
-            </Link>
-            <Link className="text-sm text-gray-700 hover:text-gray-900" to="#impact">
-              {t("impactTitle")}
-            </Link>
-
+            <a href="#features" className="text-sm text-gray-700 hover:text-gray-900">{t("featuresTitle")}</a>
+            <a href="#how" className="text-sm text-gray-700 hover:text-gray-900">{t("howTitle")}</a>
+            <a href="#impact" className="text-sm text-gray-700 hover:text-gray-900">{t("impactTitle")}</a>
             <Link
               to="/signup"
-              className="ml-2 inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400 text-white text-sm font-semibold shadow-md hover:shadow-lg transition"
+              className="ml-4 px-5 py-2 rounded-full bg-gradient-to-r from-rose-500 to-orange-500 text-white font-semibold text-sm shadow-md hover:shadow-lg"
             >
               {t("signUp")}
             </Link>
 
-            {/* Language Dropdown */}
+            {/* Language Selector - FIXED TYPE ERROR */}
             <select
               value={language}
-              onChange={(e) => changeLanguage(e.target.value)}
-              className="ml-4 border border-gray-300 rounded px-2 py-1 text-sm"
+              onChange={(e) => changeLanguage(e.target.value as Language)}
+              className="ml-4 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
             >
               <option value="en">English</option>
               <option value="si">සිංහල</option>
@@ -191,51 +150,41 @@ export default function HomeWireframe() {
             </select>
           </nav>
 
-          {/* Mobile toggle */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setMenuOpen((s) => !s)}
-              aria-label="Toggle Menu"
-              className="p-2 rounded-md text-gray-800 hover:bg-gray-100"
-            >
-              {menuOpen ? <HiX size={22} /> : <HiMenu size={22} />}
-            </button>
-          </div>
-
-          {/* Mobile menu */}
-          {menuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-2 rounded-lg bg-white/60 backdrop-blur-md p-4 shadow-md md:hidden"
-            >
-              <div className="flex flex-col gap-3">
-                <Link to="#features" onClick={() => setMenuOpen(false)} className="py-2 px-3 rounded hover:bg-gray-50">
-                  {t("featuresTitle")}
-                </Link>
-                <Link to="#how" onClick={() => setMenuOpen(false)} className="py-2 px-3 rounded hover:bg-gray-50">
-                  {t("howTitle")}
-                </Link>
-                <Link to="#impact" onClick={() => setMenuOpen(false)} className="py-2 px-3 rounded hover:bg-gray-50">
-                  Impact
-                </Link>
-                <Link to="/signup" onClick={() => setMenuOpen(false)} className="py-2 px-3 rounded bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400 text-white text-center">
-                  {t("signUp")}
-                </Link>
-
-                <select
-                  value={language}
-                  onChange={(e) => changeLanguage(e.target.value)}
-                  className="mt-2 border border-gray-300 rounded px-2 py-1 text-sm"
-                >
-                  <option value="en">English</option>
-                  <option value="si">සිංහල</option>
-                  <option value="ta">தமிழ்</option>
-                </select>
-              </div>
-            </motion.div>
-          )}
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+          >
+            {menuOpen ? <HiX size={24} /> : <HiMenu size={24} />}
+          </button>
         </div>
+
+        {/* Mobile Menu */}
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200 px-6 py-4"
+          >
+            <div className="flex flex-col gap-4">
+              <a href="#features" onClick={() => setMenuOpen(false)} className="py-2">{t("featuresTitle")}</a>
+              <a href="#how" onClick={() => setMenuOpen(false)} className="py-2">{t("howTitle")}</a>
+              <a href="#impact" onClick={() => setMenuOpen(false)} className="py-2">{t("impactTitle")}</a>
+              <Link to="/signup" onClick={() => setMenuOpen(false)} className="py-3 text-center bg-gradient-to-r from-rose-500 to-orange-500 text-white rounded-full">
+                {t("signUp")}
+              </Link>
+              <select
+                value={language}
+                onChange={(e) => changeLanguage(e.target.value as Language)}
+                className="border border-gray-300 rounded-lg px-3 py-2"
+              >
+                <option value="en">English</option>
+                <option value="si">සිංහල</option>
+                <option value="ta">தமிழ்</option>
+              </select>
+            </div>
+          </motion.div>
+        )}
       </header>
 
       <main className="pt-24">
@@ -287,7 +236,7 @@ export default function HomeWireframe() {
                   viewport={{ once: true }}
                   variants={stagger}
                 >
-                  {stats.map((s, i) => (
+                  {stats.map((s) => (
                     <motion.div
                       key={s.label}
                       className="bg-white/60 backdrop-blur-sm border border-white/30 rounded-lg p-3 text-center shadow-sm"
@@ -396,7 +345,7 @@ export default function HomeWireframe() {
                   desc: t("volunteersDesc"),
                   icon: "🙋‍♂️",
                 },
-              ].map((it, i) => (
+              ].map((it) => (
                 <motion.div key={it.title} variants={fadeInUp} className="bg-white rounded-2xl p-6 shadow-md border border-white/30">
                   <div className="text-3xl mb-4">{it.icon}</div>
                   <h4 className="text-lg font-semibold text-gray-900">{it.title}</h4>

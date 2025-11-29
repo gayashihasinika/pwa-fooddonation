@@ -1,31 +1,21 @@
-// vite.config.ts
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+// vite.config.ts — FINAL & PERFECT
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'),
+      '@': '/src',
     },
   },
   server: {
     port: 5174,
-    host: true,                    // ← THIS IS THE FIX
+    host: true,
     strictPort: true,
     proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:8001',
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/api/, '/api'), // optional, safe
-      },
-      '/sanctum/csrf-cookie': {        // ← CRITICAL FOR SANCTUM
-        target: 'http://127.0.0.1:8001',
-        changeOrigin: true,
-        secure: false,
-      },
+      '/api': 'http://127.0.0.1:8001',
+      '/sanctum/csrf-cookie': 'http://127.0.0.1:8001',
     },
   },
-})
+});

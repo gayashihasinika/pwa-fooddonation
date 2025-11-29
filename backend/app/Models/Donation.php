@@ -19,6 +19,15 @@ class Donation extends Model
         'status',
     ];
 
+    protected $casts = [
+        'expiry_date' => 'date',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function images()
     {
         return $this->hasMany(DonationImage::class);

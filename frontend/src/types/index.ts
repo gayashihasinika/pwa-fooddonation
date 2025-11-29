@@ -17,6 +17,3 @@ export interface User {
   created_at: string;
   updated_at: string;
 }
-
-// 2. Re-export everything so `import { User } from "@/types"` works
-export type { User };
