@@ -128,7 +128,7 @@ export default function AuthenticatedLayout({ children }: Props) {
           { icon: <Home size={18} />, label: "Dashboard", href: "/admin/dashboard" },
           { icon: <Users size={18} />, label: "User Management", href: "/admin/users" },
           { icon: <Package size={18} />, label: "Donation Management", href: "/admin/donations" },
-          { icon: <Truck size={18} />, label: "Claim & Delivery", href: "/admin/claim-delivery" },
+          { icon: <Truck size={18} />, label: "Claim & Delivery", href: "/admin/claims" },
         ],
       },
       

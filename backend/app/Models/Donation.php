@@ -32,5 +32,10 @@ class Donation extends Model
     {
         return $this->hasMany(DonationImage::class);
     }
+
+    public function claims()
+{
+    return $this->hasMany(Claim::class);
+}
 }
 
