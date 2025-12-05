@@ -14,6 +14,7 @@ use App\Http\Controllers\Receivers\DonationController as ReceiverDonationControl
 // Admin Controllers
 use App\Http\Controllers\Admin\AdminDonationController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\ClaimDeliveryController;
 
 Route::get('/test', function () {
     return response()->json([
@@ -56,6 +57,16 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::delete('/donations/{id}', [AdminDonationController::class, 'destroy']);          // Delete donation
     Route::post('/donations/{id}/approve', [AdminDonationController::class, 'approve']);
     Route::post('/donations/{id}/reject', [AdminDonationController::class, 'reject']);
+
+    // Claim Delivery Management
+    Route::get('/claims', [ClaimDeliveryController::class, 'index']);
+    Route::get('/claims/{id}', [ClaimDeliveryController::class, 'show']);
+    Route::post('/claims/{id}/assign-volunteer', [ClaimDeliveryController::class, 'assignVolunteer']);
+    Route::post('/claims/{id}/picked-up', [ClaimDeliveryController::class, 'markPickedUp']);
+    Route::post('/claims/{id}/delivered', [ClaimDeliveryController::class, 'markDelivered']);
+    Route::post('/claims/{id}/dispute', [ClaimDeliveryController::class, 'resolveDispute']);
+    Route::post('/claims/{id}/cancel', [ClaimDeliveryController::class, 'cancel']);
+
 });
 
 // Donor-specific routes

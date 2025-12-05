@@ -31,6 +31,8 @@ import EditUser from "./pages/Admin/Users/EditUser";
 //Donation Management components
 import DonationList from "./pages/Admin/Donations/DonationList";
 import DonationDetails from "./pages/Admin/Donations/DonationDetails";
+// Claim Delivery Management components 
+import ClaimDeliveryList from "./pages/Admin/Claims/ClaimDeliveryList";
 
 
 
@@ -99,6 +101,8 @@ export default function App() {
         {/* Donation Management Routes */}
         <Route path="/admin/donations" element={<DonationList />} />
         <Route path="/admin/donations/:id" element={<DonationDetails />} />
+        {/* Claim Delivery Management Routes */}
+        <Route path="/admin/claims" element={<ClaimDeliveryList />} />
       </Routes>
     </Router>
   );
