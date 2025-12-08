@@ -1,9 +1,7 @@
 // src/pages/Admin/Claims/ClaimDeliveryList.tsx
-import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api";
-import { format } from "date-fns";
-import { Package, Truck, User, AlertCircle, CheckCircle, XCircle } from "lucide-react";
+import { Truck } from "lucide-react";
 import { Link } from "react-router-dom";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 

@@ -10,17 +10,14 @@ class Donation extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'title',
-        'description',
-        'quantity',
-        'pickup_address',
-        'expiry_date',
-        'status',
+        'user_id', 'title', 'description', 'quantity', 'pickup_address', 'expiry_date', 'status',
+        'pickup_time', 'category', 'allergy_tags', 'freshness_level' // Added new fields
     ];
 
     protected $casts = [
         'expiry_date' => 'date',
+        'pickup_time' => 'datetime',
+        'allergy_tags' => 'array', // JSON as array
     ];
 
     public function user()
