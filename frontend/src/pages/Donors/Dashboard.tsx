@@ -1,326 +1,247 @@
-// src/Pages/Donors/DonorDashboard.tsx
-import { useState, useEffect } from "react";
-import { Edit, Trash, Plus, Crown } from "lucide-react";
-import axios from "axios";
+// src/pages/Donors/Dashboard.tsx
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Confetti from "react-confetti";
+import { toast } from "react-hot-toast";
+import { 
+  Plus, Trophy, Flame, Crown, Award, Package
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import CountUp from "react-countup";
+import api from "@/lib/api";
 
-interface User {
-  id: number;
-  name: string | null;
-  email: string;
-  role: string | null;
-}
+interface User { id: number; name: string | null; email: string; }
+interface Donation { id: number; title: string; expiry_date: string; status: "active" | "expired"; images?: { image_path: string }[]; }
+interface Match { id: number; volunteer_name: string; donation_title: string; }
+interface Badge { id: number; title: string; unlocked: boolean; threshold: number; }
+interface TrackerData { streakDays: number; badges: Badge[]; points: number; rank: number; totalDonations: number; }
 
-interface Donation {
-  id: number;
-  title: string;
-  expiry_date: string;
-  status: "active" | "expired";
-  images?: { image_path: string }[];
-}
-
-interface Match {
-  id: number;
-  volunteer_name: string;
-  donation_title: string;
-}
-
-interface Badge {
-  id: number;
-  title: string;
-  unlocked: boolean;
-}
-
-export default function DonorDashboard() {
+export default function Dashboard() {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [donations, setDonations] = useState<Donation[]>([]);
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [streakDays, setStreakDays] = useState(0);
-  const [badges, setBadges] = useState<Badge[]>([]);
-  const [points, setPoints] = useState(0);
-  const [rank, setRank] = useState(0);
+  const [tracker, setTracker] = useState<TrackerData>({
+    streakDays: 0, badges: [], points: 0, rank: 0, totalDonations: 0,
+  });
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  const foodItems = ["🍎","🍞","🍛","🍲","🥗","🍕","🍌","🍚","🍪","🍇"];
+  const [visibleFoods, setVisibleFoods] = useState<{ id:number; emoji:string; left:string; size:number}[]>([]);
 
   // Falling food animation
-  const foodItems = ["🍎", "🍞", "🍛", "🍲", "🥗", "🍕", "🍌", "🍚", "🍪", "🍇"];
-  const [visibleFoods, setVisibleFoods] = useState<
-    { id: number; emoji: string; left: string; size: number }[]
-  >([]);
-
   useEffect(() => {
     const interval = setInterval(() => {
       const newFood = {
         id: Date.now(),
         emoji: foodItems[Math.floor(Math.random() * foodItems.length)],
-        left: `${Math.random() * 100}%`,
-        size: Math.random() * 1.3 + 1,
+        left: `${Math.random()*100}%`,
+        size: Math.random()*1.5+1
       };
-      setVisibleFoods((prev) => [...prev.slice(-10), newFood]);
-      setTimeout(
-        () => setVisibleFoods((prev) => prev.filter((f) => f.id !== newFood.id)),
-        7000
-      );
-    }, 1000);
+      setVisibleFoods(prev => [...prev.slice(-12), newFood]);
+      setTimeout(() => setVisibleFoods(prev => prev.filter(f => f.id !== newFood.id)), 8000);
+    }, 900);
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch user and donor data
+  // Fetch all dashboard data
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const token =
-          sessionStorage.getItem("auth_token") || localStorage.getItem("auth_token");
-        if (!token) return;
-        const res = await axios.get("http://127.0.0.1:8001/api/users/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setCurrentUser(res.data);
-      } catch (err) {
-        console.error("Failed to fetch user:", err);
-      }
-    };
-    fetchUser();
-  }, []);
-
-  useEffect(() => {
-    if (!currentUser) return;
     const fetchAll = async () => {
       try {
-        const [donationsRes, matchesRes, trackerRes] = await Promise.all([
-          axios.get(`http://127.0.0.1:8001/api/donors/donations?user_id=${currentUser.id}`),
-          axios.get(`http://127.0.0.1:8001/api/donors/volunteer-matches?user_id=${currentUser.id}`),
-          axios.get(`http://127.0.0.1:8001/api/donors/tracker?user_id=${currentUser.id}`),
+        const userRes = await api.get("/users/me");
+        setCurrentUser(userRes.data);
+
+        const [donationsRes, dashboardRes] = await Promise.all([
+          api.get(`/donors/donations?user_id=${userRes.data.id}`),
+          api.get("/donors/dashboard")
         ]);
-        setDonations(Array.isArray(donationsRes.data) ? donationsRes.data : []);
-        setMatches(Array.isArray(matchesRes.data) ? matchesRes.data : []);
-        setStreakDays(trackerRes.data.streakDays || 0);
-        setBadges(trackerRes.data.badges || []);
-        setPoints(trackerRes.data.points || 0);
-        setRank(trackerRes.data.rank || 0);
+
+        setDonations(donationsRes.data || []);
+        setTracker({
+          streakDays: dashboardRes.data.streakDays || 0,
+          badges: dashboardRes.data.badges || [],
+          points: dashboardRes.data.points || 0,
+          rank: dashboardRes.data.rank || 0,
+          totalDonations: donationsRes.data.length || 0,
+        });
+
+        // Trigger confetti if a badge was unlocked
+        if(dashboardRes.data.badges.some((b:Badge) => b.unlocked)) setShowConfetti(true);
       } catch (err) {
-        console.error("Error fetching data:", err);
+        toast.error("Failed to load dashboard");
       }
     };
     fetchAll();
-  }, [currentUser]);
+  }, []);
 
-  if (!currentUser)
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  const nextBadge = tracker.badges.find(b => !b.unlocked);
+  const progress = nextBadge ? (tracker.points/nextBadge.threshold)*100 : 100;
+
+  if(!currentUser) return <div className="flex items-center justify-center h-screen text-2xl">Loading...</div>;
 
   return (
     <AuthenticatedLayout>
-      {/* 🌈 Animated gradient background */}
-      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-rose-50 via-amber-50 to-orange-100 text-gray-900">
-        {/* 🍱 Falling food animation */}
-        <div className="pointer-events-none fixed inset-0 overflow-hidden z-10">
-          {visibleFoods.map((food) => (
-            <motion.div
-              key={food.id}
-              initial={{ y: -50, opacity: 0 }}
-              animate={{
-                y: "100vh",
-                opacity: [1, 0.9, 0.7, 0],
-                rotate: [0, 30, -30, 0],
-              }}
-              transition={{
-                duration: 8 + Math.random() * 3,
-                ease: "easeInOut",
-              }}
-              className="absolute"
-              style={{
-                left: food.left,
-                fontSize: `${food.size}rem`,
-                top: "-10%",
-                zIndex: 9999,
-              }}
-            >
-              {food.emoji}
-            </motion.div>
-          ))}
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-rose-50 via-orange-50 to-amber-100">
+        {showConfetti && <Confetti numberOfPieces={200} recycle={false} />}
+
+        <div className="fixed inset-0 pointer-events-none z-10">
+          <AnimatePresence>
+            {visibleFoods.map(food => (
+              <motion.div
+                key={food.id}
+                initial={{y:-100, opacity:0}}
+                animate={{y:"110vh", opacity:[0,1,0.8,0]}}
+                exit={{opacity:0}}
+                transition={{duration:10, ease:"linear"}}
+                className="absolute text-4xl"
+                style={{left: food.left}}
+              >{food.emoji}</motion.div>
+            ))}
+          </AnimatePresence>
         </div>
 
-        {/* Main dashboard content */}
-        <div className="relative z-20 max-w-7xl mx-auto p-6 sm:p-10 space-y-8">
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center sm:text-left bg-white/70 backdrop-blur-sm p-4 sm:p-6 rounded-2xl shadow-lg border border-white/40"
-          >
-            <h1 className="text-2xl sm:text-3xl font-bold text-rose-600">
-              👋 Welcome back, {currentUser.name || currentUser.email}!
-            </h1>
-            <p className="text-gray-600 text-sm mt-1">
-              You’re making a difference, one meal at a time. 💚
+        <div className="relative z-20 max-w-7xl mx-auto p-6 space-y-12">
+          {/* Hero */}
+          <motion.div initial={{opacity:0,y:-30}} animate={{opacity:1,y:0}} className="text-center py-16">
+            <motion.h1
+              initial={{scale:0.8}}
+              animate={{scale:1}}
+              transition={{type:"spring", stiffness:200}}
+              className="text-6xl font-extrabold bg-gradient-to-r from-rose-600 via-orange-500 to-amber-600 bg-clip-text text-transparent mb-4"
+            >Welcome back, {currentUser.name?.split(" ")[0] || "Hero"}!</motion.h1>
+            <p className="text-2xl text-gray-700 flex items-center justify-center gap-4">
+              Every donation feeds a family
+              {tracker.streakDays > 2 && <Flame className="w-10 h-10 text-orange-500 animate-bounce" />}
             </p>
           </motion.div>
 
-          {/* Action Button */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="flex justify-center sm:justify-start"
-          >
+          {/* Quick Action */}
+          <motion.div initial={{scale:0}} animate={{scale:1}} transition={{delay:0.3,type:"spring"}} className="text-center">
             <Button
-              onClick={() => navigate("/donors/post-donation/post-donation-add")}
-              className="bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400 text-white px-6 py-3 rounded-full shadow-lg hover:scale-105 transition flex items-center gap-2"
+              onClick={()=>navigate("/donors/post-donation/post-donation-add")}
+              size="lg"
+              className="bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-700 hover:to-orange-700 text-white px-12 py-8 text-2xl font-bold rounded-3xl shadow-2xl flex items-center gap-4 mx-auto hover:scale-110 transition"
             >
-              <Plus size={20} /> Post New Donation
+              <Plus className="w-10 h-10" />
+              Post New Donation
             </Button>
           </motion.div>
 
-          {/* Stats Overview */}
-          <motion.div
-            className="grid grid-cols-2 sm:grid-cols-4 gap-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <div className="bg-white/70 rounded-lg shadow p-4 text-center">
-              <div className="text-2xl font-bold text-rose-500">
-                <CountUp end={points} duration={1.6} />
-              </div>
-              <div className="text-sm">Points</div>
-            </div>
-            <div className="bg-white/70 rounded-lg shadow p-4 text-center">
-              <div className="text-2xl font-bold text-amber-500">
-                <CountUp end={rank} duration={1.6} />#
-              </div>
-              <div className="text-sm">Leaderboard Rank</div>
-            </div>
-            <div className="bg-white/70 rounded-lg shadow p-4 text-center">
-              <div className="text-2xl font-bold text-green-500">
-                <CountUp end={streakDays} duration={1.6} />
-              </div>
-              <div className="text-sm">Streak Days</div>
-            </div>
-            <div className="bg-white/70 rounded-lg shadow p-4 text-center">
-              <div className="text-2xl font-bold text-indigo-500">
-                <CountUp end={badges.filter((b) => b.unlocked).length} duration={1.6} />
-              </div>
-              <div className="text-sm">Badges Earned</div>
-            </div>
-          </motion.div>
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[{icon:<Trophy className="w-12 h-12"/>,label:"Points",value:tracker.points,color:"from-rose-500 to-pink-500"},
+              {icon:<Crown className="w-12 h-12"/>,label:"Rank",value:tracker.rank,suffix:"#",color:"from-amber-500 to-yellow-600"},
+              {icon:<Flame className="w-12 h-12"/>,label:"Streak",value:tracker.streakDays,suffix:" days",color:"from-orange-500 to-red-500"},
+              {icon:<Award className="w-12 h-12"/>,label:"Badges",value:tracker.badges.filter(b=>b.unlocked).length,color:"from-purple-500 to-indigo-500"}].map((stat,i)=>(
+              <motion.div key={i} initial={{opacity:0,y:30}} animate={{opacity:1,y:0}} transition={{delay:i*0.1}} className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/10 rounded-3xl blur-xl group-hover:blur-2xl transition"></div>
+                <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-8 text-center shadow-2xl border border-white/30">
+                  <div className={`inline-flex p-6 rounded-full bg-gradient-to-br ${stat.color} text-white shadow-xl mb-4 animate-pulse`}>
+                    {stat.icon}
+                  </div>
+                  <div className="text-5xl font-bold text-gray-800">
+                    <CountUp end={stat.value} duration={2} />{stat.suffix}
+                  </div>
+                  <p className="text-lg text-gray-600 mt-2">{stat.label}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
 
-          {/* Donations Tabs */}
-          <Card className="bg-white/70 backdrop-blur-sm shadow-xl border-none rounded-2xl">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">My Donations</CardTitle>
+          {/* Next Badge Progress with shimmer */}
+          {nextBadge && (
+            <motion.div initial={{opacity:0,scale:0.9}} animate={{opacity:1,scale:1}} className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-10 border border-white/30 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-yellow-200 via-yellow-50 to-yellow-200 opacity-20 animate-pulse pointer-events-none"></div>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-gray-800">Next Badge: {nextBadge.title}</h3>
+                <Trophy className="w-12 h-12 text-yellow-500 animate-bounce" />
+              </div>
+              <Progress value={progress} className="h-8 rounded-full mb-4" />
+              <div className="flex justify-between text-lg">
+                <span className="text-gray-600">{tracker.points} points</span>
+                <span className="font-bold text-rose-600">{nextBadge.threshold} needed</span>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Donations */}
+          <Card className="bg-white/80 backdrop-blur-xl shadow-2xl border-none rounded-3xl overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-rose-600 to-orange-600 text-white">
+              <CardTitle className="text-3xl flex items-center gap-3">
+                <Package className="w-10 h-10"/>
+                My Donations
+              </CardTitle>
             </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="active">
-                <TabsList className="flex flex-wrap gap-2">
-                  <TabsTrigger value="active">Active</TabsTrigger>
-                  <TabsTrigger value="expired">Expired</TabsTrigger>
+            <CardContent className="p-8">
+              <Tabs defaultValue="active" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-8">
+                  <TabsTrigger value="active" className="text-lg py-4">Active</TabsTrigger>
+                  <TabsTrigger value="expired" className="text-lg py-4">Completed</TabsTrigger>
                 </TabsList>
-                <TabsContent
-                  value="active"
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4"
-                >
-                  {donations
-                    .filter((d) => d.status === "active")
-                    .map((d) => (
-                      <motion.div
-                        key={d.id}
-                        whileHover={{ scale: 1.03 }}
-                        className="bg-white rounded-xl p-4 border shadow"
-                      >
-                        <h3 className="font-semibold text-rose-600">{d.title}</h3>
-                        <p className="text-sm">Expiry: {d.expiry_date}</p>
-                        <div className="flex gap-2 mt-2 flex-wrap">
-                          {d.images?.map((img, idx) => (
-                            <img
-                              key={idx}
-                              src={img.image_path}
-                              alt={d.title}
-                              className="w-20 h-20 object-cover rounded-lg border"
-                            />
-                          ))}
-                        </div>
-                        <div className="flex gap-2 mt-3">
-                          <Button size="sm" variant="outline">
-                            <Edit size={16} /> Edit
-                          </Button>
-                          <Button size="sm" variant="destructive">
-                            <Trash size={16} /> Delete
-                          </Button>
-                        </div>
-                      </motion.div>
-                    ))}
+
+                <TabsContent value="active" className="space-y-6">
+                  {donations.filter(d=>d.status==="active").map(d=>(
+                    <motion.div key={d.id} whileHover={{scale:1.05, rotateZ:1}} className="bg-gradient-to-r from-rose-50 to-orange-50 rounded-2xl p-6 shadow-lg border border-rose-200 transition-all hover:shadow-2xl">
+                      <h3 className="text-2xl font-bold text-rose-700 mb-2">{d.title}</h3>
+                      <p className="text-gray-600 mb-4">Expires: {new Date(d.expiry_date).toLocaleDateString()}</p>
+                      <div className="grid grid-cols-4 gap-3">
+                        {d.images?.slice(0,4).map((img,i)=>(
+                          <img key={i} src={img.image_path} alt="" className="w-full h-24 object-cover rounded-xl shadow transition hover:scale-105 hover:shadow-2xl"/>
+                        ))}
+                      </div>
+                    </motion.div>
+                  ))}
                 </TabsContent>
-                <TabsContent
-                  value="expired"
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4"
-                >
-                  {donations.filter((d) => d.status === "expired").length === 0 ? (
-                    <p>No expired donations 🎉</p>
-                  ) : (
-                    donations
-                      .filter((d) => d.status === "expired")
-                      .map((d) => (
-                        <motion.div
-                          key={d.id}
-                          whileHover={{ scale: 1.02 }}
-                          className="bg-gray-50 rounded-xl p-4 border"
-                        >
-                          <h3 className="font-semibold">{d.title}</h3>
-                          <p className="text-sm text-gray-600">
-                            Expired on: {d.expiry_date}
-                          </p>
-                        </motion.div>
-                      ))
-                  )}
+
+                <TabsContent value="expired">
+                  <p className="text-center text-2xl text-gray-600 py-16">All your donations have been successfully delivered!</p>
                 </TabsContent>
               </Tabs>
             </CardContent>
           </Card>
 
-          {/* Volunteer Matches */}
-          <Card className="bg-white/70 backdrop-blur-sm shadow-xl border-none rounded-2xl">
-            <CardHeader>
-              <CardTitle>Volunteer Match Status</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {matches.length > 0 ? (
-                matches.map((m) => (
-                  <p key={m.id} className="text-sm">
-                    ✅ {m.volunteer_name} assigned to “{m.donation_title}”
-                  </p>
-                ))
-              ) : (
-                <p>No volunteers assigned yet.</p>
-              )}
-            </CardContent>
-          </Card>
+          {/* Achievements / Badges */}
+<Card className="bg-gradient-to-r from-purple-50 to-indigo-50 border-4 border-purple-300 rounded-3xl shadow-2xl">
+  <CardHeader>
+    <CardTitle className="text-3xl text-purple-800 flex items-center gap-3">
+      <Trophy className="w-10 h-10" />
+      Your Badges
+    </CardTitle>
+  </CardHeader>
+  <CardContent>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      {tracker.badges.map((b) => (
+        <motion.div
+          key={b.id}
+          whileHover={{ scale: 1.1 }}
+          className={`text-center p-6 rounded-2xl border ${
+            b.unlocked
+              ? "bg-yellow-100 border-yellow-300"
+              : "bg-gray-100 border-gray-300 opacity-50"
+          } transition-shadow shadow-lg`}
+        >
+          <Award
+            className={`w-16 h-16 mx-auto mb-3 ${
+              b.unlocked ? "text-yellow-600 animate-pulse" : "text-gray-400"
+            }`}
+          />
+          <p className="font-bold text-lg">{b.title}</p>
+          <p className="text-sm text-gray-600">{b.threshold} pts</p>
+          {b.unlocked ? (
+            <p className="text-green-600 font-semibold mt-2">Unlocked</p>
+          ) : (
+            <p className="text-gray-500 font-semibold mt-2">To Earn</p>
+          )}
+        </motion.div>
+      ))}
+    </div>
+  </CardContent>
+</Card>
 
-          {/* Badges Display */}
-          <Card className="bg-white/70 backdrop-blur-sm shadow-xl border-none rounded-2xl">
-            <CardHeader>
-              <CardTitle>Achievements</CardTitle>
-            </CardHeader>
-            <CardContent className="flex gap-3 flex-wrap">
-              {badges.map((b) => (
-                <div
-                  key={b.id}
-                  className={`p-2 rounded-md text-sm flex items-center gap-2 ${
-                    b.unlocked
-                      ? "bg-yellow-100 text-yellow-700"
-                      : "bg-gray-100 text-gray-400"
-                  }`}
-                >
-                  <Crown size={16} /> {b.title}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
         </div>
       </div>
     </AuthenticatedLayout>

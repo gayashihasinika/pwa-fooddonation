@@ -7,6 +7,8 @@ use App\Http\Controllers\AuthController;
 // Donor Controllers
 use App\Http\Controllers\Donors\DonationController;
 use App\Http\Controllers\Donors\LeaderboardController;
+use App\Http\Controllers\Donors\GamificationController as DonorGamificationController;
+use App\Http\Controllers\Donors\DonorDashboardController;
 
 // Receiver Controllers
 use App\Http\Controllers\Receivers\DonationController as ReceiverDonationController;
@@ -15,6 +17,7 @@ use App\Http\Controllers\Receivers\DonationController as ReceiverDonationControl
 use App\Http\Controllers\Admin\AdminDonationController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\ClaimDeliveryController;
+use App\Http\Controllers\Admin\AdminGamificationController;
 
 Route::get('/test', function () {
     return response()->json([
@@ -67,9 +70,24 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::post('/claims/{id}/dispute', [ClaimDeliveryController::class, 'resolveDispute']);
     Route::post('/claims/{id}/cancel', [ClaimDeliveryController::class, 'cancel']);
 
+    //Gamification Management
+    Route::get('/gamification', [AdminGamificationController::class, 'index']);
+    Route::post('/gamification/badge', [AdminGamificationController::class, 'storeBadge']);
+    Route::put('/gamification/badge/{id}', [AdminGamificationController::class, 'updateBadge']);
+    Route::post('/gamification/config', [AdminGamificationController::class, 'updateConfig']);
+    Route::post('/gamification/challenge', [AdminGamificationController::class, 'createChallenge']);
+    Route::put('/gamification/challenge/{id}', [AdminGamificationController::class, 'updateChallenge']);
+    Route::delete('/gamification/badge/{id}', [AdminGamificationController::class, 'destroy']);
+
+
 });
 
+
 // Donor-specific routes
+Route::middleware('auth:sanctum')->prefix('donors')->group(function () {
+     Route::get('/dashboard', [DonorDashboardController::class, 'index']);
+
+// Donor management of donations
 Route::prefix('donations')->group(function () {
     Route::get('/', [DonationController::class, 'index']);          // GET /api/donations?user_id=1
     Route::get('/{id}', [DonationController::class, 'show']);       // GET /api/donations/{id}
@@ -84,6 +102,14 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/donor-leaderboard', [LeaderboardController::class, 'index']);
+
+// Gamification routes for donors
+Route::prefix('gamification')->group(function () {
+    Route::get('/', [DonorGamificationController::class, 'index']);               // Get points and badges
+    Route::post('/check-and-assign', [DonorGamificationController::class, 'checkAndAssign']); // Check & assign new badges
+});
+
+});
 
 
 

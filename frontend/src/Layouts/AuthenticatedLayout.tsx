@@ -26,6 +26,8 @@ import {
   Truck,
   Bell,
   MessageSquare,
+  Star,
+  Zap,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -100,6 +102,13 @@ export default function AuthenticatedLayout({ children }: Props) {
           { icon: <Trophy size={18} />, label: "Leaderboard", href: "/donor/leaderboard" },
         ],
       },
+      {
+        group: "Gamification",
+        items: [
+          { icon: <Star size={18} />, label: "My Badges", href: "/donor/gamification/badges" },
+          { icon: <Zap size={18} />, label: "Challenges", href: "/donor/gamification/challenges" },
+        ],
+      }
     ],
     volunteer: [
       {
@@ -122,17 +131,36 @@ export default function AuthenticatedLayout({ children }: Props) {
       },
     ],
     admin: [
-      {
-        group: "Core Management",
-        items: [
-          { icon: <Home size={18} />, label: "Dashboard", href: "/admin/dashboard" },
-          { icon: <Users size={18} />, label: "User Management", href: "/admin/users" },
-          { icon: <Package size={18} />, label: "Donation Management", href: "/admin/donations" },
-          { icon: <Truck size={18} />, label: "Claim & Delivery", href: "/admin/claims" },
-        ],
-      },
-      
+  {
+    group: "Core Management",
+    items: [
+      { icon: <Home size={18} />, label: "Dashboard", href: "/admin/dashboard" },
+      { icon: <Users size={18} />, label: "User Management", href: "/admin/users" },
+      { icon: <Package size={18} />, label: "Donation Management", href: "/admin/donations" },
+      { icon: <Truck size={18} />, label: "Claim & Delivery", href: "/admin/claims" },
     ],
+  },
+  {
+    group: "Gamification",
+    items: [
+      {
+        icon: <Trophy size={18} />,
+        label: "Badge Management",
+        href: "/admin/gamification/badge-manager"
+      },
+      {
+        icon: <Star size={18} />,
+        label: "Points & Rewards",
+        href: "/admin/gamification/points-config"
+      },
+      {
+        icon: <Zap size={18} />,
+        label: "Challenges & Events",
+        href: "/admin/gamification/challenge-manager"
+      },
+    ],
+  },
+],
   } as const;
 
   const currentGroups = sidebarGroups[currentUser.role || "donor"] || [];

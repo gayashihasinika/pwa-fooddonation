@@ -22,6 +22,8 @@ import PostDonationEdit from "./pages/Donors/PostDonation/PostDonationEdit";
 import MyDonation from "./pages/Donors/Mydonation";
 // Leaderboard page
 import Leaderboard from "./pages/Donors/Leaderboard";
+// Gamification components
+import BadgeDashboard from "./pages/Donors/Gamification/BadgeDashboard";
 
 //Admin
 //User Management components
@@ -33,6 +35,10 @@ import DonationList from "./pages/Admin/Donations/DonationList";
 import DonationDetails from "./pages/Admin/Donations/DonationDetails";
 // Claim Delivery Management components 
 import ClaimDeliveryList from "./pages/Admin/Claims/ClaimDeliveryList";
+// Gamification Management components
+import BadgeManager from "./pages/Admin/Gamification/BadgeManager";
+import ChallengeManager from "./pages/Admin/Gamification/ChallengeManager";
+import PointsConfig from "./pages/Admin/Gamification/PointsConfig";
 
 
 
@@ -91,6 +97,8 @@ export default function App() {
         <Route path="/donor/my-donation" element={<MyDonation />} />
         {/* Leaderboard route */}
         <Route path="/donor/leaderboard" element={<Leaderboard />} />
+        {/* Gamification routes */}
+        <Route path="/donor/gamification/badges" element={<BadgeDashboard />} />
 
 
         {/**Admin */}
@@ -103,6 +111,25 @@ export default function App() {
         <Route path="/admin/donations/:id" element={<DonationDetails />} />
         {/* Claim Delivery Management Routes */}
         <Route path="/admin/claims" element={<ClaimDeliveryList />} />
+        {/* Gamification Management*/}
+        <Route path="/admin/gamification/badge-manager" element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <BadgeManager />
+          </ProtectedRoute>
+        }
+        />
+        <Route path="/admin/gamification/points-config" element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <PointsConfig />
+          </ProtectedRoute>
+        }
+        />
+        <Route path="/admin/gamification/challenge-manager" element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <ChallengeManager />
+          </ProtectedRoute>
+        }
+        />
       </Routes>
     </Router>
   );

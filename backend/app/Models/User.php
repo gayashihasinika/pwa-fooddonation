@@ -21,6 +21,12 @@ class User extends Authenticatable
     ];
 
     protected $hidden = ['password'];
+
+    public function points(){ return $this->hasOne(UserPoint::class); }
+public function badges(){ return $this->hasMany(UserBadge::class); }
+public function streak(){ return $this->hasOne(UserStreak::class); }
+
+
 }
 
 
