@@ -54,7 +54,7 @@ export default function PostDonationEdit() {
   useEffect(() => {
     const fetchDonation = async () => {
       try {
-        const res = await api.get(`/donations/${id}`);
+        const res = await api.get(`/donors/donations/${id}`);
         const d = res.data;
 
         // Fix date format for input[type="date"]

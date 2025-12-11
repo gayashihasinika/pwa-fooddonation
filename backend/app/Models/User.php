@@ -25,6 +25,11 @@ class User extends Authenticatable
     public function points(){ return $this->hasOne(UserPoint::class); }
 public function badges(){ return $this->hasMany(UserBadge::class); }
 public function streak(){ return $this->hasOne(UserStreak::class); }
+public function donations() {
+    return $this->hasMany(Donation::class, 'user_id');
+}
+
+
 
 
 }

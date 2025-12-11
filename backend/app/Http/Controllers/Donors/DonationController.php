@@ -7,6 +7,8 @@ use App\Models\Donation;
 use App\Models\DonationImage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\Models\GamificationConfig;
+use App\Models\UserPoint;
 
 class DonationController extends Controller
 {
@@ -41,7 +43,8 @@ class DonationController extends Controller
     }
 
     // Store new donation
-    public function store(Request $request)
+
+public function store(Request $request)
 {
     $validated = $request->validate([
         'user_id' => 'required|exists:users,id',
@@ -60,6 +63,29 @@ class DonationController extends Controller
 
     $donation = Donation::create($validated);
 
+    // === AWARD POINTS ===
+    $userId = $donation->user_id;
+
+    // Base points for posting donation
+    $basePoints = (int) GamificationConfig::where('key', 'points_post_donation')->value('value') ?? 25;
+
+    // Bonus for uploading images
+    $imageBonus = 0;
+    if ($request->hasFile('images')) {
+        $imageCount = count($request->file('images'));
+        $perImagePoints = (int) GamificationConfig::where('key', 'points_upload_image')->value('value') ?? 10;
+        $imageBonus = $imageCount * $perImagePoints;
+    }
+
+    $totalPointsEarned = $basePoints + $imageBonus;
+
+    // Add points to user's total
+    UserPoint::updateOrCreate(
+        ['user_id' => $userId],
+        ['points' => \DB::raw("COALESCE(points, 0) + {$totalPointsEarned}")]
+    );
+
+    // Save images
     if ($request->hasFile('images')) {
         foreach ($request->file('images') as $file) {
             $path = $file->store('donations', 'public');
@@ -70,9 +96,13 @@ class DonationController extends Controller
         }
     }
 
-    return response()->json($donation->load('images'), 201);
+    return response()->json([
+        'message' => 'Donation posted successfully!',
+        'points_earned' => $totalPointsEarned,
+        'total_points' => UserPoint::where('user_id', $userId)->value('points'),
+        'donation' => $donation->load('images')
+    ], 201);
 }
-
     // Edit donation - return donation data
     public function edit($id)
 {

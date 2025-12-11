@@ -50,6 +50,29 @@ class AdminGamificationController extends Controller
     return response()->json(['success'=>true, 'badge'=>$badge], 201);
 }
 
+    /**
+     * Show a single badge with donors who earned it (optional)
+     */
+    public function earnedBadges()
+{
+    $earned = \DB::table('user_badges') // Use the correct table name
+        ->join('users', 'user_badges.user_id', '=', 'users.id')
+        ->join('badges', 'user_badges.badge_id', '=', 'badges.id')
+        ->select(
+            'user_badges.id',
+            'users.name as donor_name',
+            'badges.title as badge_title',
+            'badges.points_reward as points',
+            'user_badges.awarded_at as earned_at' // Correct timestamp column
+        )
+        ->orderBy('user_badges.awarded_at', 'desc')
+        ->get();
+
+    return response()->json([
+        'earned_badges' => $earned
+    ]);
+}
+   
 
     /**
      * Update an existing badge
@@ -124,6 +147,27 @@ class AdminGamificationController extends Controller
             'error' => $e->getMessage()
         ], 500);
     }
+}
+
+    public function earnedChallenges()
+{
+    // Fetch all users who completed challenges
+    $earned = DB::table('user_challenges')
+        ->join('users', 'user_challenges.user_id', '=', 'users.id')
+        ->join('challenges', 'user_challenges.challenge_id', '=', 'challenges.id')
+        ->select(
+            'user_challenges.id',
+            'users.name as donor_name',
+            'challenges.title as challenge_title',
+            'challenges.points_reward as points',
+            'user_challenges.completed_at as completed_at'
+        )
+        ->orderBy('user_challenges.completed_at', 'desc')
+        ->get();
+
+    return response()->json([
+        'earned_challenges' => $earned
+    ]);
 }
 
 

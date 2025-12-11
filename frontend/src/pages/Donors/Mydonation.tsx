@@ -34,7 +34,7 @@ export default function MyDonation() {
           return;
         }
 
-        const res = await axios.get("http://127.0.0.1:8001/api/my-donations", {
+        const res = await axios.get("http://127.0.0.1:8001/api/donors/my-donations", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
