@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\AdminDonationController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\ClaimDeliveryController;
 use App\Http\Controllers\Admin\AdminGamificationController;
+use App\Http\Controllers\Admin\AdminDashboardController;
 
 Route::get('/test', function () {
     return response()->json([
@@ -40,6 +41,8 @@ Route::get('/translations/{lang}', function ($lang) {
 
 // Admin Routes 
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
+
+    Route::get('/dashboard', [AdminDashboardController::class, 'index']);
 
     // User Management
     Route::get('/users', [AdminUserController::class, 'index']);                    // List all users
@@ -79,6 +82,9 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::put('/gamification/challenge/{id}', [AdminGamificationController::class, 'updateChallenge']);
     Route::delete('/gamification/badge/{id}', [AdminGamificationController::class, 'destroy']);
 
+    // Donors who earned a specific badge
+    Route::get('/gamification/earned', [AdminGamificationController::class, 'earnedBadges']);
+    Route::get('/gamification/earned-challenges', [AdminGamificationController::class, 'earnedChallenges']);
 
 });
 
@@ -108,6 +114,10 @@ Route::prefix('gamification')->group(function () {
     Route::get('/', [DonorGamificationController::class, 'index']);               // Get points and badges
     Route::post('/check-and-assign', [DonorGamificationController::class, 'checkAndAssign']); // Check & assign new badges
 });
+
+// Challenges
+Route::get('/challenges', [DonorGamificationController::class, 'getChallenges']);
+    Route::post('/challenges/{id}/complete', [DonorGamificationController::class, 'completeChallenge']);
 
 });
 

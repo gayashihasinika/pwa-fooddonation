@@ -24,6 +24,7 @@ import MyDonation from "./pages/Donors/Mydonation";
 import Leaderboard from "./pages/Donors/Leaderboard";
 // Gamification components
 import BadgeDashboard from "./pages/Donors/Gamification/BadgeDashboard";
+import ChallengeDashboard from "./pages/Donors/Gamification/ChallengeDashboard";
 
 //Admin
 //User Management components
@@ -37,6 +38,7 @@ import DonationDetails from "./pages/Admin/Donations/DonationDetails";
 import ClaimDeliveryList from "./pages/Admin/Claims/ClaimDeliveryList";
 // Gamification Management components
 import BadgeManager from "./pages/Admin/Gamification/BadgeManager";
+import DonorsEarned from "./pages/Admin/Gamification/DonorsEarned";
 import ChallengeManager from "./pages/Admin/Gamification/ChallengeManager";
 import PointsConfig from "./pages/Admin/Gamification/PointsConfig";
 
@@ -99,6 +101,7 @@ export default function App() {
         <Route path="/donor/leaderboard" element={<Leaderboard />} />
         {/* Gamification routes */}
         <Route path="/donor/gamification/badges" element={<BadgeDashboard />} />
+        <Route path="/donor/gamification/challenges" element={<ChallengeDashboard />} />
 
 
         {/**Admin */}
@@ -127,6 +130,12 @@ export default function App() {
         <Route path="/admin/gamification/challenge-manager" element={
           <ProtectedRoute allowedRoles={["admin"]}>
             <ChallengeManager />
+          </ProtectedRoute>
+        }
+        />
+        <Route path="/admin/gamification/earned" element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <DonorsEarned />
           </ProtectedRoute>
         }
         />

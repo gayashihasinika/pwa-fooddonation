@@ -113,31 +113,46 @@ export default function DonationAdd() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate()) {
-      toast.error("Please fix the errors");
-      return;
-    }
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!validate()) {
+    toast.error("Please fix the errors");
+    return;
+  }
 
-    const formData = new FormData();
-    Object.entries(form).forEach(([key, value]) => {
-      if (key === "images" || key === "allergy_tags") return;
-      formData.append(key, String(value));
+  const formData = new FormData();
+  Object.entries(form).forEach(([key, value]) => {
+    if (key === "images" || key === "allergy_tags") return;
+    formData.append(key, String(value));
+  });
+
+  form.allergy_tags.forEach((tag) => formData.append("allergy_tags[]", tag));
+  form.images.forEach((file) => formData.append("images[]", file));
+
+  try {
+    const response = await api.post("/donors/donations", formData, {
+      headers: { "Content-Type": "multipart/form-data" }
     });
 
-    form.allergy_tags.forEach((tag) => formData.append("allergy_tags[]", tag));
-    form.images.forEach((file) => formData.append("images[]", file));
+    const points = response.data.points_earned || 0;
 
-    try {
-      await api.post("/donations", formData);
-      toast.success("Donation posted successfully!");
-      navigate("/donors/post-donation/post-donation-list");
-    } catch (err: any) {
-      toast.error("Failed to post donation");
-      console.error(err);
-    }
-  };
+    toast.success(
+      <div className="flex items-center gap-3">
+        Donation posted successfully!
+        {points > 0 && (
+          <span className="ml-2 bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full font-bold text-lg shadow-lg">
+            +{points} points earned!
+          </span>
+        )}
+      </div>,
+      { duration: 5000 }
+    );
+
+    navigate("/donors/post-donation/post-donation-list");
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Failed to post donation");
+  }
+};
 
   const showMapFromAddress = async () => {
     const address = form.pickup_address.trim();

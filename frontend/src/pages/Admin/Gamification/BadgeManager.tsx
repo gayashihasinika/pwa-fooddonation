@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import { Plus, X, Edit, Trash2, Search, Trophy, Sparkles, Crown, Star, Flame, Zap } from "lucide-react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import api from "@/lib/api";
+import { Link } from "react-router-dom";
 
 interface Badge {
   id: number;
@@ -142,15 +143,26 @@ export default function BadgeManager() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-4xl font-bold">Badge Management</h1>
 
-          <button
-            onClick={() => {
-              resetForm();
-              setShowForm(true);
-            }}
-            className="px-5 py-3 bg-gradient-to-r from-rose-600 to-orange-600 text-white rounded-xl flex gap-2 items-center font-semibold shadow-lg"
-          >
-            <Plus /> Create Badge
-          </button>
+          <div className="flex gap-3">
+            {/* Button to go to Donors Earned Badges page */}
+            <Link
+              to="/admin/gamification/earned"
+              className="px-5 py-3 bg-gradient-to-r from-indigo-600 to-blue-500 text-white rounded-xl flex gap-2 items-center font-semibold shadow-lg"
+            >
+              <Trophy /> Donors Earned Badges
+            </Link>
+
+            {/* Create Badge button */}
+            <button
+              onClick={() => {
+                resetForm();
+                setShowForm(true);
+              }}
+              className="px-5 py-3 bg-gradient-to-r from-rose-600 to-orange-600 text-white rounded-xl flex gap-2 items-center font-semibold shadow-lg"
+            >
+              <Plus /> Create Badge
+            </button>
+          </div>
         </div>
 
         {/* SEARCH BAR */}
