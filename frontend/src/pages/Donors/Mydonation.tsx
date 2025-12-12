@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Toaster, toast } from "react-hot-toast";
 import { Carousel } from "react-responsive-carousel";
-import "react-responsive-carousel/lib/styles/carousel.min.css"; // import carousel styles
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // carousel styles
 
 interface DonationImage {
   id: number;
@@ -24,6 +25,7 @@ interface Donation {
 export default function MyDonation() {
   const [loading, setLoading] = useState(true);
   const [donations, setDonations] = useState<Donation[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDonations = async () => {
@@ -130,12 +132,14 @@ export default function MyDonation() {
                   >
                     {donation.status.toUpperCase()}
                   </span>
+                  {/* Navigate to the detailed view page */}
                   <button
-                    onClick={() => toast("Feature coming soon!")}
-                    className="text-rose-600 font-semibold text-sm hover:underline"
-                  >
-                    View
-                  </button>
+  onClick={() => navigate(`/donors/view-donation/${donation.id}`)}
+  className="text-rose-600 font-semibold text-sm hover:underline"
+>
+  View
+</button>
+
                 </div>
               </div>
             </div>

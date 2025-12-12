@@ -20,11 +20,13 @@ import PostDonationAdd from "./pages/Donors/PostDonation/PostDonationAdd";
 import PostDonationEdit from "./pages/Donors/PostDonation/PostDonationEdit";
 // MyDonation page
 import MyDonation from "./pages/Donors/Mydonation";
+import ViewDonation from "./pages/Donors/ViewDonation";
 // Leaderboard page
 import Leaderboard from "./pages/Donors/Leaderboard";
 // Gamification components
 import BadgeDashboard from "./pages/Donors/Gamification/BadgeDashboard";
 import ChallengeDashboard from "./pages/Donors/Gamification/ChallengeDashboard";
+import DonorStreak from "./pages/Donors/Gamification/DonorStreak";
 
 //Admin
 //User Management components
@@ -40,7 +42,9 @@ import ClaimDeliveryList from "./pages/Admin/Claims/ClaimDeliveryList";
 import BadgeManager from "./pages/Admin/Gamification/BadgeManager";
 import DonorsEarned from "./pages/Admin/Gamification/DonorsEarned";
 import ChallengeManager from "./pages/Admin/Gamification/ChallengeManager";
+import CompletedChallenges from "./pages/Admin/Gamification/CompletedChallenges";
 import PointsConfig from "./pages/Admin/Gamification/PointsConfig";
+import AdminStreaks from "./pages/Admin/Gamification/AdminStreaks";
 
 
 
@@ -97,11 +101,13 @@ export default function App() {
         <Route path="/donors/post-donation/post-donation-edit/:id" element={<PostDonationEdit />} />
         {/* MyDonation route */}
         <Route path="/donor/my-donation" element={<MyDonation />} />
+        <Route path="/donors/view-donation/:id" element={<ViewDonation />} />
         {/* Leaderboard route */}
         <Route path="/donor/leaderboard" element={<Leaderboard />} />
         {/* Gamification routes */}
         <Route path="/donor/gamification/badges" element={<BadgeDashboard />} />
         <Route path="/donor/gamification/challenges" element={<ChallengeDashboard />} />
+        <Route path="/donor/gamification/streak" element={<DonorStreak />} />
 
 
         {/**Admin */}
@@ -136,6 +142,18 @@ export default function App() {
         <Route path="/admin/gamification/earned" element={
           <ProtectedRoute allowedRoles={["admin"]}>
             <DonorsEarned />
+          </ProtectedRoute>
+        }
+        />
+        <Route path="/admin/gamification/challenges/completed" element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <CompletedChallenges />
+          </ProtectedRoute>
+        }
+        />
+        <Route path="/admin/gamification/streaks" element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AdminStreaks />
           </ProtectedRoute>
         }
         />

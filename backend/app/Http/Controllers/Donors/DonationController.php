@@ -28,12 +28,20 @@ class DonationController extends Controller
 }
 
 
-    // Show a single donation
-    public function show($id)
-    {
-        $donation = Donation::with('images')->findOrFail($id);
-        return response()->json($donation);
+    public function show(Request $request, $id)
+{
+    $user = $request->user();
+    if (!$user) return response()->json(['message' => 'Unauthenticated'], 401);
+
+    $donation = Donation::with('images')->findOrFail($id);
+
+    if ($donation->user_id !== $user->id) {
+        return response()->json(['message' => 'Unauthorized'], 403);
     }
+
+    return response()->json($donation);
+}
+
 
     // Create donation - returns data if needed for form
     public function create()

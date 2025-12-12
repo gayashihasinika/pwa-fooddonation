@@ -99,7 +99,6 @@ export default function AuthenticatedLayout({ children }: Props) {
           { icon: <Home size={18} />, label: "Dashboard", href: "/donors/dashboard" },
           { icon: <Plus size={18} />, label: "Post Donation", href: "/donors/post-donation/post-donation-list" },
           { icon: <ClipboardList size={18} />, label: "My Donations", href: "/donor/my-donation" },
-          { icon: <Trophy size={18} />, label: "Leaderboard", href: "/donor/leaderboard" },
         ],
       },
       {
@@ -107,6 +106,7 @@ export default function AuthenticatedLayout({ children }: Props) {
         items: [
           { icon: <Star size={18} />, label: "My Badges", href: "/donor/gamification/badges" },
           { icon: <Zap size={18} />, label: "Challenges", href: "/donor/gamification/challenges" },
+          { icon: <Trophy size={18} />, label: "My Streak", href: "/donor/gamification/streak" },
         ],
       }
     ],
@@ -143,21 +143,10 @@ export default function AuthenticatedLayout({ children }: Props) {
   {
     group: "Gamification",
     items: [
-      {
-        icon: <Trophy size={18} />,
-        label: "Badge Management",
-        href: "/admin/gamification/badge-manager"
-      },
-      {
-        icon: <Star size={18} />,
-        label: "Points & Rewards",
-        href: "/admin/gamification/points-config"
-      },
-      {
-        icon: <Zap size={18} />,
-        label: "Challenges & Events",
-        href: "/admin/gamification/challenge-manager"
-      },
+      { icon: <Trophy size={18} />, label: "Badge Management", href: "/admin/gamification/badge-manager" },
+      { icon: <Star size={18} />, label: "Points & Rewards", href: "/admin/gamification/points-config" },
+      { icon: <Zap size={18} />, label: "Challenges & Events", href: "/admin/gamification/challenge-manager" },
+      { icon: <Users size={18} />, label: "Donor Streaks", href: "/admin/gamification/streaks" },
     ],
   },
 ],
