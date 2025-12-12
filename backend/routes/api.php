@@ -9,6 +9,7 @@ use App\Http\Controllers\Donors\DonationController;
 use App\Http\Controllers\Donors\LeaderboardController;
 use App\Http\Controllers\Donors\GamificationController as DonorGamificationController;
 use App\Http\Controllers\Donors\DonorDashboardController;
+use App\Http\Controllers\Donors\StreakController;
 
 // Receiver Controllers
 use App\Http\Controllers\Receivers\DonationController as ReceiverDonationController;
@@ -19,6 +20,8 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\ClaimDeliveryController;
 use App\Http\Controllers\Admin\AdminGamificationController;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminChallengeProgressController;
+use App\Http\Controllers\Admin\AdminStreakController;
 
 Route::get('/test', function () {
     return response()->json([
@@ -86,6 +89,13 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/gamification/earned', [AdminGamificationController::class, 'earnedBadges']);
     Route::get('/gamification/earned-challenges', [AdminGamificationController::class, 'earnedChallenges']);
 
+    // Challenge Progress
+    Route::get('/challenge-progress', [AdminChallengeProgressController::class, 'index']);
+
+    // Streak Leaderboard
+    Route::get('/streaks', [AdminStreakController::class, 'index']);
+    Route::get('/streaks/leaderboard', [AdminStreakController::class, 'leaderboard']);
+
 });
 
 
@@ -103,9 +113,8 @@ Route::prefix('donations')->group(function () {
 });
 
 //my-donation routes
-Route::middleware('auth:sanctum')->group(function () {
     Route::get('/my-donations', [DonationController::class, 'myDonations']);
-});
+    
 
 Route::get('/donor-leaderboard', [LeaderboardController::class, 'index']);
 
@@ -118,6 +127,10 @@ Route::prefix('gamification')->group(function () {
 // Challenges
 Route::get('/challenges', [DonorGamificationController::class, 'getChallenges']);
     Route::post('/challenges/{id}/complete', [DonorGamificationController::class, 'completeChallenge']);
+
+    // Streak routes
+    Route::get('/streak', [StreakController::class, 'show']);
+    Route::post('/streaks/process', [StreakController::class, 'process']);
 
 });
 

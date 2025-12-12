@@ -168,6 +168,16 @@ export default function ChallengeManager() {
             >
               Create New Challenge
             </motion.button>
+
+            <div className="text-center mb-6">
+  <button
+    onClick={() => window.location.href = "/admin/gamification/challenges/completed"}
+    className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-bold shadow-lg transition"
+  >
+    View Completed Challenges
+  </button>
+</div>
+
           </div>
 
           {/* Challenges Grid */}
