@@ -99,6 +99,7 @@ export default function AuthenticatedLayout({ children }: Props) {
           { icon: <Home size={18} />, label: "Dashboard", href: "/donors/dashboard" },
           { icon: <Plus size={18} />, label: "Post Donation", href: "/donors/post-donation/post-donation-list" },
           { icon: <ClipboardList size={18} />, label: "My Donations", href: "/donor/my-donation" },
+          { icon: <Truck size={18} />, label: "My Claims", href: "/donor/claims" },
         ],
       },
       {
@@ -125,7 +126,7 @@ export default function AuthenticatedLayout({ children }: Props) {
         group: "Main",
         items: [
           { icon: <Home size={18} />, label: "Dashboard", href: "/receivers/dashboard" },
-          { icon: <Package size={18} />, label: "Available Donations", href: "/receivers/available-donations" },
+          { icon: <Package size={18} />, label: "Available Donations", href: "/receivers/donations" },
           { icon: <Bell size={18} />, label: "Notifications", href: "/receivers/notifications" },
         ],
       },

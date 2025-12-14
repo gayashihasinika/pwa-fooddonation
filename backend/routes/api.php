@@ -10,9 +10,11 @@ use App\Http\Controllers\Donors\LeaderboardController;
 use App\Http\Controllers\Donors\GamificationController as DonorGamificationController;
 use App\Http\Controllers\Donors\DonorDashboardController;
 use App\Http\Controllers\Donors\StreakController;
+use App\Http\Controllers\Donors\DonorClaimController;
 
 // Receiver Controllers
-use App\Http\Controllers\Receivers\DonationController as ReceiverDonationController;
+use App\Http\Controllers\Receivers\ReceiverDonationController;
+use App\Http\Controllers\Receivers\ReceiverDashboardController;
 
 // Admin Controllers
 use App\Http\Controllers\Admin\AdminDonationController;
@@ -73,7 +75,6 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::post('/claims/{id}/assign-volunteer', [ClaimDeliveryController::class, 'assignVolunteer']);
     Route::post('/claims/{id}/picked-up', [ClaimDeliveryController::class, 'markPickedUp']);
     Route::post('/claims/{id}/delivered', [ClaimDeliveryController::class, 'markDelivered']);
-    Route::post('/claims/{id}/dispute', [ClaimDeliveryController::class, 'resolveDispute']);
     Route::post('/claims/{id}/cancel', [ClaimDeliveryController::class, 'cancel']);
 
     //Gamification Management
@@ -114,9 +115,6 @@ Route::prefix('donations')->group(function () {
 
 //my-donation routes
     Route::get('/my-donations', [DonationController::class, 'myDonations']);
-    
-
-Route::get('/donor-leaderboard', [LeaderboardController::class, 'index']);
 
 // Gamification routes for donors
 Route::prefix('gamification')->group(function () {
@@ -125,22 +123,32 @@ Route::prefix('gamification')->group(function () {
 });
 
 // Challenges
-Route::get('/challenges', [DonorGamificationController::class, 'getChallenges']);
+    Route::get('/challenges', [DonorGamificationController::class, 'getChallenges']);
     Route::post('/challenges/{id}/complete', [DonorGamificationController::class, 'completeChallenge']);
 
-    // Streak routes
+// Streak routes
     Route::get('/streak', [StreakController::class, 'show']);
     Route::post('/streaks/process', [StreakController::class, 'process']);
 
-});
+// Donation Claim routes
+    Route::get('/claims', [DonorClaimController::class, 'index']);
+    Route::get('/claims/{id}', [DonorClaimController::class, 'show']);
+    Route::post('/claims/{id}/approve', [DonorClaimController::class, 'approve']);
+    Route::post('/claims/{id}/cancel', [DonorClaimController::class, 'cancel']);
 
+});
 
 
 // Receiver-specific routes
-Route::middleware('auth:sanctum')->group(function () {
-    // Receiver-specific donations
-    Route::get('/receiver-donations', [ReceiverDonationController::class, 'myDonations']);
+Route::middleware('auth:sanctum')->prefix('receivers')->group(function () {
 
-    // Receiver stats for dashboard
-    Route::get('/receiver-dashboard-stats', [ReceiverDonationController::class, 'dashboardStats']);
+// Receiver Dashboard 
+    Route::get('/donations', [ReceiverDashboardController::class, 'donations']);
+    Route::get('/dashboard-stats', [ReceiverDashboardController::class, 'stats']);
+
+// Receiver Donation Routes
+    Route::get('/donations', [ReceiverDonationController::class, 'index']);
+    Route::get('/donations/{id}', [ReceiverDonationController::class, 'show']);
+    Route::post('/donations/{id}/claim', [ReceiverDonationController::class, 'claim']); 
 });
+

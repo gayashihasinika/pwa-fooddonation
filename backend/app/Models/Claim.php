@@ -1,6 +1,5 @@
 <?php
 
-// app/Models/Claim.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -8,8 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class Claim extends Model
 {
     protected $fillable = [
-        'donation_id', 'receiver_id', 'volunteer_id',
-        'status', 'notes', 'claimed_at', 'picked_up_at', 'delivered_at'
+        'donation_id',
+        'receiver_id',
+        'volunteer_id',
+        'status',
+        'notes',
+        'claimed_at',
+        'picked_up_at',
+        'delivered_at',
     ];
 
     protected $casts = [
@@ -20,7 +25,7 @@ class Claim extends Model
 
     public function donation()
     {
-        return $this->belongsTo(Donation::class)->withTrashed();
+        return $this->belongsTo(Donation::class);
     }
 
     public function receiver()
