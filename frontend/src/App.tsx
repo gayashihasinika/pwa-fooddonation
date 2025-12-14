@@ -27,6 +27,9 @@ import Leaderboard from "./pages/Donors/Leaderboard";
 import BadgeDashboard from "./pages/Donors/Gamification/BadgeDashboard";
 import ChallengeDashboard from "./pages/Donors/Gamification/ChallengeDashboard";
 import DonorStreak from "./pages/Donors/Gamification/DonorStreak";
+// Claim Management components
+import DonorClaimList from "./pages/Donors/Claims/ClaimList";
+import DonorClaimDetails from "./pages/Donors/Claims/ClaimDetails";
 
 //Admin
 //User Management components
@@ -38,6 +41,7 @@ import DonationList from "./pages/Admin/Donations/DonationList";
 import DonationDetails from "./pages/Admin/Donations/DonationDetails";
 // Claim Delivery Management components 
 import ClaimDeliveryList from "./pages/Admin/Claims/ClaimDeliveryList";
+import ClaimDeliveryDetails from "./pages/Admin/Claims/ClaimDeliveryDetails";
 // Gamification Management components
 import BadgeManager from "./pages/Admin/Gamification/BadgeManager";
 import DonorsEarned from "./pages/Admin/Gamification/DonorsEarned";
@@ -45,6 +49,13 @@ import ChallengeManager from "./pages/Admin/Gamification/ChallengeManager";
 import CompletedChallenges from "./pages/Admin/Gamification/CompletedChallenges";
 import PointsConfig from "./pages/Admin/Gamification/PointsConfig";
 import AdminStreaks from "./pages/Admin/Gamification/AdminStreaks";
+
+
+//Receivers
+// Available Donations page
+import ReceiversDonations from "./pages/Receivers/Donations/AvailableDonations";
+// View Available Donation page
+import ViewAvailableDonation from "./pages/Receivers/Donations/ViewAvailableDonation";
 
 
 
@@ -108,6 +119,9 @@ export default function App() {
         <Route path="/donor/gamification/badges" element={<BadgeDashboard />} />
         <Route path="/donor/gamification/challenges" element={<ChallengeDashboard />} />
         <Route path="/donor/gamification/streak" element={<DonorStreak />} />
+        {/* Claim Management routes */}
+        <Route path="/donor/claims" element={<DonorClaimList />} />
+        <Route path="/donor/claims/:id" element={<DonorClaimDetails />} />
 
 
         {/**Admin */}
@@ -120,6 +134,7 @@ export default function App() {
         <Route path="/admin/donations/:id" element={<DonationDetails />} />
         {/* Claim Delivery Management Routes */}
         <Route path="/admin/claims" element={<ClaimDeliveryList />} />
+        <Route path="/admin/claims/:id" element={<ClaimDeliveryDetails />} />
         {/* Gamification Management*/}
         <Route path="/admin/gamification/badge-manager" element={
           <ProtectedRoute allowedRoles={["admin"]}>
@@ -157,6 +172,12 @@ export default function App() {
           </ProtectedRoute>
         }
         />
+
+
+        {/**Receivers */}
+        {/* Available Donations route */}
+        <Route path="/receivers/donations" element={<ReceiversDonations />} />
+        <Route path="/receivers/donations/:id" element={<ViewAvailableDonation />} />
       </Routes>
     </Router>
   );

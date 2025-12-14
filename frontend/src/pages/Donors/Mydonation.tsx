@@ -122,23 +122,22 @@ export default function MyDonation() {
 
                 <div className="mt-4 flex justify-between items-center">
                   <span
-                    className={`px-3 py-1 text-xs font-semibold rounded-full text-white ${
-                      donation.status === "pending"
+                    className={`px-3 py-1 text-xs font-semibold rounded-full text-white ${donation.status === "pending"
                         ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
                         : donation.status === "approved"
-                        ? "bg-gradient-to-r from-green-400 to-green-600"
-                        : "bg-gradient-to-r from-blue-400 to-blue-600"
-                    }`}
+                          ? "bg-gradient-to-r from-green-400 to-green-600"
+                          : "bg-gradient-to-r from-blue-400 to-blue-600"
+                      }`}
                   >
                     {donation.status.toUpperCase()}
                   </span>
                   {/* Navigate to the detailed view page */}
                   <button
-  onClick={() => navigate(`/donors/view-donation/${donation.id}`)}
-  className="text-rose-600 font-semibold text-sm hover:underline"
->
-  View
-</button>
+                    onClick={() => navigate(`/donors/view-donation/${donation.id}`)}
+                    className="text-rose-600 font-semibold text-sm hover:underline"
+                  >
+                    View
+                  </button>
 
                 </div>
               </div>

@@ -57,8 +57,6 @@ export default function CreateUser() {
     else if (form.password.length < 8) newErrors.password = "Password must be at least 8 characters";
     if (form.password !== form.password_confirmation)
       newErrors.password_confirmation = "Passwords do not match";
-    if (form.role === "receiver" && !form.organization.trim())
-      newErrors.organization = "Organization name is required for NGOs";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -152,11 +150,10 @@ export default function CreateUser() {
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${
-                    errors.name
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.name
                       ? "border-red-500 focus:ring-red-500"
                       : "border-gray-300 focus:ring-rose-500"
-                  }`}
+                    }`}
                   placeholder="Gayashi Hasinika"
                 />
                 <ErrorMessage message={errors.name} />
@@ -171,11 +168,10 @@ export default function CreateUser() {
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${
-                    errors.email
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.email
                       ? "border-red-500 focus:ring-red-500"
                       : "border-gray-300 focus:ring-rose-500"
-                  }`}
+                    }`}
                   placeholder="gayashi@example.com"
                 />
                 <ErrorMessage message={errors.email} />
@@ -207,7 +203,7 @@ export default function CreateUser() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 transition-all"
                 >
                   <option value="donor">Donor</option>
-                  <option value="receiver">Receiver (NGO)</option>
+                  <option value="receiver">Receiver (Individual / NGO)</option>
                   <option value="volunteer">Volunteer</option>
                   <option value="admin">Admin</option>
                 </select>
@@ -230,11 +226,10 @@ export default function CreateUser() {
                     type="text"
                     value={form.organization}
                     onChange={(e) => setForm({ ...form, organization: e.target.value })}
-                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all bg-white ${
-                      errors.organization
+                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all bg-white ${errors.organization
                         ? "border-red-500 focus:ring-red-500"
                         : "border-amber-300 focus:ring-amber-500"
-                    }`}
+                      }`}
                     placeholder="Impresso Holding Ceylon"
                   />
                   <ErrorMessage message={errors.organization} />
@@ -283,11 +278,10 @@ export default function CreateUser() {
                   type="password"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${
-                    errors.password
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.password
                       ? "border-red-500 focus:ring-red-500"
                       : "border-gray-300 focus:ring-rose-500"
-                  }`}
+                    }`}
                   placeholder="••••••••"
                 />
                 <ErrorMessage message={errors.password} />
@@ -302,11 +296,10 @@ export default function CreateUser() {
                   type="password"
                   value={form.password_confirmation}
                   onChange={(e) => setForm({ ...form, password_confirmation: e.target.value })}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${
-                    errors.password_confirmation
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.password_confirmation
                       ? "border-red-500 focus:ring-red-500"
                       : "border-gray-300 focus:ring-rose-500"
-                  }`}
+                    }`}
                   placeholder="••••••••"
                 />
                 <ErrorMessage message={errors.password_confirmation} />

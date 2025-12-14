@@ -11,26 +11,33 @@ use Illuminate\Http\Request;
 class ClaimDeliveryController extends Controller
 {
     public function index()
-    {
-        $claims = Claim::with(['donation.user', 'donation.images', 'receiver', 'volunteer'])
-            ->withCount('donation')
-            ->latest()
-            ->get();
+{
+    $claims = Claim::with([
+        'donation.user',
+        'donation.images',
+        'receiver',
+        'volunteer',
+    ])
+    ->latest()
+    ->get();
 
-        return response()->json([
-            'claims' => $claims
-        ]);
-    }
+    return response()->json([
+        'claims' => $claims
+    ]);
+}
+
 
     public function show($id)
-    {
-        $claim = Claim::with(['donation.user', 'donation.images', 'receiver', 'volunteer'])
-            ->findOrFail($id);
+{
+    $claim = Claim::with([
+        'donation.user',
+        'donation.images',
+        'receiver',
+        'volunteer'
+    ])->findOrFail($id);
 
-        return response()->json([
-            'claim' => $claim
-        ]);
-    }
+    return response()->json(['claim' => $claim]);
+}
 
     // Assign or Reassign Volunteer
     public function assignVolunteer(Request $request, $claimId)
