@@ -1,25 +1,32 @@
-// src/pages/Donors/Dashboard.tsx
+// frontend/src/pages/Donors/Dashboard.tsx
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Confetti from "react-confetti";
 import { toast } from "react-hot-toast";
 import {
-  Plus, Trophy, Flame, Crown, Award, Package
+  Plus, Trophy, Flame, Crown, Award, Package, Heart
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { useNavigate } from "react-router-dom";
 import CountUp from "react-countup";
 import api from "@/lib/api";
 
 interface User { id: number; name: string | null; email: string; }
-interface Donation { id: number; title: string; expiry_date: string; status: "active" | "expired"; images?: { image_path: string }[]; }
-interface Match { id: number; volunteer_name: string; donation_title: string; }
+interface Donation {
+  id: number;
+  title: string;
+  expiry_date: string;
+  status: "active" | "expired" | "claimed";
+  images?: { image_path: string }[];
+}
 interface Badge { id: number; title: string; unlocked: boolean; threshold: number; }
-interface TrackerData { streakDays: number; badges: Badge[]; points: number; rank: number; totalDonations: number; }
+interface TrackerData {
+  streakDays: number;
+  badges: Badge[];
+  points: number;
+  rank: number;
+  totalDonations: number;
+}
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -30,25 +37,6 @@ export default function Dashboard() {
   });
   const [showConfetti, setShowConfetti] = useState(false);
 
-  const foodItems = ["🍎", "🍞", "🍛", "🍲", "🥗", "🍕", "🍌", "🍚", "🍪", "🍇"];
-  const [visibleFoods, setVisibleFoods] = useState<{ id: number; emoji: string; left: string; size: number }[]>([]);
-
-  // Falling food animation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const newFood = {
-        id: Date.now(),
-        emoji: foodItems[Math.floor(Math.random() * foodItems.length)],
-        left: `${Math.random() * 100}%`,
-        size: Math.random() * 1.5 + 1
-      };
-      setVisibleFoods(prev => [...prev.slice(-12), newFood]);
-      setTimeout(() => setVisibleFoods(prev => prev.filter(f => f.id !== newFood.id)), 8000);
-    }, 900);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Fetch all dashboard data
   useEffect(() => {
     const fetchAll = async () => {
       try {
@@ -56,7 +44,7 @@ export default function Dashboard() {
         setCurrentUser(userRes.data);
 
         const [donationsRes, dashboardRes] = await Promise.all([
-          api.get(`/donors/donations?user_id=${userRes.data.id}`),
+          api.get("/donors/my-donations"),
           api.get("/donors/dashboard")
         ]);
 
@@ -69,8 +57,10 @@ export default function Dashboard() {
           totalDonations: donationsRes.data.length || 0,
         });
 
-        // Trigger confetti if a badge was unlocked
-        if (dashboardRes.data.badges.some((b: Badge) => b.unlocked)) setShowConfetti(true);
+        if (dashboardRes.data.newBadgeUnlocked) {
+          setShowConfetti(true);
+          setTimeout(() => setShowConfetti(false), 8000);
+        }
       } catch (err) {
         toast.error("Failed to load dashboard");
       }
@@ -78,168 +68,331 @@ export default function Dashboard() {
     fetchAll();
   }, []);
 
+  const activeDonations = donations.filter(d => d.status === "active");
+  const completedDonations = donations.filter(d => d.status !== "active");
   const nextBadge = tracker.badges.find(b => !b.unlocked);
   const progress = nextBadge ? (tracker.points / nextBadge.threshold) * 100 : 100;
 
-  if (!currentUser) return <div className="flex items-center justify-center h-screen text-2xl">Loading...</div>;
+  if (!currentUser) {
+    return (
+      <AuthenticatedLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <p className="text-2xl text-gray-600">Loading your dashboard...</p>
+        </div>
+      </AuthenticatedLayout>
+    );
+  }
 
   return (
     <AuthenticatedLayout>
-      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-rose-50 via-orange-50 to-amber-100">
-        {showConfetti && <Confetti numberOfPieces={200} recycle={false} />}
+      <div className="min-h-screen bg-gradient-to-b from-orange-50 via-amber-50 to-yellow-50">
+        {showConfetti && <Confetti recycle={false} numberOfPieces={300} />}
 
-        <div className="fixed inset-0 pointer-events-none z-10">
-          <AnimatePresence>
-            {visibleFoods.map(food => (
-              <motion.div
-                key={food.id}
-                initial={{ y: -100, opacity: 0 }}
-                animate={{ y: "110vh", opacity: [0, 1, 0.8, 0] }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 10, ease: "linear" }}
-                className="absolute text-4xl"
-                style={{ left: food.left }}
-              >{food.emoji}</motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-
-        <div className="relative z-20 max-w-7xl mx-auto p-6 space-y-12">
-          {/* Hero */}
-          <motion.div initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} className="text-center py-16">
-            <motion.h1
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 200 }}
-              className="text-6xl font-extrabold bg-gradient-to-r from-rose-600 via-orange-500 to-amber-600 bg-clip-text text-transparent mb-4"
-            >Welcome back, {currentUser.name?.split(" ")[0] || "Hero"}!</motion.h1>
-            <p className="text-2xl text-gray-700 flex items-center justify-center gap-4">
-              Every donation feeds a family
-              {tracker.streakDays > 2 && <Flame className="w-10 h-10 text-orange-500 animate-bounce" />}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+          {/* Hero Greeting */}
+          <motion.div
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-10 md:mb-16"
+          >
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-orange-800 mb-4 md:mb-6">
+              Welcome back,<br className="sm:hidden" /> {currentUser.name?.split(" ")[0] || "Kind Hero"}! ❤️
+            </h1>
+            <p className="text-lg sm:text-xl md:text-2xl text-orange-700 flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4">
+              Your kindness is feeding families today
+              {tracker.streakDays > 0 && (
+                <span className="flex items-center gap-2 mt-3 sm:mt-0">
+                  <Flame className="w-8 h-8 md:w-10 md:h-10 text-red-500 animate-pulse" />
+                  <span className="font-bold text-base sm:text-lg md:text-xl">
+                    {tracker.streakDays}-day streak!
+                  </span>
+                </span>
+              )}
             </p>
           </motion.div>
 
           {/* Quick Action */}
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: "spring" }} className="text-center">
-            <Button
+          <div className="text-center mb-10 md:mb-16">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => navigate("/donors/post-donation/post-donation-add")}
-              size="lg"
-              className="bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-700 hover:to-orange-700 text-white px-12 py-8 text-2xl font-bold rounded-3xl shadow-2xl flex items-center gap-4 mx-auto hover:scale-110 transition"
+              className="bg-gradient-to-r from-orange-600 to-amber-500 text-white w-full max-w-sm sm:max-w-md px-10 py-6 sm:px-14 sm:py-8 rounded-full text-xl sm:text-2xl md:text-3xl font-bold shadow-2xl hover:shadow-3xl transition transform"
             >
-              <Plus className="w-10 h-10" />
+              <Plus className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 inline mr-3 md:mr-4" />
               Post New Donation
-            </Button>
-          </motion.div>
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[{ icon: <Trophy className="w-12 h-12" />, label: "Points", value: tracker.points, color: "from-rose-500 to-pink-500" },
-            { icon: <Crown className="w-12 h-12" />, label: "Rank", value: tracker.rank, suffix: "#", color: "from-amber-500 to-yellow-600" },
-            { icon: <Flame className="w-12 h-12" />, label: "Streak", value: tracker.streakDays, suffix: " days", color: "from-orange-500 to-red-500" },
-            { icon: <Award className="w-12 h-12" />, label: "Badges", value: tracker.badges.filter(b => b.unlocked).length, color: "from-purple-500 to-indigo-500" }].map((stat, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/10 rounded-3xl blur-xl group-hover:blur-2xl transition"></div>
-                <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-8 text-center shadow-2xl border border-white/30">
-                  <div className={`inline-flex p-6 rounded-full bg-gradient-to-br ${stat.color} text-white shadow-xl mb-4 animate-pulse`}>
-                    {stat.icon}
-                  </div>
-                  <div className="text-5xl font-bold text-gray-800">
-                    <CountUp end={stat.value} duration={2} />{stat.suffix}
-                  </div>
-                  <p className="text-lg text-gray-600 mt-2">{stat.label}</p>
-                </div>
-              </motion.div>
-            ))}
+            </motion.button>
           </div>
 
-          {/* Next Badge Progress with shimmer */}
-          {nextBadge && (
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-10 border border-white/30 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-yellow-200 via-yellow-50 to-yellow-200 opacity-20 animate-pulse pointer-events-none"></div>
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-gray-800">Next Badge: {nextBadge.title}</h3>
-                <Trophy className="w-12 h-12 text-yellow-500 animate-bounce" />
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 md:mb-20">
+            {/* Total Donations */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-3xl p-6 md:p-8 text-center shadow-2xl border-4 border-white"
+            >
+              <div className="inline-flex p-4 md:p-6 rounded-full bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-xl mb-4">
+                <Heart className="w-10 h-10 md:w-12 md:h-12 lg:w-16 lg:h-16" />
               </div>
-              <Progress value={progress} className="h-8 rounded-full mb-4" />
-              <div className="flex justify-between text-lg">
-                <span className="text-gray-600">{tracker.points} points</span>
-                <span className="font-bold text-rose-600">{nextBadge.threshold} needed</span>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-800 mb-2">
+                <CountUp end={tracker.totalDonations} duration={2.5} />
+              </div>
+              <p className="text-sm sm:text-base md:text-xl text-gray-700 font-medium">Total Donations</p>
+            </motion.div>
+
+            {/* Points Earned */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white rounded-3xl p-6 md:p-8 text-center shadow-2xl border-4 border-white"
+            >
+              <div className="inline-flex p-4 md:p-6 rounded-full bg-gradient-to-br from-amber-500 to-yellow-600 text-white shadow-xl mb-4">
+                <Trophy className="w-10 h-10 md:w-12 md:h-12 lg:w-16 lg:h-16" />
+              </div>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-800 mb-2">
+                <CountUp end={tracker.points} duration={2.5} />
+              </div>
+              <p className="text-sm sm:text-base md:text-xl text-gray-700 font-medium">Points Earned</p>
+            </motion.div>
+
+            {/* Your Rank */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white rounded-3xl p-6 md:p-8 text-center shadow-2xl border-4 border-white"
+            >
+              <div className="inline-flex p-4 md:p-6 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 text-white shadow-xl mb-4">
+                <Crown className="w-10 h-10 md:w-12 md:h-12 lg:w-16 lg:h-16" />
+              </div>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-800 mb-2">
+                <span className="text-2xl md:text-4xl">#</span>
+                <CountUp end={tracker.rank} duration={2.5} />
+              </div>
+              <p className="text-sm sm:text-base md:text-xl text-gray-700 font-medium">Your Rank</p>
+            </motion.div>
+
+            {/* Badges Unlocked */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-white rounded-3xl p-6 md:p-8 text-center shadow-2xl border-4 border-white"
+            >
+              <div className="inline-flex p-4 md:p-6 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-xl mb-4">
+                <Award className="w-10 h-10 md:w-12 md:h-12 lg:w-16 lg:h-16" />
+              </div>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-800 mb-2">
+                <CountUp end={tracker.badges.filter(b => b.unlocked).length} duration={2.5} />
+              </div>
+              <p className="text-sm sm:text-base md:text-xl text-gray-700 font-medium">Badges Unlocked</p>
+            </motion.div>
+          </div>
+
+          {/* Next Badge Progress */}
+          {nextBadge && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              className="bg-gradient-to-r from-yellow-100 to-amber-100 rounded-3xl shadow-2xl p-6 md:p-12 mb-12 md:mb-20 border-8 border-yellow-300"
+            >
+              <div className="flex flex-col md:flex-row items-center justify-between mb-6 md:mb-8 gap-6">
+                <div className="text-center md:text-left">
+                  <h3 className="text-2xl md:text-3xl font-bold text-amber-800">Next Badge: {nextBadge.title}</h3>
+                  <p className="text-base md:text-xl text-gray-700 mt-2">You're almost there!</p>
+                </div>
+                <Trophy className="w-16 h-16 md:w-20 md:h-20 text-yellow-600 animate-bounce" />
+              </div>
+              <div className="bg-gray-200 rounded-full h-8 md:h-12 overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  whileInView={{ width: `${progress}%` }}
+                  transition={{ duration: 1.5, ease: "easeOut" }}
+                  className="h-full bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full shadow-inner"
+                />
+              </div>
+              <div className="flex flex-col md:flex-row justify-between mt-4 text-base md:text-xl gap-4 text-center md:text-left">
+                <span className="font-bold text-gray-800">{tracker.points} points earned</span>
+                <span className="font-bold text-amber-700">{nextBadge.threshold - tracker.points} more needed</span>
               </div>
             </motion.div>
           )}
 
-          {/* Donations */}
-          <Card className="bg-white/80 backdrop-blur-xl shadow-2xl border-none rounded-3xl overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-rose-600 to-orange-600 text-white">
-              <CardTitle className="text-3xl flex items-center gap-3">
-                <Package className="w-10 h-10" />
-                My Donations
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-8">
-              <Tabs defaultValue="active" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-8">
-                  <TabsTrigger value="active" className="text-lg py-4">Active</TabsTrigger>
-                  <TabsTrigger value="expired" className="text-lg py-4">Completed</TabsTrigger>
-                </TabsList>
+          {/* My Donations */}
+          <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-12 mb-12 md:mb-20">
+            <h2 className="text-3xl md:text-4xl font-bold text-orange-800 mb-8 md:mb-12 text-center flex items-center justify-center gap-4">
+              <Package className="w-10 h-10 md:w-12 md:h-12" />
+              My Donations
+            </h2>
 
-                <TabsContent value="active" className="space-y-6">
-                  {donations.filter(d => d.status === "active").map(d => (
-                    <motion.div key={d.id} whileHover={{ scale: 1.05, rotateZ: 1 }} className="bg-gradient-to-r from-rose-50 to-orange-50 rounded-2xl p-6 shadow-lg border border-rose-200 transition-all hover:shadow-2xl">
-                      <h3 className="text-2xl font-bold text-rose-700 mb-2">{d.title}</h3>
-                      <p className="text-gray-600 mb-4">Expires: {new Date(d.expiry_date).toLocaleDateString()}</p>
-                      <div className="grid grid-cols-4 gap-3">
-                        {d.images?.slice(0, 4).map((img, i) => (
-                          <img key={i} src={img.image_path} alt="" className="w-full h-24 object-cover rounded-xl shadow transition hover:scale-105 hover:shadow-2xl" />
-                        ))}
-                      </div>
-                    </motion.div>
-                  ))}
-                </TabsContent>
-
-                <TabsContent value="expired">
-                  <p className="text-center text-2xl text-gray-600 py-16">All your donations have been successfully delivered!</p>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
-
-          {/* Achievements / Badges */}
-          <Card className="bg-gradient-to-r from-purple-50 to-indigo-50 border-4 border-purple-300 rounded-3xl shadow-2xl">
-            <CardHeader>
-              <CardTitle className="text-3xl text-purple-800 flex items-center gap-3">
-                <Trophy className="w-10 h-10" />
-                Your Badges
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {tracker.badges.map((b) => (
-                  <motion.div
-                    key={b.id}
-                    whileHover={{ scale: 1.1 }}
-                    className={`text-center p-6 rounded-2xl border ${b.unlocked
-                        ? "bg-yellow-100 border-yellow-300"
-                        : "bg-gray-100 border-gray-300 opacity-50"
-                      } transition-shadow shadow-lg`}
-                  >
-                    <Award
-                      className={`w-16 h-16 mx-auto mb-3 ${b.unlocked ? "text-yellow-600 animate-pulse" : "text-gray-400"
-                        }`}
-                    />
-                    <p className="font-bold text-lg">{b.title}</p>
-                    <p className="text-sm text-gray-600">{b.threshold} pts</p>
-                    {b.unlocked ? (
-                      <p className="text-green-600 font-semibold mt-2">Unlocked</p>
-                    ) : (
-                      <p className="text-gray-500 font-semibold mt-2">To Earn</p>
-                    )}
-                  </motion.div>
-                ))}
+            {activeDonations.length === 0 && completedDonations.length === 0 ? (
+              <div className="text-center py-16">
+                <Package className="w-24 h-24 md:w-32 md:h-32 text-gray-300 mx-auto mb-8" />
+                <p className="text-xl md:text-2xl text-gray-600">No donations yet</p>
+                <p className="text-base md:text-xl text-gray-500 mt-4">Your first donation will appear here!</p>
               </div>
-            </CardContent>
-          </Card>
+            ) : (
+              <>
+                {/* Active Donations */}
+                {activeDonations.length > 0 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12 md:mb-16">
+                    {activeDonations.map((donation) => (
+                      <motion.div
+                        key={donation.id}
+                        whileHover={{ scale: 1.05, y: -8 }}
+                        className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-3xl overflow-hidden shadow-xl border-4 border-orange-200"
+                      >
+                        {donation.images?.[0] ? (
+                          <img
+                            src={`http://127.0.0.1:8001/storage/${donation.images[0].image_path}`}
+                            alt={donation.title}
+                            className="w-full h-48 md:h-64 object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-48 md:h-64 bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center">
+                            <Package className="w-20 h-20 md:w-24 md:h-24 text-orange-400" />
+                          </div>
+                        )}
+                        <div className="p-6 md:p-8">
+                          <h3 className="text-lg md:text-2xl font-bold text-orange-800 mb-3 line-clamp-2">{donation.title}</h3>
+                          <p className="text-gray-700 mb-4 text-sm md:text-base">
+                            Expires: {new Date(donation.expiry_date).toLocaleDateString()}
+                          </p>
+                          <div className="bg-green-100 text-green-800 px-4 py-2 md:px-6 md:py-3 rounded-full text-center font-bold text-sm md:text-base">
+                            Active & Available
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
 
+                {/* Completed Donations */}
+                {completedDonations.length > 0 && (
+                  <div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-700 mb-8 text-center">
+                      Completed Donations ❤️
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {completedDonations.map((donation) => (
+                        <div key={donation.id} className="bg-gray-100 rounded-3xl p-6 md:p-8 text-center opacity-90 shadow-lg">
+                          <Package className="w-16 h-16 md:w-20 md:h-20 text-gray-400 mx-auto mb-4" />
+                          <p className="text-base md:text-xl font-bold text-gray-700 mb-2 line-clamp-2">{donation.title}</p>
+                          <p className="text-green-600 font-semibold text-sm md:text-lg">
+                            Successfully Delivered ❤️
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Badges Showcase — PERFECTLY RESPONSIVE & BEAUTIFUL */}
+          <div className="relative bg-gradient-to-r from-purple-100 via-pink-100 to-purple-100 rounded-3xl shadow-2xl p-6 sm:p-8 md:p-12 overflow-hidden">
+            <div className="text-center mb-8 md:mb-12">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-purple-800 flex items-center justify-center gap-3 md:gap-4">
+                <Trophy className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 text-yellow-500 animate-pulse" />
+                Your Achievement Badges
+              </h2>
+              <p className="text-base sm:text-lg md:text-xl text-purple-700 mt-3 md:mt-4">
+                Celebrate every milestone on your kindness journey!
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10">
+              {tracker.badges.map((badge) => (
+                <motion.div
+                  key={badge.id}
+                  whileHover={{ scale: 1.08, y: -8 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`relative text-center p-4 sm:p-6 md:p-8 rounded-3xl transition-all duration-500 overflow-hidden
+           min-h-[260px] sm:min-h-[300px] md:min-h-[340px]
+           flex flex-col justify-between ${badge.unlocked
+                      ? "bg-gradient-to-br from-yellow-200 via-amber-200 to-orange-200 shadow-2xl"
+                      : "bg-gray-100/80 shadow-inner opacity-70"
+                    }`}
+                >
+                  {/* Golden Sparkle Corner */}
+                  {badge.unlocked && (
+                    <div className="absolute -top-3 -right-3">
+                      <div className="relative">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-full blur-xl opacity-70" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-2xl sm:text-3xl md:text-4xl">✨</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex-1 flex flex-col items-center justify-center">
+                    {/* Badge Icon with gentle bounce */}
+                    <motion.div
+                      animate={badge.unlocked ? { y: [0, -6, 0] } : {}}
+                      transition={{ repeat: badge.unlocked ? Infinity : 0, duration: 2 }}
+                      className="mb-4 md:mb-6"
+                    >
+                      <Award
+                        className={`mx-auto drop-shadow-lg ${badge.unlocked
+                            ? "w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 text-yellow-600"
+                            : "w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 text-gray-400"
+                          }`}
+                      />
+                    </motion.div>
+
+                    {/* Title */}
+                    <h4 className="text-sm sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800 mb-2
+               line-clamp-2 break-words px-2">
+                      {badge.title}
+                    </h4>
+
+
+                    {/* Points */}
+                    <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-4">
+                      {badge.threshold} points
+                    </p>
+                  </div>
+
+                  {/* Status — RESPONSIVE TEXT SIZE */}
+                  {badge.unlocked ? (
+                    <div className="mt-3 md:mt-4">
+                      <p className="font-extrabold text-green-600 animate-pulse
+              text-base sm:text-lg md:text-xl lg:text-2xl
+              tracking-wide">
+                        UNLOCKED
+                      </p>
+
+                      <p className="text-2xl sm:text-3xl md:text-4xl mt-1 md:mt-2">🎉✨</p>
+                    </div>
+                  ) : (
+                    <div className="mt-3 md:mt-4 border-2 border-dashed border-gray-400 rounded-2xl py-3 px-2">
+                      <p className="text-gray-500 font-medium
+              text-[11px] sm:text-sm md:text-base
+              leading-snug sm:leading-relaxed
+              break-words">
+                        Keep donating!<br />
+                        <span className="block mt-1 text-orange-600 font-bold text-sm sm:text-base">
+                          {badge.threshold - tracker.points} points needed
+                        </span>
+
+                      </p>
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Subtle Background Sparkles */}
+            <div className="absolute inset-0 pointer-events-none opacity-15">
+              <div className="absolute top-8 left-8 text-5xl sm:text-6xl">✨</div>
+              <div className="absolute bottom-12 right-12 text-4xl sm:text-5xl">🌟</div>
+              <div className="absolute top-1/2 left-1/4 text-4xl">💫</div>
+              <div className="absolute bottom-1/3 right-1/3 text-3xl sm:text-4xl">⭐</div>
+            </div>
+          </div>
         </div>
       </div>
     </AuthenticatedLayout>

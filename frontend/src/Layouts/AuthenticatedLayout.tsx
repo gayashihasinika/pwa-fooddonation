@@ -1,4 +1,4 @@
-// src/Layouts/AuthenticatedLayout.tsx
+// frontend/src/Layouts/AuthenticatedLayout.tsx
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import {
@@ -28,6 +28,7 @@ import {
   MessageSquare,
   Star,
   Zap,
+  Heart,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -49,16 +50,13 @@ interface Props {
 
 export default function AuthenticatedLayout({ children }: Props) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false); // Mobile only
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Detect mobile on mount + resize
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
@@ -78,82 +76,76 @@ export default function AuthenticatedLayout({ children }: Props) {
 
   if (!currentUser) {
     return (
-      <div className="flex items-center justify-center h-screen text-gray-500">
-        Loading...
+      <div className="flex items-center justify-center min-h-screen bg-orange-50">
+        <p className="text-2xl text-orange-700">Loading your dashboard...</p>
       </div>
     );
   }
 
-  const roleAvatar: Record<string, string> = {
-    donor: "/avatars/donor.png",
-    volunteer: "/avatars/volunteer.png",
-    receiver: "/avatars/receiver.png",
-    admin: "/avatars/admin.png",
-  };
-
   const sidebarGroups = {
     donor: [
       {
-        group: "Main",
+        title: "My Activity",
         items: [
-          { icon: <Home size={18} />, label: "Dashboard", href: "/donors/dashboard" },
-          { icon: <Plus size={18} />, label: "Post Donation", href: "/donors/post-donation/post-donation-list" },
-          { icon: <ClipboardList size={18} />, label: "My Donations", href: "/donor/my-donation" },
-          { icon: <Truck size={18} />, label: "My Claims", href: "/donor/claims" },
+          { icon: <Home />, label: "Dashboard", path: "/donors/dashboard" },
+          { icon: <Plus />, label: "Post Donation", path: "/donors/post-donation/post-donation-list" },
+          { icon: <Package />, label: "My Donations", path: "/donor/my-donation" },
+          { icon: <Truck />, label: "Delivery Claims", path: "/donor/claims" },
         ],
       },
       {
-        group: "Gamification",
+        title: "Gamification",
         items: [
-          { icon: <Star size={18} />, label: "My Badges", href: "/donor/gamification/badges" },
-          { icon: <Zap size={18} />, label: "Challenges", href: "/donor/gamification/challenges" },
-          { icon: <Trophy size={18} />, label: "My Streak", href: "/donor/gamification/streak" },
+          { icon: <Star />, label: "My Badges", path: "/donor/gamification/badges" },
+          { icon: <Zap />, label: "Challenges", path: "/donor/gamification/challenges" },
+          { icon: <Heart />, label: "My Streak", path: "/donor/gamification/streak" },
         ],
-      }
+      },
     ],
     volunteer: [
       {
-        group: "Main",
+        title: "Volunteer Hub",
         items: [
-          { icon: <Home size={18} />, label: "Dashboard", href: "/volunteers/dashboard" },
-          { icon: <Truck size={18} />, label: "Delivery Tasks", href: "/volunteers/delivery-tasks" },
-          { icon: <MessageSquare size={18} />, label: "Communications", href: "/volunteers/communications" },
+          { icon: <Home />, label: "Dashboard", path: "/volunteers/dashboard" },
+          { icon: <Truck />, label: "Delivery Tasks", path: "/volunteers/delivery-tasks" },
+          { icon: <MessageSquare />, label: "Messages", path: "/volunteers/messages" },
+          { icon: <Bell />, label: "Notifications", path: "/volunteers/notifications" },
         ],
       },
     ],
     receiver: [
       {
-        group: "Main",
+        title: "Find Food",
         items: [
-          { icon: <Home size={18} />, label: "Dashboard", href: "/receivers/dashboard" },
-          { icon: <Package size={18} />, label: "Available Donations", href: "/receivers/donations" },
-          { icon: <Bell size={18} />, label: "Notifications", href: "/receivers/notifications" },
+          { icon: <Home />, label: "Dashboard", path: "/receivers/dashboard" },
+          { icon: <Package />, label: "Available Donations", path: "/receivers/donations" },
+          { icon: <ClipboardList />, label: "My Requests", path: "/receivers/requests" },
+          { icon: <Bell />, label: "Notifications", path: "/receivers/notifications" },
         ],
       },
     ],
     admin: [
-  {
-    group: "Core Management",
-    items: [
-      { icon: <Home size={18} />, label: "Dashboard", href: "/admin/dashboard" },
-      { icon: <Users size={18} />, label: "User Management", href: "/admin/users" },
-      { icon: <Package size={18} />, label: "Donation Management", href: "/admin/donations" },
-      { icon: <Truck size={18} />, label: "Claim & Delivery", href: "/admin/claims" },
+      {
+        title: "Admin Panel",
+        items: [
+          { icon: <Home />, label: "Dashboard", path: "/admin/dashboard" },
+          { icon: <Users />, label: "User Management", path: "/admin/users" },
+          { icon: <Package />, label: "Donations", path: "/admin/donations" },
+          { icon: <Truck />, label: "Claims & Delivery", path: "/admin/claims" },
+        ],
+      },
+      {
+        title: "Gamification Tools",
+        items: [
+          { icon: <Trophy />, label: "Badges", path: "/admin/gamification/badge-manager" },
+          { icon: <Star />, label: "Points System", path: "/admin/gamification/points-config" },
+          { icon: <Zap />, label: "Challenges", path: "/admin/gamification/challenge-manager" },
+        ],
+      },
     ],
-  },
-  {
-    group: "Gamification",
-    items: [
-      { icon: <Trophy size={18} />, label: "Badge Management", href: "/admin/gamification/badge-manager" },
-      { icon: <Star size={18} />, label: "Points & Rewards", href: "/admin/gamification/points-config" },
-      { icon: <Zap size={18} />, label: "Challenges & Events", href: "/admin/gamification/challenge-manager" },
-      { icon: <Users size={18} />, label: "Donor Streaks", href: "/admin/gamification/streaks" },
-    ],
-  },
-],
   } as const;
 
-  const currentGroups = sidebarGroups[currentUser.role || "donor"] || [];
+  const groups = sidebarGroups[currentUser.role || "donor"];
 
   const handleLogout = () => {
     localStorage.clear();
@@ -161,75 +153,81 @@ export default function AuthenticatedLayout({ children }: Props) {
     navigate("/login");
   };
 
-  // Show sidebar if: desktop OR (mobile and sidebarOpen)
-  const showSidebar = !isMobile || sidebarOpen;
-
   return (
-    <div className="flex min-h-screen bg-gradient-to-b from-rose-50 via-orange-50 to-amber-100">
+    <div className="flex min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
       {/* Sidebar */}
       <AnimatePresence>
-        {showSidebar && (
+        {(!isMobile || sidebarOpen) && (
           <motion.aside
-            initial={{ x: -260 }}
+            initial={{ x: -300 }}
             animate={{ x: 0 }}
-            exit={{ x: -260 }}
+            exit={{ x: -300 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className={`fixed md:static inset-y-0 left-0 z-40 w-64 bg-gradient-to-b from-rose-500 via-orange-400 to-amber-400 text-white shadow-2xl flex flex-col`}
+            className="fixed md:static inset-y-0 left-0 z-50 w-72 bg-gradient-to-b from-orange-600 via-amber-500 to-orange-600 text-white shadow-2xl flex flex-col"
           >
-            {/* Mobile Close Button */}
-            {isMobile && (
-              <div className="flex justify-end p-4">
-                <button
-                  onClick={() => setSidebarOpen(false)}
-                  className="p-2 rounded-lg hover:bg-white/20 transition"
-                >
-                  <X size={24} />
-                </button>
+            {/* Header */}
+            <div className="p-6 border-b border-white/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center">
+                    <span className="text-3xl">🍲</span>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold">FeedSriLanka</h2>
+                    <p className="text-sm opacity-90">Welcome back!</p>
+                  </div>
+                </div>
+                {isMobile && (
+                  <button onClick={() => setSidebarOpen(false)} className="p-2 hover:bg-white/20 rounded-lg">
+                    <X size={24} />
+                  </button>
+                )}
               </div>
-            )}
+            </div>
 
-            {/* User Info */}
-            <div className="flex flex-col items-center p-5 border-b border-white/20">
-              <Avatar className="h-16 w-16 ring-4 ring-white/30">
-                <AvatarImage src={roleAvatar[currentUser.role || "donor"]} />
-                <AvatarFallback className="text-2xl">
-                  {currentUser.name?.[0]?.toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
-              <p className="font-bold mt-3">{currentUser.name || "User"}</p>
-              {currentUser.organization && (
-                <p className="text-sm opacity-90">{currentUser.organization}</p>
-              )}
-              <p className="text-xs bg-white/20 px-3 py-1 rounded-full mt-2">
-                {currentUser.role?.toUpperCase()}
-              </p>
+            {/* User Profile */}
+            <div className="p-6 border-b border-white/20">
+              <div className="flex items-center gap-4">
+                <Avatar className="w-16 h-16 ring-4 ring-white/30">
+                  <AvatarImage src={`/avatars/${currentUser.role}.png`} />
+                  <AvatarFallback className="bg-white/20 text-2xl">
+                    {currentUser.name?.[0]?.toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-bold text-lg">{currentUser.name || "User"}</p>
+                  <p className="text-sm opacity-90 capitalize">{currentUser.role}</p>
+                  {currentUser.organization && (
+                    <p className="text-xs opacity-80 mt-1">{currentUser.organization}</p>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 overflow-y-auto p-4 space-y-6">
-              {currentGroups.map((group, idx) => (
-                <div key={idx}>
-                  <h4 className="text-xs uppercase tracking-wider opacity-80 mb-3">
-                    {group.group}
-                  </h4>
-                  <div className="space-y-1">
+            <nav className="flex-1 overflow-y-auto p-4 space-y-8">
+              {groups.map((group, i) => (
+                <div key={i}>
+                  <h3 className="text-xs uppercase tracking-wider opacity-80 mb-4 px-2">
+                    {group.title}
+                  </h3>
+                  <div className="space-y-2">
                     {group.items.map((item) => {
-                      const isActive = location.pathname === item.href;
+                      const isActive = location.pathname.startsWith(item.path);
                       return (
                         <Button
                           key={item.label}
                           variant="ghost"
                           onClick={() => {
-                            navigate(item.href);
+                            navigate(item.path);
                             if (isMobile) setSidebarOpen(false);
                           }}
-                          className={`w-full justify-start text-left rounded-lg ${
-                            isActive
-                              ? "bg-white text-rose-600 font-bold shadow-lg"
-                              : "hover:bg-white/20"
-                          }`}
+                          className={`w-full justify-start gap-4 text-lg py-6 rounded-xl transition-all ${isActive
+                              ? "bg-white/20 font-bold shadow-lg scale-105"
+                              : "hover:bg-white/10 hover:scale-102"
+                            }`}
                         >
-                          <span className="mr-3">{item.icon}</span>
+                          <span className="text-xl">{item.icon}</span>
                           {item.label}
                         </Button>
                       );
@@ -240,13 +238,14 @@ export default function AuthenticatedLayout({ children }: Props) {
             </nav>
 
             {/* Logout */}
-            <div className="p-4 border-t border-white/20">
+            <div className="p-6 border-t border-white/20">
               <Button
                 variant="ghost"
                 onClick={handleLogout}
-                className="w-full justify-start text-white hover:bg-white/20"
+                className="w-full justify-start gap-4 text-lg py-6 rounded-xl hover:bg-white/10"
               >
-                <LogOut size={18} className="mr-3" /> Logout
+                <LogOut size={24} />
+                Logout
               </Button>
             </div>
           </motion.aside>
@@ -256,39 +255,48 @@ export default function AuthenticatedLayout({ children }: Props) {
       {/* Mobile Overlay */}
       {sidebarOpen && isMobile && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          className="fixed inset-0 bg-black/60 z-40"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="bg-white shadow-md sticky top-0 z-30 border-b">
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-3">
+        {/* Top Header */}
+        <header className="bg-white/90 backdrop-blur-md shadow-lg sticky top-0 z-30">
+          <div className="flex items-center justify-between p-6">
+            <div className="flex items-center gap-4">
               <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-lg hover:bg-gray-100 md:hidden"
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-3 rounded-xl hover:bg-orange-100 transition"
               >
-                <Menu size={24} />
+                <Menu size={28} className="text-orange-700" />
               </button>
-              <h1 className="text-2xl font-bold text-rose-600">Feed SriLanka</h1>
+              <h1 className="text-3xl font-bold text-orange-800">
+                {(currentUser.role
+                  ? currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1)
+                  : "User"
+                )} Portal
+              </h1>
             </div>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Avatar className="cursor-pointer hover:ring-4 hover:ring-rose-200 transition">
-                  <AvatarImage src={roleAvatar[currentUser.role || "donor"]} />
-                  <AvatarFallback>{currentUser.name?.[0] || "U"}</AvatarFallback>
+                <Avatar className="cursor-pointer ring-4 ring-orange-200 hover:ring-orange-400 transition">
+                  <AvatarImage src={`/avatars/${currentUser.role}.png`} />
+                  <AvatarFallback className="bg-orange-200 text-orange-800 text-xl">
+                    {currentUser.name?.[0] || "U"}
+                  </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => navigate("/settings")}>
-                  <Settings className="mr-2" size={16} /> Settings
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
+                  <Settings className="mr-3" size={18} />
+                  Profile Settings
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-                  <LogOut className="mr-2" size={16} /> Logout
+                  <LogOut className="mr-3" size={18} />
+                  Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -296,20 +304,26 @@ export default function AuthenticatedLayout({ children }: Props) {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 md:p-6 bg-gradient-to-b from-orange-50 to-rose-50 overflow-y-auto">
+        <main className="flex-1 p-6 md:p-10">
           <motion.div
             key={location.pathname}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.4 }}
           >
             {children}
           </motion.div>
         </main>
 
         {/* Footer */}
-        <footer className="bg-white text-center py-4 text-sm text-gray-600 border-t">
-          © {new Date().getFullYear()} Feed SriLanka — Made with love for Sri Lanka
+        <footer className="bg-orange-800 text-white py-8 text-center">
+          <p className="text-xl font-semibold mb-2">FeedSriLanka ❤️</p>
+          <p className="opacity-90">
+            Reducing food waste • Feeding families • Building hope across Sri Lanka
+          </p>
+          <p className="text-sm mt-4 opacity-75">
+            © {new Date().getFullYear()} FeedSriLanka — Made with love for our nation
+          </p>
         </footer>
       </div>
     </div>

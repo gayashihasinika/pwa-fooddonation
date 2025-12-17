@@ -1,4 +1,4 @@
-// src/pages/Login.tsx
+// frontend/src/pages/Signup.tsx
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -7,23 +7,14 @@ import { motion } from "framer-motion";
 import { HiMail, HiLockClosed, HiEye, HiEyeOff } from "react-icons/hi";
 import { useLang } from "../context/LanguageContext";
 
-// Fixed Framer Motion variants — NO MORE TYPE ERRORS!
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
-  visible: (custom = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: custom,
-      duration: 0.6,
-      ease: "easeOut" as const, // Fixed: string → proper easing type
-    },
-  }),
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
 export default function Login() {
+  const { t } = useLang();
   const navigate = useNavigate();
-  const { t } = useLang(); // Removed unused: language & changeLanguage
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -31,12 +22,13 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
-      const res = await axios.post("http://127.0.0.1:8001/api/login", form, {
-        headers: { "Content-Type": "application/json" },
-      });
+      const res = await axios.post("http://127.0.0.1:8001/api/login", form);
 
       const { access_token, role, user } = res.data;
+
+      // Store token & user
       localStorage.setItem("auth_token", access_token);
       localStorage.setItem("authUser", JSON.stringify(user));
       localStorage.setItem("user_role", role);
@@ -47,180 +39,215 @@ export default function Login() {
         sessionStorage.setItem("user_role", role);
       }
 
-      toast.success("Login successful!");
-      redirectUser(role);
+      // ROLE-SPECIFIC WELCOME MESSAGE
+      let welcomeMessage = "";
+      let roleIcon = "❤️";
+
+      if (role === "donor") {
+        welcomeMessage = "Thank you for coming back! Your kindness continues to feed families across Sri Lanka 🍲";
+        roleIcon = "🍲";
+      } else if (role === "receiver") {
+        welcomeMessage = "Welcome back! Let's find warm meals waiting for you today 🤝";
+        roleIcon = "🤝";
+      } else if (role === "volunteer") {
+        welcomeMessage = "Thank you for your service! Ready to deliver hope and food today? 🙏";
+        roleIcon = "🙏";
+      } else if (role === "admin") {
+        welcomeMessage = "Welcome back, Admin! Ready to manage and make an impact? 🛠️";
+        roleIcon = "🛠️";
+      }
+
+      const toastId = toast.custom(
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.8, opacity: 0 }}
+          className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-w-sm w-full text-center border-4 border-orange-200"
+        >
+          <motion.div
+            animate={{ y: [0, -15, 0] }}
+            transition={{ repeat: Infinity, duration: 2 }}
+            className="text-7xl mb-4"
+          >
+            {roleIcon}
+          </motion.div>
+
+          <h3 className="text-2xl font-bold text-orange-700 mb-4">
+            Login Successful! 🎉
+          </h3>
+
+          <p className="text-lg text-gray-800 mb-4">
+            Hello <span className="font-bold text-orange-600">{user.name}</span>!
+          </p>
+
+          <p className="text-md text-gray-700 mb-6 leading-relaxed px-2">
+            {welcomeMessage}
+          </p>
+
+          <img
+            src="https://www.remitly.com/blog/wp-content/uploads/2023/09/sri-lanka-rice-and-curry-scaled.jpg"
+            alt="Sri Lankan rice and curry"
+            className="w-full h-40 object-cover rounded-2xl shadow-xl mx-auto mb-4"
+          />
+
+          <p className="text-md text-gray-600">
+            Taking you to your dashboard...
+          </p>
+        </motion.div>,
+        {
+          duration: 3000,
+          position: "top-center",
+          style: { marginTop: "80px" },
+        }
+      );
+
+      // After 3 seconds: close toast + redirect
+      setTimeout(() => {
+        toast.dismiss(toastId);
+        redirectUser(role);
+      }, 3000);
     } catch (err: any) {
-      console.error(err.response?.data || err.message);
-      toast.error(err.response?.data?.message || "Login failed");
+      toast.error(err.response?.data?.message || "Login failed. Please check your credentials.");
     }
   };
 
   const redirectUser = (role: string) => {
     switch (role) {
       case "donor":
-        navigate("/Donors/dashboard");
+        navigate("/donors/dashboard");
         break;
       case "volunteer":
-        navigate("/Volunteers/dashboard");
+        navigate("/volunteers/dashboard");
         break;
       case "receiver":
-        navigate("/Receivers/dashboard");
+        navigate("/receivers/dashboard");
         break;
       case "admin":
-        navigate("/Admin/dashboard");
+        navigate("/admin/dashboard");
         break;
       default:
         navigate("/");
-        break;
     }
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50 font-sans text-gray-800">
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center p-6">
       <Toaster position="top-center" />
 
-      {/* Left Side - Gradient Section */}
-      <div className="hidden md:flex w-1/2 bg-gradient-to-br from-rose-500 via-orange-400 to-amber-400 items-center justify-center text-white relative overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1 }}
-          className="text-center p-12 z-10"
-        >
-          <h1 className="text-5xl font-extrabold mb-4 tracking-tight drop-shadow-md">
-            {t("leftTitle")}
-          </h1>
-          <p className="text-lg text-white/90 leading-relaxed max-w-md mx-auto">
-            {t("leftDesc")}
-          </p>
-        </motion.div>
-        <div className="absolute w-96 h-96 bg-white/20 rounded-full blur-3xl top-20 left-10 opacity-20" />
-      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden"
+      >
+        <div className="grid md:grid-cols-2">
+          {/* Left: Warm Food Image */}
+          <div className="relative h-96 md:h-full">
+            <img
+              src="https://www.remitly.com/blog/wp-content/uploads/2023/09/sri-lanka-rice-and-curry-scaled.jpg"
+              alt="Warm Sri Lankan rice and curry"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+            <div className="absolute bottom-10 left-10 text-white">
+              <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                Welcome Back to FeedSriLanka ❤️
+              </h2>
+              <p className="text-xl opacity-90">
+                Continue your journey of kindness and connection
+              </p>
+            </div>
+          </div>
 
-      {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8 md:p-16">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="w-full max-w-md bg-white shadow-2xl rounded-2xl px-8 py-10"
-        >
-          <motion.h2
-            custom={0}
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            className="text-3xl font-bold text-gray-900 text-center mb-2"
-          >
-            {t("welcomeBack")}
-          </motion.h2>
+          {/* Right: Login Form */}
+          <div className="p-8 md:p-12 lg:p-16">
+            <h2 className="text-4xl font-bold text-orange-800 text-center mb-4">
+              Welcome Back!
+            </h2>
+            <p className="text-center text-gray-600 mb-10">
+              Log in to continue making a difference
+            </p>
 
-          <motion.p
-            custom={0.1}
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            className="text-center text-gray-500 mb-8"
-          >
-            {t("loginSubtitle")}
-          </motion.p>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Email */}
+              <motion.div variants={fadeUp} initial="hidden" animate="visible">
+                <label className="block text-lg font-semibold text-gray-700 mb-2">Email</label>
+                <div className="relative">
+                  <HiMail className="absolute left-4 top-5 text-orange-600" size={24} />
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    placeholder="your@email.com"
+                    className="w-full pl-14 pr-6 py-5 border-2 border-orange-200 rounded-2xl focus:border-orange-500 focus:outline-none text-lg"
+                    required
+                  />
+                </div>
+              </motion.div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email */}
-            <motion.div custom={0.1} initial="hidden" animate="visible" variants={fadeUp}>
-              <label className="text-sm font-medium text-gray-600">{t("email")}</label>
-              <div className="relative mt-1">
-                <HiMail className="absolute left-3 top-3.5 text-gray-400" size={20} />
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder={t("emailPlaceholder") || "you@example.com"}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
-                  required
-                />
+              {/* Password */}
+              <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.1 }}>
+                <label className="block text-lg font-semibold text-gray-700 mb-2">Password</label>
+                <div className="relative">
+                  <HiLockClosed className="absolute left-4 top-5 text-orange-600" size={24} />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    placeholder="••••••••"
+                    className="w-full pl-14 pr-16 py-5 border-2 border-orange-200 rounded-2xl focus:border-orange-500 focus:outline-none text-lg"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-5 text-gray-600"
+                  >
+                    {showPassword ? <HiEyeOff size={24} /> : <HiEye size={24} />}
+                  </button>
+                </div>
+              </motion.div>
+
+              {/* Remember Me + Forgot */}
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={() => setRememberMe(!rememberMe)}
+                    className="w-5 h-5 text-orange-600 rounded focus:ring-orange-500"
+                  />
+                  <span className="text-gray-700">Remember me</span>
+                </label>
+                <span className="text-orange-600 hover:underline cursor-pointer text-sm">
+                  Forgot password?
+                </span>
               </div>
-            </motion.div>
 
-            {/* Password */}
-            <motion.div custom={0.2} initial="hidden" animate="visible" variants={fadeUp}>
-              <label className="text-sm font-medium text-gray-600">{t("password")}</label>
-              <div className="relative mt-1">
-                <HiLockClosed className="absolute left-3 top-3.5 text-gray-400" size={20} />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  placeholder="••••••••"
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:outline-none"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3.5 text-gray-500 hover:text-gray-700"
+              {/* Submit */}
+              <motion.button
+                variants={fadeUp}
+                initial="hidden"
+                animate="visible"
+                transition={{ delay: 0.2 }}
+                type="submit"
+                className="w-full py-6 mt-8 text-2xl font-bold text-white bg-gradient-to-r from-orange-600 to-amber-500 rounded-2xl shadow-2xl hover:shadow-3xl transition transform hover:scale-105"
+              >
+                Login
+              </motion.button>
+
+              <p className="text-center text-gray-600 mt-8">
+                New to FeedSriLanka?{" "}
+                <span
+                  onClick={() => navigate("/signup")}
+                  className="text-orange-700 font-bold hover:underline cursor-pointer"
                 >
-                  {showPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
-                </button>
-              </div>
-            </motion.div>
-
-            {/* Remember Me + Forgot Password */}
-            <motion.div
-              custom={0.3}
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp}
-              className="flex items-center justify-between text-sm"
-            >
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={() => setRememberMe(!rememberMe)}
-                  className="w-4 h-4 text-rose-500 rounded focus:ring-rose-400"
-                />
-                <span className="text-gray-600">{t("rememberMe")}</span>
-              </label>
-              <span
-                onClick={() => navigate("/forgot-password")}
-                className="text-rose-500 hover:underline cursor-pointer"
-              >
-                {t("forgotPassword")}
-              </span>
-            </motion.div>
-
-            {/* Submit Button */}
-            <motion.button
-              custom={0.4}
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp}
-              type="submit"
-              className="w-full py-3.5 mt-6 rounded-xl bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400 text-white font-bold text-lg shadow-lg hover:shadow-xl transform transition-all duration-200 hover:scale-[1.02] active:scale-98"
-            >
-              {t("login")}
-            </motion.button>
-
-            {/* Signup Link */}
-            <motion.p
-              custom={0.5}
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp}
-              className="text-center text-sm text-gray-600 mt-6"
-            >
-              {t("noAccount")}{" "}
-              <span
-                onClick={() => navigate("/signup")}
-                className="text-rose-600 font-bold hover:underline cursor-pointer"
-              >
-                {t("signup")}
-              </span>
-            </motion.p>
-          </form>
-        </motion.div>
-      </div>
+                  Create an account
+                </span>
+              </p>
+            </form>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 }

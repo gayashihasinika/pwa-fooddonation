@@ -1,4 +1,4 @@
-// src/pages/Donors/PostDonation/PostDonationEdit.tsx
+// src/pages/Donors/PostDonation/PostDonationEdit.tsx — BEAUTIFUL & RESPONSIVE
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "@/lib/api";
@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
 import {
   UploadCloud,
-  Package,
   CalendarDays,
+  Package,
   MapPin,
   AlertCircle,
   Droplet,
@@ -30,7 +31,6 @@ import {
 export default function PostDonationEdit() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
   const [loading, setLoading] = useState(true);
   const [mapPreviewUrl, setMapPreviewUrl] = useState("");
   const [lat, setLat] = useState("");
@@ -50,18 +50,16 @@ export default function PostDonationEdit() {
     newImages: [] as File[],
   });
 
-  // FETCH DONATION DATA
   useEffect(() => {
     const fetchDonation = async () => {
       try {
         const res = await api.get(`/donors/donations/${id}`);
         const d = res.data;
 
-        // Fix date format for input[type="date"]
         const formatDate = (dateStr: string) => {
           if (!dateStr) return "";
           const date = new Date(dateStr);
-          return date.toISOString().split("T")[0]; // → YYYY-MM-DD
+          return date.toISOString().split("T")[0];
         };
 
         setForm({
@@ -80,7 +78,6 @@ export default function PostDonationEdit() {
           newImages: [],
         });
 
-        // Auto-show map when page loads
         if (d.pickup_address) {
           setTimeout(() => showMapFromAddress(d.pickup_address), 800);
         }
@@ -91,7 +88,6 @@ export default function PostDonationEdit() {
         setLoading(false);
       }
     };
-
     fetchDonation();
   }, [id, navigate]);
 
@@ -99,7 +95,7 @@ export default function PostDonationEdit() {
     const { name, value } = e.target;
     setForm(prev => ({
       ...prev,
-      [name]: name === "quantity" ? Number(value) || 1 : value,
+      [name]: name === "quantity" ? Math.max(1, Number(value) || 1) : value,
     }));
   };
 
@@ -130,7 +126,13 @@ export default function PostDonationEdit() {
     }));
   };
 
-  // SHOW MAP FROM ADDRESS
+  const removeNewImage = (index: number) => {
+    setForm(prev => ({
+      ...prev,
+      newImages: prev.newImages.filter((_, i) => i !== index),
+    }));
+  };
+
   const showMapFromAddress = async (addressOverride?: string) => {
     const address = (addressOverride || form.pickup_address).trim();
     if (!address) {
@@ -149,11 +151,9 @@ export default function PostDonationEdit() {
 
       if (data && data[0]) {
         const { lat, lon } = data[0];
-
         setLat(lat);
         setLon(lon);
-        setMapPreviewUrl("show"); // Triggers map render
-
+        setMapPreviewUrl("show");
         toast.success("Map loaded!", { id: "map" });
       } else {
         toast.error("Address not found", { id: "map" });
@@ -163,37 +163,31 @@ export default function PostDonationEdit() {
     }
   };
 
-  // SUBMIT UPDATE
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const formData = new FormData();
     formData.append("_method", "PUT");
 
-    // Required fields
+    // Required
     formData.append("title", form.title);
     formData.append("quantity", String(form.quantity));
     formData.append("pickup_address", form.pickup_address);
 
-    // Optional fields
+    // Optional
     formData.append("description", form.description);
     formData.append("expiry_date", form.expiry_date);
     formData.append("preferred_pickup_time", form.preferred_pickup_time);
     formData.append("food_category", form.food_category);
     formData.append("freshness_level", form.freshness_level);
 
-    // Allergy tags
     form.allergy_tags.forEach(tag => formData.append("allergy_tags[]", tag));
-
-    // New images
     form.newImages.forEach(file => formData.append("images[]", file));
-
-    // Existing images to keep
     form.existingImages.forEach(img => formData.append("existing_images[]", String(img.id)));
 
     try {
-      await api.post(`/donations/${id}`, formData);
-      toast.success("Donation updated successfully!");
+      await api.post(`/donors/donations/${id}`, formData);
+      toast.success("Donation updated successfully! ❤️");
       navigate("/donors/post-donation/post-donation-list");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Update failed");
@@ -203,98 +197,134 @@ export default function PostDonationEdit() {
   if (loading) {
     return (
       <AuthenticatedLayout>
-        <div className="p-10 text-center text-xl">Loading donation...</div>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-orange-50 to-amber-50">
+          <p className="text-2xl text-orange-700">Loading donation...</p>
+        </div>
       </AuthenticatedLayout>
     );
   }
 
   return (
     <AuthenticatedLayout>
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 py-8 px-4">
+      <div className="min-h-screen bg-gradient-to-b from-orange-50 via-amber-50 to-yellow-50 py-8 px-4">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           className="max-w-5xl mx-auto"
         >
-          <Card className="rounded-3xl shadow-2xl border-0 bg-white/95 backdrop-blur">
-            <CardHeader className="text-center pt-10 pb-6">
-              <CardTitle className="text-3xl font-bold text-gray-800">
-                Edit Donation
+          {/* Hero Header */}
+          <Card className="mb-12 rounded-3xl shadow-2xl overflow-hidden border-0">
+            <div className="bg-gradient-to-r from-orange-600 to-amber-500 text-white p-12 text-center">
+              <h1 className="text-5xl md:text-6xl font-extrabold mb-6">
+                Edit Your Donation
+              </h1>
+              <p className="text-2xl opacity-90">
+                Update details to help more families ❤️
+              </p>
+            </div>
+          </Card>
+
+          {/* Form Card */}
+          <Card className="rounded-3xl shadow-2xl bg-white/95 backdrop-blur">
+            <CardHeader className="text-center pt-12 pb-8">
+              <CardTitle className="text-4xl font-bold text-orange-800">
+                Update Donation Details
               </CardTitle>
             </CardHeader>
 
-            <CardContent className="px-6 md:px-12 pb-12">
-              <form onSubmit={handleSubmit} className="space-y-10">
-
-                {/* Same beautiful layout as Add page */}
-                <motion.div className="space-y-2">
-                  <Label className="text-lg font-semibold">Donation Title</Label>
+            <CardContent className="px-8 md:px-16 pb-16">
+              <form onSubmit={handleSubmit} className="space-y-12">
+                {/* Title */}
+                <div className="space-y-3">
+                  <Label className="text-xl font-bold text-gray-800">Donation Title</Label>
                   <Input
                     name="title"
                     value={form.title}
                     onChange={handleChange}
-                    className="text-lg py-6"
+                    placeholder="e.g., Fresh Rice & Curry for 8 people"
+                    className="text-lg py-7 rounded-2xl"
                     required
                   />
-                </motion.div>
+                </div>
 
+                {/* Description */}
+                <div className="space-y-3">
+                  <Label className="text-xl font-bold text-gray-800">Description (Optional)</Label>
+                  <Textarea
+                    name="description"
+                    value={form.description}
+                    onChange={handleChange}
+                    placeholder="Any special notes..."
+                    className="min-h-32 rounded-2xl"
+                    rows={4}
+                  />
+                </div>
+
+                {/* Quantity + Expiry */}
                 <div className="grid md:grid-cols-2 gap-8">
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      <Package /> Quantity
+                  <div className="space-y-3">
+                    <Label className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                      <Package className="text-orange-600" />
+                      Quantity (servings)
                     </Label>
                     <Input
                       type="number"
                       name="quantity"
                       value={form.quantity}
                       onChange={handleChange}
-                      min={1}
-                      className="py-6"
+                      min="1"
+                      className="text-lg py-7 rounded-2xl"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      <CalendarDays /> Expiry Date
+                  <div className="space-y-3">
+                    <Label className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                      <CalendarDays className="text-orange-600" />
+                      Expiry Date
                     </Label>
                     <Input
                       type="date"
                       name="expiry_date"
                       value={form.expiry_date}
                       onChange={handleChange}
-                      className="py-6"
+                      className="text-lg py-7 rounded-2xl"
                     />
                   </div>
                 </div>
 
                 {/* Address + Map */}
-                <motion.div className="space-y-6">
-                  <Label className="text-xl font-bold flex items-center gap-3">
-                    <MapPin className="text-rose-600" /> Pickup Location
+                <div className="space-y-6">
+                  <Label className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                    <MapPin className="text-orange-600" />
+                    Pickup Location
                   </Label>
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
                     <Input
                       name="pickup_address"
                       value={form.pickup_address}
                       onChange={handleChange}
-                      placeholder="e.g., Kadawatha, Colombo"
-                      className="flex-1 text-lg py-6"
+                      placeholder="e.g., No. 123, Temple Road, Kadawatha"
+                      className="flex-1 text-lg py-7 rounded-2xl"
                     />
                     <Button
                       type="button"
                       variant="secondary"
                       size="lg"
                       onClick={() => showMapFromAddress()}
-                      className="flex items-center gap-2"
+                      className="whitespace-nowrap shadow-lg hover:shadow-xl font-bold flex items-center gap-3"
                     >
-                      <Search className="w-5 h-5" /> Show on Map
+                      <Search className="w-5 h-5" />
+                      Show on Map
                     </Button>
                   </div>
 
-                  {/* MAP — NOW WORKS 100% */}
                   {mapPreviewUrl && lat && lon && (
-                    <motion.div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-rose-100 bg-gray-50">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-orange-100"
+                    >
                       <iframe
-                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(lon) - 0.015},${parseFloat(lat) - 0.015},${parseFloat(lon) + 0.015},${parseFloat(lat) + 0.015}&layer=mapnik&marker=${lat},${lon}`}
+                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(lon) - 0.02},${parseFloat(lat) - 0.02},${parseFloat(lon) + 0.02},${parseFloat(lat) + 0.02}&layer=mapnik&marker=${lat},${lon}`}
                         width="100%"
                         height="520"
                         frameBorder="0"
@@ -311,17 +341,17 @@ export default function PostDonationEdit() {
                       </button>
                     </motion.div>
                   )}
-                </motion.div>
+                </div>
 
-                {/* Food Category + Freshness */}
+                {/* Category + Freshness */}
                 <div className="grid md:grid-cols-2 gap-8">
-                  <div className="space-y-2">
-                    <Label>Food Category</Label>
+                  <div className="space-y-3">
+                    <Label className="text-xl font-bold text-gray-800">Food Category</Label>
                     <Select value={form.food_category} onValueChange={(v) => handleSelectChange("food_category", v)}>
-                      <SelectTrigger className="py-6">
+                      <SelectTrigger className="py-7 text-lg rounded-2xl">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
-                      <SelectContent className="z-50 bg-white shadow-2xl border border-gray-200 rounded-xl min-w-[280px]" position="popper" sideOffset={8}>
+                      <SelectContent>
                         <SelectItem value="rice">Rice & Curry</SelectItem>
                         <SelectItem value="bread">Bread & Bakery</SelectItem>
                         <SelectItem value="packaged">Packaged Food</SelectItem>
@@ -332,18 +362,16 @@ export default function PostDonationEdit() {
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      <Droplet /> Freshness Level
+                  <div className="space-y-3">
+                    <Label className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                      <Droplet className="text-blue-600" />
+                      Freshness Level
                     </Label>
                     <Select value={form.freshness_level} onValueChange={(v) => handleSelectChange("freshness_level", v)}>
-                      <SelectTrigger className="py-6">
+                      <SelectTrigger className="py-7 text-lg rounded-2xl">
                         <SelectValue placeholder="How fresh?" />
                       </SelectTrigger>
-                      <SelectContent className="z-50 bg-white shadow-2xl border border-gray-200 rounded-xl min-w-[300px]"
-                        position="popper"
-                        sideOffset={8}
-                      >
+                      <SelectContent>
                         <SelectItem value="freshly_cooked">Freshly Cooked Today</SelectItem>
                         <SelectItem value="yesterdays_leftover">Yesterday's Leftover</SelectItem>
                         <SelectItem value="packaged_sealed">Factory Sealed</SelectItem>
@@ -353,73 +381,123 @@ export default function PostDonationEdit() {
                 </div>
 
                 {/* Allergy Tags */}
-                <motion.div className="space-y-4">
-                  <Label className="flex items-center gap-2">
-                    <AlertCircle className="text-amber-600" /> Allergy Information
+                <div className="space-y-4">
+                  <Label className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                    <AlertCircle className="text-amber-600" />
+                    Allergy Information (Optional)
                   </Label>
-                  <div className="bg-amber-50 rounded-2xl p-6">
+                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                       {["nuts", "dairy", "gluten", "eggs", "soy", "seafood"].map(tag => (
-                        <label key={tag} className="flex items-center gap-3 cursor-pointer">
+                        <label key={tag} className="flex items-center gap-3 cursor-pointer group">
                           <input
                             type="checkbox"
                             checked={form.allergy_tags.includes(tag)}
                             onChange={() => handleAllergyChange(tag)}
-                            className="w-6 h-6 text-rose-600 rounded"
+                            className="w-6 h-6 text-orange-600 rounded focus:ring-orange-500"
                           />
-                          <span className="capitalize font-medium">{tag}</span>
+                          <span className="capitalize font-medium group-hover:text-orange-600 transition">
+                            {tag}
+                          </span>
                         </label>
                       ))}
                     </div>
                   </div>
-                </motion.div>
+                </div>
 
                 {/* Images */}
-                <motion.div className="space-y-4">
-                  <Label className="flex items-center gap-2">
-                    <UploadCloud /> Photos
+                <div className="space-y-6">
+                  <Label className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                    <UploadCloud className="text-orange-600" />
+                    Photos
                   </Label>
-                  <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
-                    {form.existingImages.map(img => (
-                      <div key={img.id} className="relative group">
-                        <img
-                          src={`http://127.0.0.1:8001/storage/${img.image_path}`}
-                          alt="Donation"
-                          className="w-full h-32 object-cover rounded-xl border-2 border-gray-200"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeExistingImage(img.id)}
-                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
-                        >
-                          <X size={16} />
-                        </button>
-                      </div>
-                    ))}
-                    {form.newImages.map((file, i) => (
-                      <img
-                        key={i}
-                        src={URL.createObjectURL(file)}
-                        alt="New"
-                        className="w-full h-32 object-cover rounded-xl border-2 border-dashed border-rose-300"
-                      />
-                    ))}
-                  </div>
-                  <Input type="file" multiple onChange={handleFileChange} className="cursor-pointer" />
-                </motion.div>
 
-                {/* Submit */}
-                <motion.div className="pt-8 flex gap-4 justify-center">
+                  {/* Existing Images */}
+                  {form.existingImages.length > 0 && (
+                    <div>
+                      <p className="text-lg text-gray-700 mb-4">Current Photos</p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        {form.existingImages.map(img => (
+                          <div key={img.id} className="relative group">
+                            <img
+                              src={`http://127.0.0.1:8001/storage/${img.image_path}`}
+                              alt="Current"
+                              className="w-full h-40 object-cover rounded-2xl shadow-lg"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeExistingImage(img.id)}
+                              className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-2 shadow-lg opacity-0 group-hover:opacity-100 transition"
+                            >
+                              <X className="w-5 h-5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* New Images */}
+                  {form.newImages.length > 0 && (
+                    <div>
+                      <p className="text-lg text-gray-700 mb-4 mt-8">New Photos</p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        {form.newImages.map((file, i) => (
+                          <div key={i} className="relative group">
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt="New"
+                              className="w-full h-40 object-cover rounded-2xl shadow-lg border-2 border-dashed border-orange-300"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeNewImage(i)}
+                              className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-2 shadow-lg opacity-0 group-hover:opacity-100 transition"
+                            >
+                              <X className="w-5 h-5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Upload New */}
+                  <div className="border-4 border-dashed border-orange-200 bg-orange-50 rounded-3xl p-12 text-center hover:border-orange-400 transition">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleFileChange}
+                      className="hidden"
+                      id="new-images"
+                    />
+                    <label htmlFor="new-images" className="cursor-pointer">
+                      <UploadCloud className="w-20 h-20 text-orange-600 mx-auto mb-4" />
+                      <p className="text-2xl font-bold text-gray-800">Add More Photos</p>
+                      <p className="text-gray-600 mt-2">Click to upload</p>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="pt-8 flex flex-col sm:flex-row gap-6 justify-center">
                   <Button
                     type="submit"
-                    className="px-12 py-6 text-xl font-bold bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-700 hover:to-orange-700"
+                    className="w-full sm:w-auto px-16 py-8 text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-500 text-white rounded-3xl shadow-2xl hover:shadow-3xl transition transform hover:scale-105"
                   >
                     Update Donation
                   </Button>
-                  <Button type="button" variant="outline" size="lg" onClick={() => navigate(-1)}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    onClick={() => navigate(-1)}
+                    className="w-full sm:w-auto px-16 py-8 text-xl border-4 border-orange-600 text-orange-700 hover:bg-orange-50"
+                  >
                     Cancel
                   </Button>
-                </motion.div>
+                </div>
               </form>
             </CardContent>
           </Card>
