@@ -1,13 +1,12 @@
-// src/pages/Donors/ChallengeDashboard.tsx
-import { useEffect, useState, useMemo } from "react";
+// src/pages/Donors/ChallengeDashboard.tsx — FULLY RESPONSIVE & EMOTIONAL
+import { useEffect, useState } from "react";
 import api from "@/lib/api";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { Award, Flame, Lock, CheckCircle, XCircle } from "lucide-react";
+import { Flame, Lock, CheckCircle, Sparkles } from "lucide-react";
 import { toast } from "react-hot-toast";
+import Confetti from "react-confetti";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-
-type AuthUser = { id: number };
 
 interface Challenge {
   id: number;
@@ -16,25 +15,15 @@ interface Challenge {
   points_reward: number;
   start_date: string;
   end_date: string;
-  active: number;
-  status: "active" | "completed" | "upcoming" | "expired" | "inactive";
+  status: "active" | "completed" | "upcoming" | "expired";
   completed: boolean;
   user_points_earned?: number;
-  progress?: number; // optional for future use
 }
 
 export default function ChallengeDashboard() {
-  const authUser: AuthUser | null = useMemo(() => {
-    try {
-      const raw = localStorage.getItem("authUser");
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  }, []);
-
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
     loadChallenges();
@@ -43,8 +32,7 @@ export default function ChallengeDashboard() {
   const loadChallenges = async () => {
     try {
       const res = await api.get("/donors/challenges");
-      console.log("API response:", res.data);
-      setChallenges(res.data.challenges);
+      setChallenges(res.data.challenges || []);
     } catch (err) {
       toast.error("Failed to load challenges");
     } finally {
@@ -55,176 +43,270 @@ export default function ChallengeDashboard() {
   const completeChallenge = async (id: number) => {
     try {
       await api.post(`/donors/challenges/${id}/complete`);
-      toast.success("Challenge completed!");
-      loadChallenges(); // refresh challenges
+      toast.success("🎉 Challenge completed! Amazing work!");
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 6000);
+      loadChallenges();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to complete challenge");
     }
   };
 
-  const sectionTitle = (text: string) => (
-    <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-      <Flame className="text-orange-600" /> {text}
-    </h2>
-  );
+  const activeChallenges = challenges.filter(c => c.status === "active");
+  const completedChallenges = challenges.filter(c => c.status === "completed");
+  const totalPointsEarned = completedChallenges.reduce((sum, c) => sum + c.points_reward, 0);
 
-  const statusConfig = {
-    active: { color: "bg-orange-100 text-orange-700", icon: <Flame /> },
-    completed: { color: "bg-green-200 text-green-800", icon: <CheckCircle /> },
-    upcoming: { color: "bg-gray-200 text-gray-700", icon: <Lock /> },
-    expired: { color: "bg-red-200 text-red-800", icon: <XCircle /> },
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case "active": return { 
+        gradient: "from-orange-400 to-amber-500", 
+        border: "border-orange-500",
+        text: "text-orange-700",
+        message: "On its way to making a difference"
+      };
+      case "completed": return { 
+        gradient: "from-green-400 to-emerald-500", 
+        border: "border-green-500",
+        text: "text-green-800",
+        message: "Completed with love ❤️"
+      };
+      case "upcoming": return { 
+        gradient: "from-gray-300 to-gray-400", 
+        border: "border-gray-400",
+        text: "text-gray-600",
+        message: "Coming soon"
+      };
+      default: return { gradient: "from-gray-200 to-gray-300", border: "border-gray-300", text: "text-gray-500", message: "Expired" };
+    }
   };
 
   if (loading) {
     return (
       <AuthenticatedLayout>
-        <p className="text-center mt-10 text-lg font-medium">Loading challenges...</p>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-orange-50 to-amber-50">
+          <p className="text-2xl text-orange-700">Loading your challenges...</p>
+        </div>
       </AuthenticatedLayout>
     );
   }
 
-  // Filter challenges by status
-  const active = challenges.filter((c) => c.status === "active");
-  const completed = challenges.filter((c) => c.status === "completed");
-  const upcoming = challenges.filter((c) => c.status === "upcoming");
-
   return (
     <AuthenticatedLayout>
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-rose-50 py-10 px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-5xl mx-auto"
-        >
-          {/* Dashboard Header */}
-          <Card className="shadow-xl rounded-3xl border-0 mb-8">
-            <CardHeader className="text-center py-8 bg-gradient-to-r from-rose-600 to-orange-600 text-white">
-              <CardTitle className="text-4xl font-bold">
-                Donor Challenge Dashboard
-              </CardTitle>
-              <p className="text-lg opacity-90">Complete challenges and earn more points</p>
-            </CardHeader>
-          </Card>
+      {showConfetti && <Confetti recycle={false} numberOfPieces={250} gravity={0.08} />}
+
+      <div className="min-h-screen bg-gradient-to-b from-orange-50 via-amber-50 to-yellow-50 py-8 px-4 sm:py-12">
+        <div className="max-w-7xl mx-auto">
+          {/* Hero Header */}
+          <motion.div
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-12 sm:mb-16"
+          >
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-rose-600 via-orange-600 to-amber-600 mb-6">
+              Rise to the Challenge
+            </h1>
+            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-orange-700 max-w-4xl mx-auto px-4">
+              Complete missions, earn points, and feed more families across Sri Lanka ❤️
+            </p>
+          </motion.div>
+
+          {/* Impact Summary */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-orange-200 to-amber-200 rounded-3xl shadow-2xl p-6 sm:p-10 mb-12 sm:mb-16 text-center border-8 border-orange-300"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12">
+              <div>
+                <Flame className="w-16 h-16 sm:w-20 sm:h-20 text-orange-600 mx-auto mb-4" />
+                <p className="text-4xl sm:text-6xl font-extrabold text-orange-800">{activeChallenges.length}</p>
+                <p className="text-lg sm:text-2xl text-orange-700 mt-3">Active Challenges</p>
+              </div>
+              <div>
+                <CheckCircle className="w-16 h-16 sm:w-20 sm:h-20 text-green-600 mx-auto mb-4" />
+                <p className="text-4xl sm:text-6xl font-extrabold text-orange-800">{completedChallenges.length}</p>
+                <p className="text-lg sm:text-2xl text-orange-700 mt-3">Completed</p>
+              </div>
+              <div>
+                <Sparkles className="w-16 h-16 sm:w-20 sm:h-20 text-amber-600 mx-auto mb-4" />
+                <p className="text-4xl sm:text-6xl font-extrabold text-orange-800">{totalPointsEarned}</p>
+                <p className="text-lg sm:text-2xl text-orange-700 mt-3">Points Earned</p>
+              </div>
+            </div>
+          </motion.div>
 
           {/* Active Challenges */}
-          {sectionTitle("Active Challenges")}
-          <div className="grid md:grid-cols-2 gap-6 mb-10">
-            {active.length ? (
-              active.map((challenge) => (
-                <motion.div
-                  key={challenge.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.4 }}
-                >
-                  <Card className="border-l-8 border-orange-500 rounded-2xl shadow-lg">
-                    <CardContent className="py-6">
-                      <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                        <Award className="text-orange-600" /> {challenge.title}
-                      </h3>
-                      <p className="text-gray-600 mt-2">{challenge.description}</p>
+          <div className="mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-orange-800 mb-8 sm:mb-10 text-center flex items-center justify-center gap-4">
+              <Flame className="w-10 h-10 sm:w-12 sm:h-12 text-orange-600" />
+              Active Challenges
+            </h2>
 
-                      {/* Optional progress bar */}
-                      {challenge.progress !== undefined && (
-                        <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                          <div
-                            className="bg-orange-500 h-2 rounded-full"
-                            style={{ width: `${challenge.progress}%` }}
-                          />
+            {activeChallenges.length === 0 ? (
+              <motion.div className="text-center py-16 sm:py-20 bg-white/80 backdrop-blur rounded-3xl shadow-2xl">
+                <Flame className="w-24 h-24 sm:w-32 sm:h-32 text-orange-300 mx-auto mb-8" />
+                <p className="text-2xl sm:text-3xl text-orange-800 mb-4">No Active Challenges</p>
+                <p className="text-lg sm:text-xl text-gray-700 px-4">New challenges coming soon — stay ready!</p>
+              </motion.div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
+                {activeChallenges.map((challenge, i) => (
+                  <motion.div
+                    key={challenge.id}
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    whileHover={{ y: -8 }}
+                    className="group relative"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-orange-300/40 to-amber-300/40 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                    <Card className="relative rounded-3xl shadow-2xl border-8 border-orange-400 overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-3 sm:h-4 bg-gradient-to-r from-orange-500 to-amber-500" />
+
+                      <CardContent className="p-6 sm:p-10 text-center">
+                        <motion.div
+                          animate={{ scale: [1, 1.1, 1] }}
+                          transition={{ repeat: Infinity, duration: 2 }}
+                          className="inline-flex p-6 sm:p-8 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 text-white shadow-3xl mb-6 sm:mb-8"
+                        >
+                          <Flame className="w-12 h-12 sm:w-20 sm:h-20" />
+                        </motion.div>
+
+                        <h3 className="text-2xl sm:text-3xl font-bold text-orange-800 mb-4 sm:mb-6">
+                          {challenge.title}
+                        </h3>
+
+                        <p className="text-base sm:text-lg text-gray-700 mb-6 sm:mb-8 leading-relaxed px-2">
+                          {challenge.description}
+                        </p>
+
+                        <div className="bg-orange-100 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8">
+                          <p className="text-4xl sm:text-5xl font-extrabold text-orange-700">
+                            +{challenge.points_reward}
+                          </p>
+                          <p className="text-lg sm:text-xl text-orange-800 mt-2">Points Reward</p>
                         </div>
-                      )}
 
-                      <div className="mt-4 flex justify-between items-center">
-                        <span className="text-orange-700 font-bold text-lg">
-                          +{challenge.points_reward} points
-                        </span>
+                        <p className="text-orange-700 italic text-sm sm:text-base mb-6 sm:mb-8">
+                          {getStatusConfig(challenge.status).message}
+                        </p>
+
                         <button
                           onClick={() => completeChallenge(challenge.id)}
-                          className="px-3 py-1 bg-blue-500 text-white rounded-full text-sm hover:bg-blue-600 transition"
+                          className="w-full bg-gradient-to-r from-orange-600 to-amber-500 text-white py-4 sm:py-6 rounded-2xl text-lg sm:text-2xl font-bold shadow-2xl hover:shadow-3xl transition transform hover:scale-105"
                         >
-                          Mark as Completed
+                          Complete Challenge
                         </button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))
-            ) : (
-              <p>No active challenges</p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
             )}
           </div>
 
           {/* Completed Challenges */}
-          {sectionTitle("Completed Challenges")}
-          <div className="grid md:grid-cols-2 gap-6 mb-10">
-            {completed.length ? (
-              completed.map((challenge) => (
-                <Card
-                  key={challenge.id}
-                  className="rounded-2xl shadow-lg border-l-8 border-green-500 bg-green-50"
-                >
-                  <CardContent className="py-6">
-                    <h3 className="text-xl font-bold flex items-center gap-2 text-green-700">
-                      <CheckCircle className="text-green-600" /> {challenge.title}
-                    </h3>
-                    <p className="text-gray-600 mt-2">{challenge.description}</p>
+          <div className="mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-green-800 mb-8 sm:mb-10 text-center flex items-center justify-center gap-4">
+              <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-green-600" />
+              Completed Challenges
+            </h2>
 
-                    <div className="mt-4 flex justify-between items-center">
-                      <span className="text-green-700 font-bold text-lg">
-                        Earned: +{challenge.user_points_earned || challenge.points_reward}
-                      </span>
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm ${
-                          statusConfig[challenge.status]?.color
-                        }`}
-                      >
-                        {challenge.status.charAt(0).toUpperCase() + challenge.status.slice(1)}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
+            {completedChallenges.length === 0 ? (
+              <p className="text-center text-lg sm:text-xl text-gray-600">No completed challenges yet — your first victory awaits!</p>
             ) : (
-              <p>No completed challenges yet</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
+                {completedChallenges.map((challenge, i) => (
+                  <motion.div
+                    key={challenge.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <Card className="rounded-3xl shadow-2xl border-8 border-green-400 bg-gradient-to-br from-green-50 to-emerald-50">
+                      <CardContent className="p-6 sm:p-10 text-center">
+                        <motion.div
+                          animate={{ rotate: [0, 10, -10, 0] }}
+                          transition={{ repeat: Infinity, duration: 4 }}
+                          className="inline-flex p-6 sm:p-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 text-white shadow-3xl mb-6 sm:mb-8"
+                        >
+                          <CheckCircle className="w-12 h-12 sm:w-20 sm:h-20" />
+                        </motion.div>
+
+                        <h3 className="text-2xl sm:text-3xl font-bold text-green-800 mb-4 sm:mb-6">
+                          {challenge.title}
+                        </h3>
+
+                        <p className="text-base sm:text-lg text-gray-700 mb-6 sm:mb-8">
+                          {challenge.description}
+                        </p>
+
+                        <div className="bg-green-100 rounded-2xl p-4 sm:p-6">
+                          <p className="text-4xl sm:text-5xl font-extrabold text-green-700">
+                            +{challenge.points_reward}
+                          </p>
+                          <p className="text-lg sm:text-xl text-green-800 mt-2">Points Earned!</p>
+                        </div>
+
+                        <p className="text-green-700 italic text-sm sm:text-xl mt-6 sm:mt-8">
+                          {getStatusConfig(challenge.status).message}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
             )}
           </div>
 
           {/* Upcoming Challenges */}
-          {sectionTitle("Upcoming Challenges")}
-          <div className="grid md:grid-cols-2 gap-6">
-            {upcoming.length ? (
-              upcoming.map((challenge) => (
-                <Card
-                  key={challenge.id}
-                  className="rounded-2xl shadow-lg border-l-8 border-gray-400 bg-gray-50"
-                >
-                  <CardContent className="py-6">
-                    <h3 className="text-xl font-bold flex items-center gap-2 text-gray-700">
-                      <Lock className="text-gray-600" /> {challenge.title}
-                    </h3>
-                    <p className="text-gray-600 mt-2">{challenge.description}</p>
+          <div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-700 mb-8 sm:mb-10 text-center flex items-center justify-center gap-4">
+              <Lock className="w-10 h-10 sm:w-12 sm:h-12 text-gray-500" />
+              Upcoming Challenges
+            </h2>
 
-                    <div className="mt-4 flex justify-between items-center">
-                      <span className="text-gray-700 font-bold text-lg">
-                        +{challenge.points_reward} points
-                      </span>
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm ${
-                          statusConfig[challenge.status]?.color
-                        }`}
-                      >
-                        {challenge.status.charAt(0).toUpperCase() + challenge.status.slice(1)}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
+            {challenges.filter(c => c.status === "upcoming").length === 0 ? (
+              <p className="text-center text-lg sm:text-xl text-gray-600">New challenges coming soon — stay excited!</p>
             ) : (
-              <p>No upcoming challenges</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
+                {challenges.filter(c => c.status === "upcoming").map((challenge, i) => (
+                  <motion.div
+                    key={challenge.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <Card className="rounded-3xl shadow-2xl border-8 border-gray-300 bg-gray-50">
+                      <CardContent className="p-6 sm:p-10 text-center">
+                        <div className="inline-flex p-6 sm:p-8 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 text-white shadow-3xl mb-6 sm:mb-8">
+                          <Lock className="w-12 h-12 sm:w-20 sm:h-20" />
+                        </div>
+
+                        <h3 className="text-2xl sm:text-3xl font-bold text-gray-700 mb-4 sm:mb-6">
+                          {challenge.title}
+                        </h3>
+
+                        <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8">
+                          {challenge.description}
+                        </p>
+
+                        <p className="text-xl sm:text-2xl font-bold text-gray-700">
+                          +{challenge.points_reward} points
+                        </p>
+
+                        <p className="text-gray-500 italic text-sm sm:text-base mt-4 sm:mt-6">
+                          Starts soon
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
             )}
           </div>
-        </motion.div>
+        </div>
       </div>
     </AuthenticatedLayout>
   );

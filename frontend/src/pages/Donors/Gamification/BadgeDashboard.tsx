@@ -1,7 +1,8 @@
-// src/pages/Donors/BadgeDashboard.tsx
+// src/pages/Donors/BadgeDashboard.tsx — A CELEBRATION OF KINDNESS
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
+import Confetti from "react-confetti";
 import { 
   Trophy, 
   Star, 
@@ -10,7 +11,8 @@ import {
   Flame, 
   Zap, 
   Award,
-  RefreshCw 
+  RefreshCw,
+  Heart
 } from "lucide-react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import api from "@/lib/api";
@@ -29,6 +31,7 @@ export default function BadgeDashboard() {
   const [points, setPoints] = useState(0);
   const [loading, setLoading] = useState(true);
   const [checking, setChecking] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
     fetchGamificationData();
@@ -41,8 +44,7 @@ export default function BadgeDashboard() {
       setBadges(data.badges || []);
       setPoints(data.points || 0);
     } catch (err: any) {
-      console.error("Failed to load gamification data:", err);
-      toast.error("Failed to load badges");
+      toast.error("Failed to load your achievements");
     } finally {
       setLoading(false);
     }
@@ -54,10 +56,12 @@ export default function BadgeDashboard() {
       const { data } = await api.post("/donors/gamification/check-and-assign");
       
       if (data.awarded_badges && data.awarded_badges.length > 0) {
-        toast.success(`New badge(s) earned!`);
-        fetchGamificationData(); // Refresh with new badges
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 8000);
+        toast.success(`🎉 Congratulations! You earned ${data.awarded_badges.length} new badge(s)!`);
+        fetchGamificationData();
       } else {
-        toast("No new badges earned yet");
+        toast("No new badges yet — keep donating! ❤️");
       }
     } catch (err: any) {
       toast.error("Failed to check badges");
@@ -66,145 +70,193 @@ export default function BadgeDashboard() {
     }
   };
 
-  const getBadgeIcon = (points: number) => {
-    if (points >= 500) return <Crown className="w-16 h-16" />;
-    if (points >= 200) return <Flame className="w-16 h-16" />;
-    if (points >= 100) return <Trophy className="w-16 h-16" />;
-    if (points >= 50) return <Zap className="w-16 h-16" />;
-    if (points >= 20) return <Star className="w-16 h-16" />;
-    return <Sparkles className="w-16 h-16" />;
+  // Calculate progress
+  const earnedBadges = badges.filter(b => b.earned).length;
+  const totalBadges = badges.length;
+  const nextBadge = badges.find(b => !b.earned);
+
+  const getBadgeIcon = (points: number, earned: boolean) => {
+    if (points >= 500) return <Crown className={`w-20 h-20 ${earned ? "text-purple-600" : "text-gray-400"}`} />;
+    if (points >= 200) return <Flame className={`w-20 h-20 ${earned ? "text-red-600" : "text-gray-400"}`} />;
+    if (points >= 100) return <Trophy className={`w-20 h-20 ${earned ? "text-yellow-600" : "text-gray-400"}`} />;
+    if (points >= 50) return <Zap className={`w-20 h-20 ${earned ? "text-blue-600" : "text-gray-400"}`} />;
+    return <Star className={`w-20 h-20 ${earned ? "text-green-600" : "text-gray-400"}`} />;
   };
 
-  const getBadgeColor = (earned: boolean, points: number) => {
-    if (!earned) return "from-gray-400 to-gray-600";
-    if (points >= 500) return "from-purple-500 to-pink-500";
-    if (points >= 200) return "from-orange-500 to-red-500";
-    if (points >= 100) return "from-yellow-500 to-amber-600";
-    if (points >= 50) return "from-blue-500 to-cyan-500";
-    return "from-green-500 to-emerald-600";
-  };
+  if (loading) {
+    return (
+      <AuthenticatedLayout>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-orange-50 to-amber-50">
+          <p className="text-2xl text-orange-700">Loading your achievements...</p>
+        </div>
+      </AuthenticatedLayout>
+    );
+  }
 
   return (
     <AuthenticatedLayout>
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 via-amber-50 to-orange-100 py-8 px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-7xl mx-auto"
-        >
-          {/* Header */}
-          <div className="text-center mb-12">
-            <motion.h1 
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-orange-600 mb-4"
-            >
-              My Badges & Points
-            </motion.h1>
-            <p className="text-xl text-gray-700 mt-4">
-              Earn points by donating • Unlock achievements • Become a top donor!
-            </p>
-          </div>
+      {showConfetti && <Confetti recycle={false} numberOfPieces={300} gravity={0.05} />}
 
-          {/* Points Display */}
+      <div className="min-h-screen bg-gradient-to-b from-orange-50 via-amber-50 to-yellow-50 py-12 px-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Hero Header */}
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 200, damping: 15 }}
-            className="text-center mb-12"
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-16"
           >
-            <div className="inline-flex flex-col items-center bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-10 border-4 border-white">
-              <Award className="w-20 h-20 text-yellow-500 mb-4" />
-              <div className="text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-orange-600">
-                {points}
+            <h1 className="text-6xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-rose-600 via-orange-600 to-amber-600 mb-8">
+              Your Journey of Kindness
+            </h1>
+            <p className="text-2xl md:text-3xl text-orange-700 max-w-4xl mx-auto">
+              Every badge tells a story of hope. Every point brings a meal to someone in need ❤️
+            </p>
+          </motion.div>
+
+          {/* Impact Summary */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-orange-200 to-amber-200 rounded-3xl shadow-2xl p-10 mb-16 text-center border-8 border-orange-300"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div>
+                <Heart className="w-16 h-16 text-red-600 mx-auto mb-4" />
+                <p className="text-5xl font-extrabold text-orange-800">{points}</p>
+                <p className="text-2xl text-orange-700 mt-2">Points Earned</p>
               </div>
-              <p className="text-2xl text-gray-700 mt-3">Total Points Earned</p>
+              <div>
+                <Trophy className="w-16 h-16 text-yellow-600 mx-auto mb-4" />
+                <p className="text-5xl font-extrabold text-orange-800">{earnedBadges}</p>
+                <p className="text-2xl text-orange-700 mt-2">Badges Unlocked</p>
+              </div>
+              <div>
+                <Sparkles className="w-16 h-16 text-amber-600 mx-auto mb-4" />
+                <p className="text-5xl font-extrabold text-orange-800">{totalBadges}</p>
+                <p className="text-2xl text-orange-700 mt-2">Total Achievements</p>
+              </div>
             </div>
           </motion.div>
 
+          {/* Next Badge Highlight */}
+          {nextBadge && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-3xl shadow-2xl p-10 mb-16 text-center border-8 border-purple-300"
+            >
+              <h3 className="text-3xl font-bold text-purple-800 mb-4">
+                Next Badge: {nextBadge.title}
+              </h3>
+              <p className="text-xl text-purple-700 mb-6">
+                {nextBadge.description || "Keep donating to unlock this achievement!"}
+              </p>
+              <div className="text-5xl font-bold text-purple-800">
+                {nextBadge.points_reward} points needed
+              </div>
+              <p className="text-lg text-purple-600 mt-4">
+                You're almost there! Just {nextBadge.points_reward - points} more points ❤️
+              </p>
+            </motion.div>
+          )}
+
           {/* Check Badges Button */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-16">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={checkAndAssignBadges}
               disabled={checking}
-              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-10 py-5 rounded-3xl font-bold text-xl shadow-2xl flex items-center gap-4 mx-auto disabled:opacity-70"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-16 py-8 rounded-full text-3xl font-bold shadow-3xl flex items-center gap-6 mx-auto disabled:opacity-70"
             >
               {checking ? (
                 <>
-                  <RefreshCw className="w-8 h-8 animate-spin" />
-                  Checking...
+                  <RefreshCw className="w-12 h-12 animate-spin" />
+                  Checking for New Badges...
                 </>
               ) : (
                 <>
-                  <Trophy className="w-8 h-8" />
-                  Check for New Badges
+                  <Sparkles className="w-12 h-12" />
+                  Check for New Achievements
                 </>
               )}
             </motion.button>
           </div>
 
           {/* Badges Grid */}
-          {loading ? (
-            <div className="text-center py-20">
-              <div className="inline-block animate-spin rounded-full h-16 w-16 border-8 border-rose-500 border-t-transparent"></div>
-            </div>
-          ) : badges.length === 0 ? (
-            <motion.div className="text-center py-20">
-              <Trophy className="w-32 h-32 text-gray-300 mx-auto mb-8" />
-              <p className="text-3xl text-gray-600">No badges yet</p>
-              <p className="text-xl text-gray-500 mt-4">Start donating to earn your first badge!</p>
+          {badges.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-32 bg-white/80 backdrop-blur rounded-3xl shadow-2xl"
+            >
+              <Award className="w-40 h-40 text-orange-300 mx-auto mb-12" />
+              <h2 className="text-5xl font-bold text-orange-800 mb-8">
+                Your Journey Begins Here
+              </h2>
+              <p className="text-2xl text-gray-700 max-w-3xl mx-auto px-8">
+                Every donation earns points and unlocks beautiful badges.<br />
+                Your first achievement is waiting — start sharing food today! ❤️
+              </p>
             </motion.div>
           ) : (
-            <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               <AnimatePresence>
-                {badges.map((badge) => (
+                {badges.map((badge, index) => (
                   <motion.div
                     key={badge.id}
                     layout
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    whileHover={{ y: -12, scale: 1.05 }}
+                    initial={{ opacity: 0, scale: 0.8, y: 40 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ y: -20, scale: 1.08 }}
                     className="group relative"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-rose-400/30 to-orange-400/30 rounded-3xl blur-2xl group-hover:blur-3xl transition-all duration-500"></div>
+                    {/* Glow Background */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-yellow-300/50 to-orange-300/50 rounded-3xl blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                    <div className={`relative bg-white rounded-3xl shadow-2xl p-10 text-center border-4 ${badge.earned ? 'border-yellow-400' : 'border-gray-200'} overflow-hidden`}>
-                      {/* Top Gradient Bar */}
-                      <div className={`absolute top-0 left-0 right-0 h-4 bg-gradient-to-r ${getBadgeColor(badge.earned, badge.points_reward)}`}></div>
+                    <div className={`relative bg-white rounded-3xl shadow-3xl p-10 text-center border-8 ${badge.earned ? 'border-yellow-400' : 'border-gray-200'} overflow-hidden`}>
+                      {/* Golden Ribbon for Earned */}
+                      {badge.earned && (
+                        <motion.div
+                          initial={{ rotate: -45, x: -100 }}
+                          animate={{ rotate: -30, x: 0 }}
+                          className="absolute -top-4 -left-4 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-12 py-3 rounded-full font-bold text-lg shadow-2xl"
+                        >
+                          EARNED! ✨
+                        </motion.div>
+                      )}
 
-                      {/* Badge Icon */}
-                      <div className="mb-8">
-                        <div className={`inline-flex p-8 rounded-full bg-gradient-to-br ${getBadgeColor(badge.earned, badge.points_reward)} text-white shadow-2xl ${badge.earned ? 'animate-pulse' : 'opacity-60'}`}>
-                          {getBadgeIcon(badge.points_reward)}
+                      {/* Badge Icon with Pulse */}
+                      <motion.div
+                        animate={badge.earned ? { scale: [1, 1.1, 1] } : {}}
+                        transition={{ repeat: badge.earned ? Infinity : 0, duration: 2 }}
+                        className="mb-8"
+                      >
+                        <div className={`inline-flex p-10 rounded-full bg-gradient-to-br ${badge.earned ? 'from-yellow-400 to-amber-500' : 'from-gray-300 to-gray-400'} text-white shadow-3xl`}>
+                          {getBadgeIcon(badge.points_reward, badge.earned)}
                         </div>
-                      </div>
+                      </motion.div>
 
-                      {/* Title */}
-                      <h3 className={`text-2xl font-bold mb-3 ${badge.earned ? 'text-gray-800' : 'text-gray-400'}`}>
+                      <h3 className={`text-3xl font-bold mb-4 ${badge.earned ? 'text-orange-800' : 'text-gray-400'}`}>
                         {badge.title}
                       </h3>
 
-                      {/* Description */}
                       {badge.description && (
-                        <p className={`text-sm mb-6 px-4 ${badge.earned ? 'text-gray-600' : 'text-gray-400'}`}>
+                        <p className={`text-lg mb-8 px-4 leading-relaxed ${badge.earned ? 'text-gray-700' : 'text-gray-400'}`}>
                           {badge.description}
                         </p>
                       )}
 
-                      {/* Points */}
-                      <div className="mb-6">
-                        <div className={`text-4xl font-bold ${badge.earned ? 'text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-orange-600' : 'text-gray-400'}`}>
-                          {badge.points_reward}
-                        </div>
-                        <p className="text-lg text-gray-600">points</p>
+                      <div className="mb-8">
+                        <p className={`text-5xl font-extrabold ${badge.earned ? 'text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-orange-600' : 'text-gray-400'}`}>
+                          +{badge.points_reward}
+                        </p>
+                        <p className="text-xl text-gray-600">points</p>
                       </div>
 
-                      {/* Status */}
-                      <div className={`px-6 py-3 rounded-full font-bold text-lg ${badge.earned ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}`}>
-                        {badge.earned ? "Earned" : "Locked"}
+                      <div className={`px-8 py-4 rounded-full font-bold text-xl ${badge.earned ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800' : 'bg-gray-100 text-gray-500'}`}>
+                        {badge.earned ? "Earned with love ❤️" : "Keep going!"}
                       </div>
                     </div>
                   </motion.div>
@@ -212,7 +264,7 @@ export default function BadgeDashboard() {
               </AnimatePresence>
             </div>
           )}
-        </motion.div>
+        </div>
       </div>
     </AuthenticatedLayout>
   );

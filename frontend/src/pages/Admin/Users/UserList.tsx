@@ -1,17 +1,19 @@
-// src/pages/Admin/Users/UserList.tsx
+// src/pages/Admin/Users/UserList.tsx — FULLY RESPONSIVE WITH ADD NEW USER BUTTON
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   Search,
-  UserPlus,
   ShieldCheck,
   AlertCircle,
   Ban,
   Edit3,
   Users,
-  Filter,
-  ChevronDown,
+  Package,
+  Truck,
+  Heart,
+  UserPlus,
 } from "lucide-react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import type { User } from "@/types/index";
@@ -27,7 +29,6 @@ const fetchUsers = async ({ search = "", role = "" }) => {
 export default function UserList() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
-  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-users", search, roleFilter],
@@ -48,184 +49,184 @@ export default function UserList() {
 
   return (
     <AuthenticatedLayout>
-      <div className="p-4 md:p-6 space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl md:text-4xl font-bold text-gray-800 flex items-center gap-3">
-              <Users className="text-rose-500" />
-              User Management
-            </h1>
-            <p className="text-gray-600 text-sm md:text-base mt-1">
-              Manage donors, NGOs, volunteers & admins
-            </p>
-          </div>
-
-          <Link
-            to="/admin/users/create"
-            className="bg-rose-500 hover:bg-rose-600 text-white px-5 py-3 rounded-xl flex items-center gap-2 shadow-lg transition-all hover:shadow-xl text-sm md:text-base"
+      <div className="min-h-screen bg-gradient-to-b from-orange-50 via-amber-50 to-yellow-50 py-6 px-4 sm:py-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Hero Images — Responsive */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 rounded-3xl overflow-hidden shadow-3xl mb-12 sm:mb-16 border-8 border-white"
           >
-            <UserPlus size={20} />
-            Add User
-          </Link>
-        </div>
+            <img
+              src="https://peacewindsamerica.org/wp-content/uploads/2022/12/IMG_4753-scaled.jpg"
+              alt="Volunteers distributing food packages with gratitude"
+              className="w-full h-64 sm:h-80 object-cover"
+            />
+            <img
+              src="https://peacewindsamerica.org/wp-content/uploads/2022/12/IMG_4742-scaled.jpg"
+              alt="Community receiving food donations with warm smiles"
+              className="w-full h-64 sm:h-80 object-cover"
+            />
+            <img
+              src="https://thumbs.dreamstime.com/b/delicious-sri-lankan-rice-curry-spread-lanka-food-photography-vibrant-kitchen-close-up-culinary-experience-explore-flavors-367829555.jpg"
+              alt="Beautiful traditional Sri Lankan rice and curry spread"
+              className="w-full h-64 sm:h-80 object-cover"
+            />
+          </motion.div>
 
-        {/* Stats Cards - Responsive Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 md:gap-4">
-          {[
-            { label: "Total", value: stats.total, color: "text-gray-800" },
-            { label: "Donors", value: stats.donors, color: "text-green-600" },
-            { label: "NGOs", value: stats.receivers, color: "text-blue-600" },
-            { label: "Volunteers", value: stats.volunteers, color: "text-orange-600" },
-            { label: "Verified", value: stats.verifiedNGOs, color: "text-emerald-600", icon: <ShieldCheck size={14} /> },
-            { label: "Pending", value: stats.pendingNGOs, color: "text-amber-600", icon: <AlertCircle size={14} /> },
-            { label: "Suspended", value: stats.suspended, color: "text-red-600", icon: <Ban size={14} /> },
-          ].map((stat, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-2xl shadow-md p-4 text-center hover:shadow-lg transition-shadow"
-            >
-              <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
-                {stat.icon} {stat.label}
+          {/* Header with Add New User Button */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-12 sm:mb-16">
+            <div className="text-center lg:text-left">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-orange-800 mb-4">
+                Our Growing Community of Kindness ❤️
+              </h1>
+              <p className="text-xl sm:text-2xl text-orange-700 px-4 lg:px-0">
+                Donors, NGOs, volunteers — all working together to feed Sri Lanka
               </p>
-              <p className={`text-2xl md:text-3xl font-bold mt-2 ${stat.color}`}>
-                {stat.value}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* Search & Filter */}
-        <div className="bg-white rounded-2xl shadow-md p-4 md:p-6 space-y-4">
-          <div className="flex flex-col lg:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder="Search name, email, phone..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500"
-              />
             </div>
 
-            {/* Filter - Mobile Dropdown */}
-            <div className="lg:hidden">
-              <button
-                onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
-                className="w-full flex items-center justify-between px-4 py-3 border border-gray-300 rounded-xl bg-white"
-              >
-                <span className="flex items-center gap-2">
-                  <Filter size={18} />
-                  {roleFilter ? roleFilter.charAt(0).toUpperCase() + roleFilter.slice(1) : "All Roles"}
-                </span>
-                <ChevronDown size={18} className={`transition-transform ${mobileFilterOpen ? "rotate-180" : ""}`} />
-              </button>
-              {mobileFilterOpen && (
-                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-lg">
-                  {["", "admin", "donor", "receiver", "volunteer"].map((role) => (
-                    <button
-                      key={role}
-                      onClick={() => {
-                        setRoleFilter(role);
-                        setMobileFilterOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b last:border-b-0"
-                    >
-                      {role ? role.charAt(0).toUpperCase() + role.slice(1) : "All Roles"}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Desktop Filter */}
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="hidden lg:block px-5 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 min-w-[180px]"
+            {/* Add New User Button */}
+            <Link
+              to="/admin/users/create"
+              className="w-full lg:w-auto bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white px-8 py-5 rounded-3xl font-bold text-lg sm:text-xl shadow-2xl hover:shadow-3xl transition-all flex items-center justify-center gap-4"
             >
-              <option value="">All Roles</option>
-              <option value="admin">Admin</option>
-              <option value="donor">Donor</option>
-              <option value="receiver">Receiver (NGO)</option>
-              <option value="volunteer">Volunteer</option>
-            </select>
+              <UserPlus className="w-8 h-8" />
+              Add New User
+            </Link>
           </div>
-        </div>
 
-        {/* Users List - Card on Mobile, Table on Desktop */}
-        <div className="space-y-4">
+          {/* Stats Cards — Fully Responsive */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4 sm:gap-6 mb-12 sm:mb-16">
+            {[
+              { label: "Total Users", value: stats.total, color: "border-gray-300", icon: <Users className="w-10 h-10 sm:w-12 sm:h-12 text-gray-600" /> },
+              { label: "Donors", value: stats.donors, color: "border-green-300", icon: <Heart className="w-10 h-10 sm:w-12 sm:h-12 text-green-600" /> },
+              { label: "Receivers", value: stats.receivers, color: "border-blue-300", icon: <Package className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600" /> },
+              { label: "Volunteers", value: stats.volunteers, color: "border-orange-300", icon: <Truck className="w-10 h-10 sm:w-12 sm:h-12 text-orange-600" /> },
+              { label: "Verified NGOs", value: stats.verifiedNGOs, color: "border-emerald-300", icon: <ShieldCheck className="w-10 h-10 sm:w-12 sm:h-12 text-emerald-600" /> },
+              { label: "Pending Verification", value: stats.pendingNGOs, color: "border-amber-300", icon: <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-amber-600" /> },
+              { label: "Suspended", value: stats.suspended, color: "border-red-300", icon: <Ban className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" /> },
+            ].map((stat, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className={`bg-white rounded-3xl p-6 sm:p-8 text-center shadow-2xl border-8 ${stat.color}`}
+              >
+                {stat.icon}
+                <p className="text-base sm:text-xl text-gray-700 mt-4 mb-2">{stat.label}</p>
+                <p className="text-4xl sm:text-5xl font-extrabold text-orange-800">{stat.value}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Search & Filter — Responsive */}
+          <motion.div className="bg-white/90 backdrop-blur rounded-3xl shadow-2xl p-4 sm:p-6 mb-12">
+            <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 items-stretch">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 sm:w-6 sm:h-6" />
+                <input
+                  type="text"
+                  placeholder="Search by name, email, phone..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pl-12 sm:pl-14 pr-6 py-4 sm:py-5 bg-white border-2 border-gray-200 rounded-2xl focus:border-orange-500 focus:outline-none text-base sm:text-lg"
+                />
+              </div>
+
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="w-full lg:w-64 px-6 sm:px-8 py-4 sm:py-5 bg-white border-2 border-gray-200 rounded-2xl focus:border-orange-500 text-base sm:text-lg"
+              >
+                <option value="">All Roles</option>
+                <option value="admin">Admin</option>
+                <option value="donor">Donor</option>
+                <option value="receiver">NGO / Receiver</option>
+                <option value="volunteer">Volunteer</option>
+              </select>
+            </div>
+          </motion.div>
+
+          {/* Users List */}
           {isLoading ? (
-            <div className="text-center py-12 text-gray-500">Loading users...</div>
+            <div className="text-center py-20 text-gray-600 text-xl sm:text-2xl">Loading community members...</div>
           ) : users.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">No users found</div>
+            <motion.div className="text-center py-20 bg-white/90 backdrop-blur rounded-3xl shadow-2xl">
+              <Users className="w-24 h-24 sm:w-32 sm:h-32 text-orange-300 mx-auto mb-8" />
+              <p className="text-3xl sm:text-4xl font-bold text-orange-800 mb-6">No Users Found</p>
+              <p className="text-xl sm:text-2xl text-gray-700 px-4">Try adjusting your search or filters</p>
+            </motion.div>
           ) : (
             <>
-              {/* Desktop Table */}
-              <div className="hidden md:block bg-white rounded-2xl shadow-md overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50">
+              {/* Desktop Table — Safe, No Overflow */}
+              <div className="hidden lg:block bg-white rounded-3xl shadow-2xl">
+                <div className="overflow-x-auto"> {/* Only needed for very wide screens */}
+                  <table className="w-full min-w-[900px]"> {/* Prevents squishing */}
+                    <thead className="bg-gradient-to-r from-orange-100 to-amber-100">
                       <tr>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">User</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Role</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Org</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Verification</th>
-                        <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                        <th className="px-6 py-5 text-left text-base font-bold text-orange-800">User</th>
+                        <th className="px-6 py-5 text-left text-base font-bold text-orange-800">Role</th>
+                        <th className="px-6 py-5 text-left text-base font-bold text-orange-800">Organization</th>
+                        <th className="px-6 py-5 text-left text-base font-bold text-orange-800">Status</th>
+                        <th className="px-6 py-5 text-left text-base font-bold text-orange-800">Verification</th>
+                        <th className="px-6 py-5 text-right text-base font-bold text-orange-800">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       {users.map((user) => (
-                        <tr key={user.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4">
-                            <div>
-                              <div className="font-semibold">{user.name}</div>
-                              <div className="text-sm text-gray-500">{user.email}</div>
+                        <tr key={user.id} className="hover:bg-orange-50 transition">
+                          <td className="px-6 py-5">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 bg-gradient-to-br from-orange-200 to-amber-200 rounded-full flex items-center justify-center text-2xl font-bold text-orange-800">
+                                {user.name.charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <p className="font-bold text-lg">{user.name}</p>
+                                <p className="text-gray-600">{user.email}</p>
+                              </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4">
-                            <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                              user.role === "admin" ? "bg-purple-100 text-purple-800" :
-                              user.role === "donor" ? "bg-green-100 text-green-800" :
-                              user.role === "receiver" ? "bg-blue-100 text-blue-800" :
-                              "bg-orange-100 text-orange-800"
-                            }`}>
+                          <td className="px-6 py-5">
+                            <span className={`px-6 py-3 rounded-full text-base font-bold ${user.role === "admin" ? "bg-purple-100 text-purple-800" :
+                                user.role === "donor" ? "bg-green-100 text-green-800" :
+                                  user.role === "receiver" ? "bg-blue-100 text-blue-800" :
+                                    "bg-orange-100 text-orange-800"
+                              }`}>
                               {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-sm">{user.organization || "—"}</td>
-                          <td className="px-6 py-4">
+                          <td className="px-6 py-5 text-base">{user.organization || "—"}</td>
+                          <td className="px-6 py-5">
                             {user.is_suspended ? (
-                              <span className="text-red-600 text-xs font-semibold flex items-center gap-1">
-                                <Ban size={14} /> Suspended
+                              <span className="flex items-center gap-2 text-red-600 font-bold">
+                                <Ban className="w-5 h-5" /> Suspended
                               </span>
                             ) : (
-                              <span className="text-green-600 text-xs font-semibold">Active</span>
+                              <span className="text-green-600 font-bold">Active</span>
                             )}
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-6 py-5">
                             {user.role === "receiver" && (
                               user.is_verified ? (
-                                <span className="text-emerald-600 text-xs font-semibold flex items-center gap-1">
-                                  <ShieldCheck size={14} /> Verified
+                                <span className="flex items-center gap-2 text-emerald-600 font-bold">
+                                  <ShieldCheck className="w-5 h-5" /> Verified
                                 </span>
                               ) : (
-                                <span className="text-amber-600 text-xs font-semibold flex items-center gap-1">
-                                  <AlertCircle size={14} /> Pending
+                                <span className="flex items-center gap-2 text-amber-600 font-bold">
+                                  <AlertCircle className="w-5 h-5" /> Pending
                                 </span>
                               )
                             )}
                             {user.role !== "receiver" && "—"}
                           </td>
-                          <td className="px-6 py-4 text-right">
+                          <td className="px-6 py-5 text-right">
                             <Link
                               to={`/admin/users/${user.id}/edit`}
-                              className="text-rose-600 hover:text-rose-700 font-medium flex items-center justify-end gap-1"
+                              className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-600 to-amber-500 text-white px-8 py-3 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition"
                             >
-                              <Edit3 size={16} /> Manage
+                              <Edit3 className="w-5 h-5" />
+                              Manage
                             </Link>
                           </td>
                         </tr>
@@ -235,71 +236,96 @@ export default function UserList() {
                 </div>
               </div>
 
-              {/* Mobile Cards */}
-              <div className="md:hidden space-y-4">
+              {/* Mobile & Tablet Cards */}
+              <div className="lg:hidden space-y-6 sm:space-y-8">
                 {users.map((user) => (
-                  <div key={user.id} className="bg-white rounded-2xl shadow-md p-5">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="font-bold text-lg">{user.name}</h3>
-                        <p className="text-sm text-gray-600">{user.email}</p>
-                        {user.phone && <p className="text-xs text-gray-500 mt-1">{user.phone}</p>}
+                  <motion.div
+                    key={user.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border-8 border-orange-100"
+                  >
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 bg-gradient-to-br from-orange-200 to-amber-200 rounded-full flex items-center justify-center text-3xl font-bold text-orange-800">
+                          {user.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <h3 className="text-2xl font-bold text-orange-800">{user.name}</h3>
+                          <p className="text-gray-600">{user.email}</p>
+                        </div>
                       </div>
                       <Link
                         to={`/admin/users/${user.id}/edit`}
-                        className="text-rose-600 font-medium text-sm"
+                        className="bg-gradient-to-r from-orange-600 to-amber-500 text-white px-6 py-4 rounded-2xl font-bold shadow-xl"
                       >
-                        Manage →
+                        Manage
                       </Link>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="grid grid-cols-2 gap-6 text-lg">
                       <div>
-                        <span className="text-gray-500">Role:</span>
-                        <span className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold ${
-                          user.role === "admin" ? "bg-purple-100 text-purple-800" :
-                          user.role === "donor" ? "bg-green-100 text-green-800" :
-                          user.role === "receiver" ? "bg-blue-100 text-blue-800" :
-                          "bg-orange-100 text-orange-800"
-                        }`}>
+                        <p className="text-gray-600">Role</p>
+                        <p className={`mt-2 px-4 py-2 rounded-full font-bold inline-block text-base ${user.role === "admin" ? "bg-purple-100 text-purple-800" :
+                            user.role === "donor" ? "bg-green-100 text-green-800" :
+                              user.role === "receiver" ? "bg-blue-100 text-blue-800" :
+                                "bg-orange-100 text-orange-800"
+                          }`}>
                           {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                        </span>
+                        </p>
                       </div>
                       <div>
-                        <span className="text-gray-500">Status:</span>
-                        <span className={`ml-2 ${user.is_suspended ? "text-red-600" : "text-green-600"} font-medium`}>
+                        <p className="text-gray-600">Status</p>
+                        <p className={`mt-2 font-bold ${user.is_suspended ? "text-red-600" : "text-green-600"}`}>
                           {user.is_suspended ? "Suspended" : "Active"}
-                        </span>
+                        </p>
                       </div>
                     </div>
 
                     {user.organization && (
-                      <div className="mt-3 text-sm">
-                        <span className="text-gray-500">Org:</span>
-                        <span className="ml-2 font-medium">{user.organization}</span>
+                      <div className="mt-6">
+                        <p className="text-gray-600">Organization</p>
+                        <p className="text-xl font-bold text-orange-800">{user.organization}</p>
                       </div>
                     )}
 
                     {user.role === "receiver" && (
-                      <div className="mt-3 flex items-center gap-2">
+                      <div className="mt-6 flex items-center gap-3">
                         {user.is_verified ? (
                           <>
-                            <ShieldCheck size={18} className="text-emerald-600" />
-                            <span className="text-emerald-600 font-medium">Verified NGO</span>
+                            <ShieldCheck className="w-10 h-10 text-emerald-600" />
+                            <p className="text-2xl font-bold text-emerald-800">Verified NGO</p>
                           </>
                         ) : (
                           <>
-                            <AlertCircle size={18} className="text-amber-600" />
-                            <span className="text-amber-600 font-medium">Pending Verification</span>
+                            <AlertCircle className="w-10 h-10 text-amber-600" />
+                            <p className="text-2xl font-bold text-amber-800">Pending Verification</p>
                           </>
                         )}
                       </div>
                     )}
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </>
           )}
+
+          {/* Footer */}
+          <motion.div className="mt-20 bg-orange-800 text-white rounded-3xl p-10 sm:p-16 text-center shadow-2xl">
+            <img
+              src="https://thumbs.dreamstime.com/b/delicious-sri-lankan-rice-curry-spread-lanka-food-photography-vibrant-kitchen-close-up-culinary-experience-explore-flavors-367829555.jpg"
+              alt="Beautiful Sri Lankan rice and curry — shared with love"
+              className="w-full max-w-4xl sm:max-w-5xl mx-auto rounded-3xl shadow-2xl mb-10"
+            />
+            <h3 className="text-4xl sm:text-5xl font-bold mb-8">FeedSriLanka Community ❤️</h3>
+            <p className="text-2xl sm:text-3xl mb-10 opacity-90">
+              Together, donors, NGOs, and volunteers are feeding Sri Lanka
+            </p>
+            <p className="text-xl sm:text-2xl opacity-80">
+              Every member plays a vital role in reducing waste and spreading kindness
+            </p>
+            <div className="mt-12 text-6xl sm:text-8xl">🍲🙏✨</div>
+          </motion.div>
         </div>
       </div>
     </AuthenticatedLayout>

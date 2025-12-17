@@ -1,4 +1,4 @@
-// src/pages/Signup.tsx
+// frontend/src/pages/Signup.tsx
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -7,22 +7,13 @@ import { motion } from "framer-motion";
 import { HiLockClosed, HiMail, HiUser, HiPhone, HiEye, HiEyeOff } from "react-icons/hi";
 import { useLang } from "../context/LanguageContext";
 
-// Fixed Framer Motion variants — TypeScript fully happy!
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
-  visible: (custom: number = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: custom,
-      duration: 0.6,
-      ease: "easeOut" as const,
-    },
-  }),
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
 export default function Signup() {
-  const { t } = useLang(); // Removed unused: language, changeLanguage
+  const { t } = useLang();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -30,235 +21,307 @@ export default function Signup() {
     email: "",
     password: "",
     phone: "",
-    role: "donor" as const,
+    role: "donor" as "donor" | "receiver" | "volunteer",
     organization: "",
+  });
+
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
   });
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const validateForm = () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-    const phoneRegex = /^[0-9]{7,15}$/;
+  // Real-time validation
+  const validateField = (name: string, value: string) => {
+    let error = "";
 
-    if (!form.name.trim()) return toast.error(t("nameRequired") || "Name is required");
-    if (!emailRegex.test(form.email)) return toast.error(t("invalidEmail") || "Invalid email format");
-    if (!passwordRegex.test(form.password))
-      return toast.error(t("passwordStrength") || "Password must include uppercase, lowercase & number (min 8 chars)");
-    if (form.phone && !phoneRegex.test(form.phone))
-      return toast.error(t("invalidPhone") || "Phone must be 7–15 digits");
+    if (name === "name" && !value.trim()) {
+      error = "Name is required";
+    }
+    if (name === "email") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!value) error = "Email is required";
+      else if (!emailRegex.test(value)) error = "Please enter a valid email address";
+    }
+    if (name === "password") {
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+      if (!value) error = "Password is required";
+      else if (!passwordRegex.test(value))
+        error = "Password must be at least 8 characters with uppercase, lowercase, and number";
+    }
+    if (name === "phone" && value) {
+      const phoneRegex = /^[0-9]{7,15}$/;
+      if (!phoneRegex.test(value)) error = "Phone number must be 7–15 digits";
+    }
 
-    return true;
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    validateField(name, value);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
+
+    // Final validation before submit
+    validateField("name", form.name);
+    validateField("email", form.email);
+    validateField("password", form.password);
+    validateField("phone", form.phone);
+
+    if (Object.values(errors).some((err) => err) || !form.name || !form.email || !form.password) {
+      return;
+    }
 
     try {
-      await axios.post("http://127.0.0.1:8001/api/register", form, {
-        headers: { "Content-Type": "application/json" },
-      });
-      toast.success(t("signupSuccess") || "Account created successfully!");
-      setTimeout(() => navigate("/login"), 2000);
+      await axios.post("http://127.0.0.1:8001/api/register", form);
+
+      // ROLE-SPECIFIC SUCCESS MESSAGE
+      let roleMessage = "";
+      let roleIcon = "❤️";
+
+      if (form.role === "donor") {
+        roleMessage = "Thank you for your generosity! Your donations will feed families and reduce food waste across Sri Lanka 🍲";
+        roleIcon = "🍲";
+      } else if (form.role === "receiver") {
+        roleMessage = "Welcome! We're here to help connect you with warm meals from kind donors near you 🤝";
+        roleIcon = "🤝";
+      } else if (form.role === "volunteer") {
+        roleMessage = "Thank you for your heart of service! Your help delivering food brings hope to many 🙏";
+        roleIcon = "🙏";
+      }
+
+      const toastId = toast.custom(
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.8, opacity: 0 }}
+          className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-w-sm w-full text-center border-4 border-orange-200"
+        >
+          <motion.div
+            animate={{ y: [0, -15, 0] }}
+            transition={{ repeat: Infinity, duration: 2 }}
+            className="text-7xl mb-4"
+          >
+            {roleIcon}
+          </motion.div>
+
+          <h3 className="text-2xl font-bold text-orange-700 mb-4">
+            Welcome to FeedSriLanka! 🎉
+          </h3>
+
+          <p className="text-lg text-gray-800 mb-4">
+            Hello <span className="font-bold text-orange-600">{form.name}</span>,<br />
+            Your account has been created successfully!
+          </p>
+
+          <p className="text-md text-gray-700 mb-6 leading-relaxed">
+            {roleMessage}
+          </p>
+
+          <img
+            src="https://www.remitly.com/blog/wp-content/uploads/2023/09/sri-lanka-rice-and-curry-scaled.jpg"
+            alt="Sri Lankan rice and curry"
+            className="w-full h-40 object-cover rounded-2xl shadow-xl mx-auto mb-4"
+          />
+
+          <p className="text-md text-gray-600">
+            Redirecting to login in 3 seconds...
+          </p>
+        </motion.div>,
+        {
+          duration: 3000,
+          position: "top-center",
+          style: { marginTop: "80px" },
+        }
+      );
+
+      // Close toast after 3s and redirect
+      setTimeout(() => {
+        toast.dismiss(toastId);
+        navigate("/login");
+      }, 3000);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || t("signupFailed") || "Signup failed");
+      toast.error(err.response?.data?.message || "Signup failed. Please try again.");
     }
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50 font-sans text-gray-800">
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center p-6">
       <Toaster position="top-center" />
 
-      {/* Left Side - Beautiful Gradient */}
-      <div className="hidden md:flex w-1/2 bg-gradient-to-br from-rose-500 via-orange-400 to-amber-400 items-center justify-center text-white relative overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1 }}
-          className="text-center p-12 z-10"
-        >
-          <h1 className="text-5xl font-extrabold mb-6 tracking-tight drop-shadow-lg">
-            {t("joinFeedSriLanka")}
-          </h1>
-          <p className="text-xl text-white/90 leading-relaxed max-w-lg mx-auto">
-            {t("togetherWeFeed")}
-          </p>
-        </motion.div>
-        <div className="absolute inset-0 bg-black/10" />
-        <div className="absolute w-96 h-96 bg-white/20 rounded-full blur-3xl -bottom-20 -right-20" />
-      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden"
+      >
+        <div className="grid md:grid-cols-2">
+          {/* Left: Image */}
+          <div className="relative h-96 md:h-full">
+            <img
+              src="https://www.remitly.com/blog/wp-content/uploads/2023/09/sri-lanka-rice-and-curry-scaled.jpg"
+              alt="Delicious Sri Lankan rice and curry"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+            <div className="absolute bottom-10 left-10 text-white">
+              <h2 className="text-4xl md:text-5xl font-bold mb-4">Join FeedSriLanka ❤️</h2>
+              <p className="text-xl opacity-90">Together, we reduce food waste and feed families across Sri Lanka</p>
+            </div>
+          </div>
 
-      {/* Right Side - Signup Form */}
-      <div className="flex-1 flex items-center justify-center p-8 md:p-16">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="w-full max-w-lg bg-white shadow-2xl rounded-3xl px-10 py-12"
-        >
-          <motion.h2
-            custom={0}
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            className="text-4xl font-bold text-center text-gray-900 mb-3"
-          >
-            {t("createAccount")}
-          </motion.h2>
+          {/* Right: Form */}
+          <div className="p-8 md:p-12 lg:p-16">
+            <h2 className="text-4xl font-bold text-orange-800 text-center mb-4">Create Your Account</h2>
+            <p className="text-center text-gray-600 mb-10">Join thousands making a difference every day</p>
 
-          <motion.p
-            custom={0.1}
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            className="text-center text-gray-600 mb-10"
-          >
-            {t("signupSubtitle")}
-          </motion.p>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Full Name */}
-            <motion.div custom={0.1} initial="hidden" animate="visible" variants={fadeUp}>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {t("fullName")}
-              </label>
-              <div className="relative">
-                <HiUser className="absolute left-4 top-4 text-gray-400" size={20} />
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder={t("enterName")}
-                  className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none transition"
-                  required
-                />
-              </div>
-            </motion.div>
-
-            {/* Email */}
-            <motion.div custom={0.2} initial="hidden" animate="visible" variants={fadeUp}>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {t("email")}
-              </label>
-              <div className="relative">
-                <HiMail className="absolute left-4 top-4 text-gray-400" size={20} />
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder={t("enterEmail")}
-                  className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-rose-500 focus:border-transparent outline-none transition"
-                  required
-                />
-              </div>
-            </motion.div>
-
-            {/* Password */}
-            <motion.div custom={0.3} initial="hidden" animate="visible" variants={fadeUp}>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {t("password")}
-              </label>
-              <div className="relative">
-                <HiLockClosed className="absolute left-4 top-4 text-gray-400" size={20} />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  placeholder="••••••••"
-                  className="w-full pl-12 pr-14 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
-                >
-                  {showPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
-                </button>
-              </div>
-            </motion.div>
-
-            {/* Phone */}
-            <motion.div custom={0.4} initial="hidden" animate="visible" variants={fadeUp}>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {t("phoneOptional")}
-              </label>
-              <div className="relative">
-                <HiPhone className="absolute left-4 top-4 text-gray-400" size={20} />
-                <input
-                  type="text"
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  placeholder={t("enterPhone")}
-                  className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none"
-                />
-              </div>
-            </motion.div>
-
-            {/* Role Selection */}
-            <motion.div custom={0.5} initial="hidden" animate="visible" variants={fadeUp}>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {t("iAmA")}
-              </label>
-              <select
-                value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value as any })}
-                className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none bg-white"
-              >
-                <option value="donor">{t("donor")}</option>
-                <option value="receiver">{t("receiver")}</option>
-                <option value="volunteer">{t("volunteer")}</option>
-              </select>
-            </motion.div>
-
-            {/* Organization (Conditional) */}
-            {(form.role === "donor" || form.role === "volunteer") && (
-              <motion.div custom={0.6} initial="hidden" animate="visible" variants={fadeUp}>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t("organizationOptional")}
-                </label>
-                <input
-                  type="text"
-                  value={form.organization}
-                  onChange={(e) => setForm({ ...form, organization: e.target.value })}
-                  placeholder={t("organizationName")}
-                  className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none"
-                />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Name */}
+              <motion.div variants={fadeUp} initial="hidden" animate="visible">
+                <label className="block text-lg font-semibold text-gray-700 mb-2">Full Name</label>
+                <div className="relative">
+                  <HiUser className="absolute left-4 top-5 text-orange-600" size={24} />
+                  <input
+                    type="text"
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
+                    placeholder="Your full name"
+                    className={`w-full pl-14 pr-6 py-5 border-2 rounded-2xl focus:outline-none text-lg transition ${
+                      errors.name ? "border-red-500" : "border-orange-200 focus:border-orange-500"
+                    }`}
+                    required
+                  />
+                </div>
+                {errors.name && <p className="text-red-600 text-sm mt-2 ml-2">{errors.name}</p>}
               </motion.div>
-            )}
 
-            {/* Submit Button */}
-            <motion.button
-              custom={0.7}
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp}
-              type="submit"
-              className="w-full py-4 mt-8 text-lg font-bold text-white bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 rounded-xl shadow-lg hover:shadow-2xl transform transition-all duration-300 hover:scale-[1.02] active:scale-98"
-            >
-              {t("createAccount")}
-            </motion.button>
+              {/* Email */}
+              <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.1 }}>
+                <label className="block text-lg font-semibold text-gray-700 mb-2">Email</label>
+                <div className="relative">
+                  <HiMail className="absolute left-4 top-5 text-orange-600" size={24} />
+                  <input
+                    type="email"
+                    name="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    placeholder="your@email.com"
+                    className={`w-full pl-14 pr-6 py-5 border-2 rounded-2xl focus:outline-none text-lg transition ${
+                      errors.email ? "border-red-500" : "border-orange-200 focus:border-orange-500"
+                    }`}
+                    required
+                  />
+                </div>
+                {errors.email && <p className="text-red-600 text-sm mt-2 ml-2">{errors.email}</p>}
+              </motion.div>
 
-            {/* Login Link */}
-            <motion.p
-              custom={0.8}
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp}
-              className="text-center text-gray-600 mt-8"
-            >
-              {t("alreadyAccount")}{" "}
-              <span
-                onClick={() => navigate("/login")}
-                className="text-rose-600 font-bold hover:underline cursor-pointer"
+              {/* Password */}
+              <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.2 }}>
+                <label className="block text-lg font-semibold text-gray-700 mb-2">Password</label>
+                <div className="relative">
+                  <HiLockClosed className="absolute left-4 top-5 text-orange-600" size={24} />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={form.password}
+                    onChange={handleChange}
+                    placeholder="••••••••"
+                    className={`w-full pl-14 pr-16 py-5 border-2 rounded-2xl focus:outline-none text-lg transition ${
+                      errors.password ? "border-red-500" : "border-orange-200 focus:border-orange-500"
+                    }`}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-5 text-gray-600"
+                  >
+                    {showPassword ? <HiEyeOff size={24} /> : <HiEye size={24} />}
+                  </button>
+                </div>
+                {errors.password && <p className="text-red-600 text-sm mt-2 ml-2">{errors.password}</p>}
+              </motion.div>
+
+              {/* Phone */}
+              <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.3 }}>
+                <label className="block text-lg font-semibold text-gray-700 mb-2">Phone (Optional)</label>
+                <div className="relative">
+                  <HiPhone className="absolute left-4 top-5 text-orange-600" size={24} />
+                  <input
+                    type="text"
+                    name="phone"
+                    value={form.phone}
+                    onChange={handleChange}
+                    placeholder="Your phone number"
+                    className={`w-full pl-14 pr-6 py-5 border-2 rounded-2xl focus:outline-none text-lg transition ${
+                      errors.phone ? "border-red-500" : "border-orange-200 focus:border-orange-500"
+                    }`}
+                  />
+                </div>
+                {errors.phone && <p className="text-red-600 text-sm mt-2 ml-2">{errors.phone}</p>}
+              </motion.div>
+
+              {/* Role & Organization — unchanged */}
+              <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.4 }}>
+                <label className="block text-lg font-semibold text-gray-700 mb-2">I am a...</label>
+                <select
+                  name="role"
+                  value={form.role}
+                  onChange={handleChange}
+                  className="w-full px-6 py-5 border-2 border-orange-200 rounded-2xl focus:border-orange-500 focus:outline-none text-lg bg-white"
+                >
+                  <option value="donor">Food Donor</option>
+                  <option value="receiver">Food Receiver</option>
+                  <option value="volunteer">Volunteer</option>
+                </select>
+              </motion.div>
+
+              {(form.role === "donor" || form.role === "volunteer") && (
+                <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.5 }}>
+                  <label className="block text-lg font-semibold text-gray-700 mb-2">Organization (Optional)</label>
+                  <input
+                    type="text"
+                    name="organization"
+                    value={form.organization}
+                    onChange={handleChange}
+                    placeholder="Your organization name"
+                    className="w-full px-6 py-5 border-2 border-orange-200 rounded-2xl focus:border-orange-500 focus:outline-none text-lg"
+                  />
+                </motion.div>
+              )}
+
+              {/* Submit */}
+              <motion.button
+                variants={fadeUp}
+                initial="hidden"
+                animate="visible"
+                transition={{ delay: 0.6 }}
+                type="submit"
+                className="w-full py-6 mt-10 text-2xl font-bold text-white bg-gradient-to-r from-orange-600 to-amber-500 rounded-2xl shadow-2xl hover:shadow-3xl transition transform hover:scale-105"
               >
-                {t("loginHere")}
-              </span>
-            </motion.p>
-          </form>
-        </motion.div>
-      </div>
+                Create Account
+              </motion.button>
+
+              <p className="text-center text-gray-600 mt-8">
+                Already have an account?{" "}
+                <span
+                  onClick={() => navigate("/login")}
+                  className="text-orange-700 font-bold hover:underline cursor-pointer"
+                >
+                  Login here
+                </span>
+              </p>
+            </form>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 }

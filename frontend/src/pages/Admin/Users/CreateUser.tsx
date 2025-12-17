@@ -1,7 +1,8 @@
-// src/pages/Admin/Users/CreateUser.tsx
+// src/pages/Admin/Users/CreateUser.tsx — FULLY RESPONSIVE & EMOTIONAL WELCOME
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { motion } from "framer-motion";
 import {
   ArrowLeft,
   UserPlus,
@@ -12,6 +13,7 @@ import {
   Lock,
   User,
   AlertCircle,
+  Heart,
 } from "lucide-react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import api from "@/lib/api";
@@ -48,7 +50,6 @@ export default function CreateUser() {
     e.preventDefault();
     setErrors({});
 
-    // Frontend validation
     const newErrors: Errors = {};
     if (!form.name.trim()) newErrors.name = "Name is required";
     if (!form.email.trim()) newErrors.email = "Email is required";
@@ -71,11 +72,10 @@ export default function CreateUser() {
         is_verified: form.role === "receiver" ? form.is_verified : false,
       });
 
-      toast.success("User created successfully!");
+      toast.success("🎉 New user created successfully! Welcome to the community ❤️");
       navigate("/admin/users");
     } catch (err: any) {
       if (err.response?.status === 422) {
-        // Laravel validation errors
         const laravelErrors = err.response.data.errors;
         const formatted: Errors = {};
         for (const key in laravelErrors) {
@@ -95,8 +95,8 @@ export default function CreateUser() {
   const ErrorMessage = ({ message }: { message?: string }) => {
     if (!message) return null;
     return (
-      <div className="flex items-center gap-2 mt-2 text-red-600 text-sm font-medium">
-        <AlertCircle size={16} />
+      <div className="flex items-center gap-2 mt-3 text-red-600 text-base font-medium">
+        <AlertCircle className="w-5 h-5" />
         <span>{message}</span>
       </div>
     );
@@ -104,233 +104,291 @@ export default function CreateUser() {
 
   return (
     <AuthenticatedLayout>
-      <div className="p-6 max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+      <div className="min-h-screen bg-gradient-to-b from-orange-50 via-amber-50 to-yellow-50 py-6 px-4 sm:py-8 lg:py-12">
+        <div className="max-w-5xl mx-auto">
+          {/* Hero Image — Responsive */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="relative rounded-3xl overflow-hidden shadow-3xl mb-10 sm:mb-12 border-8 border-white"
           >
-            <ArrowLeft size={20} />
+            <img
+              src="https://peacewindsamerica.org/wp-content/uploads/2022/12/IMG_4753-scaled.jpg"
+              alt="Volunteers welcoming new community members with food and kindness"
+              className="w-full h-72 sm:h-96 lg:h-[500px] object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 lg:p-12 text-white text-center">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-4">
+                Welcome a New Member ❤️
+              </h1>
+              <p className="text-lg sm:text-xl lg:text-3xl opacity-90 px-4">
+                Grow our community of kindness, one person at a time
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Back Button */}
+          <motion.button
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-3 text-orange-700 hover:text-orange-800 font-medium mb-8 text-base sm:text-lg"
+          >
+            <ArrowLeft className="w-7 h-7 sm:w-8 sm:h-8" />
             Back to Users
-          </button>
-          <h1 className="text-4xl font-bold text-gray-800 flex items-center gap-3">
-            <UserPlus className="text-rose-500" />
-            Add New User
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Create a new donor, NGO (receiver), volunteer, or admin account
-          </p>
-        </div>
+          </motion.button>
 
-        {/* General Error */}
-        {errors.general && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center gap-3">
-            <AlertCircle size={20} />
-            <span>{errors.general}</span>
-          </div>
-        )}
+          {/* General Error */}
+          {errors.general && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8 p-5 sm:p-6 bg-red-50 border-2 border-red-200 text-red-700 rounded-3xl flex items-center gap-4 text-base sm:text-lg"
+            >
+              <AlertCircle className="w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0" />
+              <span>{errors.general}</span>
+            </motion.div>
+          )}
 
-        {/* Form Card */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          <div className="bg-gradient-to-r from-rose-500 to-pink-500 p-6">
-            <h2 className="text-2xl font-bold text-white">User Details</h2>
-            <p className="text-pink-100 mt-1">Fill in all required information</p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="p-8 space-y-7">
-            {/* Personal Info */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <User size={18} />
-                  Full Name <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.name
-                      ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-rose-500"
-                    }`}
-                  placeholder="Gayashi Hasinika"
-                />
-                <ErrorMessage message={errors.name} />
-              </div>
-
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <Mail size={18} />
-                  Email Address <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.email
-                      ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-rose-500"
-                    }`}
-                  placeholder="gayashi@example.com"
-                />
-                <ErrorMessage message={errors.email} />
-              </div>
+          {/* Form Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-3xl shadow-3xl overflow-hidden border-8 border-white"
+          >
+            <div className="bg-gradient-to-r from-orange-600 to-amber-500 p-6 sm:p-8 lg:p-10">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white flex items-center gap-4">
+                <UserPlus className="w-10 h-10 sm:w-12 sm:h-12" />
+                Add New Community Member
+              </h2>
+              <p className="text-orange-100 text-lg sm:text-xl mt-3">
+                Create a donor, NGO, volunteer, or admin account
+              </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <Phone size={18} />
-                  Phone Number
-                </label>
-                <input
-                  type="text"
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 transition-all"
-                  placeholder="076 134 3005"
-                />
-              </div>
-
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  Role <span className="text-rose-500">*</span>
-                </label>
-                <select
-                  value={form.role}
-                  onChange={(e) => setForm({ ...form, role: e.target.value as any })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 transition-all"
-                >
-                  <option value="donor">Donor</option>
-                  <option value="receiver">Receiver (Individual / NGO)</option>
-                  <option value="volunteer">Volunteer</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-            </div>
-
-            {/* NGO Only Fields */}
-            {form.role === "receiver" && (
-              <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6 space-y-5">
-                <div className="flex items-center gap-3">
-                  <Building2 className="text-amber-600" size={24} />
-                  <h3 className="text-lg font-semibold text-amber-900">NGO / Organization Details</h3>
-                </div>
-
+            <form onSubmit={handleSubmit} className="p-6 sm:p-8 lg:p-12 space-y-8 lg:space-y-10">
+              {/* Personal Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                    Organization Name <span className="text-rose-500">*</span>
+                  <label className="flex items-center gap-3 text-base sm:text-lg font-medium text-gray-700 mb-3">
+                    <User className="w-6 h-6 sm:w-7 sm:h-7 text-orange-600" />
+                    Full Name <span className="text-orange-600">*</span>
                   </label>
                   <input
                     type="text"
-                    value={form.organization}
-                    onChange={(e) => setForm({ ...form, organization: e.target.value })}
-                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all bg-white ${errors.organization
-                        ? "border-red-500 focus:ring-red-500"
-                        : "border-amber-300 focus:ring-amber-500"
-                      }`}
-                    placeholder="Impresso Holding Ceylon"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    className={`w-full px-5 sm:px-6 py-4 sm:py-5 text-base sm:text-lg border-2 rounded-2xl focus:outline-none focus:ring-4 transition-all ${
+                      errors.name
+                        ? "border-red-500 focus:ring-red-300"
+                        : "border-gray-300 focus:ring-orange-300"
+                    }`}
+                    placeholder="Gayashi Hasinika"
                   />
-                  <ErrorMessage message={errors.organization} />
+                  <ErrorMessage message={errors.name} />
                 </div>
 
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={form.is_verified}
-                      onChange={(e) => setForm({ ...form, is_verified: e.target.checked })}
-                      className="w-5 h-5 text-rose-600 rounded focus:ring-rose-500"
-                    />
-                    <span className="flex items-center gap-2 font-medium">
-                      <ShieldCheck className="text-green-600" size={20} />
-                      Mark as Verified NGO (trusted)
-                    </span>
+                <div>
+                  <label className="flex items-center gap-3 text-base sm:text-lg font-medium text-gray-700 mb-3">
+                    <Mail className="w-6 h-6 sm:w-7 sm:h-7 text-orange-600" />
+                    Email Address <span className="text-orange-600">*</span>
                   </label>
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    className={`w-full px-5 sm:px-6 py-4 sm:py-5 text-base sm:text-lg border-2 rounded-2xl focus:outline-none focus:ring-4 transition-all ${
+                      errors.email
+                        ? "border-red-500 focus:ring-red-300"
+                        : "border-gray-300 focus:ring-orange-300"
+                    }`}
+                    placeholder="gayashi@example.com"
+                  />
+                  <ErrorMessage message={errors.email} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <label className="flex items-center gap-3 text-base sm:text-lg font-medium text-gray-700 mb-3">
+                    <Phone className="w-6 h-6 sm:w-7 sm:h-7 text-orange-600" />
+                    Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    value={form.phone}
+                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                    className="w-full px-5 sm:px-6 py-4 sm:py-5 text-base sm:text-lg border-2 border-gray-300 rounded-2xl focus:outline-none focus:ring-4 focus:ring-orange-300 transition-all"
+                    placeholder="076 134 3005"
+                  />
                 </div>
 
-                {form.is_verified && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      Verification Note (optional)
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={form.verification_note}
-                      onChange={(e) => setForm({ ...form, verification_note: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500"
-                      placeholder="Verified via registration documents and phone call on 2025-11-28"
-                    />
+                <div>
+                  <label className="flex items-center gap-3 text-base sm:text-lg font-medium text-gray-700 mb-3">
+                    <Heart className="w-6 h-6 sm:w-7 sm:h-7 text-orange-600" />
+                    Role <span className="text-orange-600">*</span>
+                  </label>
+                  <select
+                    value={form.role}
+                    onChange={(e) => setForm({ ...form, role: e.target.value as any })}
+                    className="w-full px-5 sm:px-6 py-4 sm:py-5 text-base sm:text-lg border-2 border-gray-300 rounded-2xl focus:outline-none focus:ring-4 focus:ring-orange-300 transition-all"
+                  >
+                    <option value="donor">Donor</option>
+                    <option value="receiver">NGO / Receiver</option>
+                    <option value="volunteer">Volunteer</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* NGO Fields */}
+              {form.role === "receiver" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  transition={{ duration: 0.4 }}
+                  className="bg-gradient-to-br from-amber-50 to-orange-50 border-4 border-amber-300 rounded-3xl p-6 sm:p-8 space-y-8"
+                >
+                  <div className="flex items-center gap-4">
+                    <Building2 className="w-10 h-10 sm:w-12 sm:h-12 text-amber-700" />
+                    <h3 className="text-2xl sm:text-3xl font-bold text-amber-900">NGO / Organization Details</h3>
                   </div>
-                )}
-              </div>
-            )}
 
-            {/* Password */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <Lock size={18} />
-                  Password <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="password"
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.password
-                      ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-rose-500"
+                  <div>
+                    <label className="flex items-center gap-3 text-base sm:text-lg font-medium text-gray-700 mb-3">
+                      Organization Name <span className="text-orange-600">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={form.organization}
+                      onChange={(e) => setForm({ ...form, organization: e.target.value })}
+                      className={`w-full px-5 sm:px-6 py-4 sm:py-5 text-base sm:text-lg border-2 rounded-2xl focus:outline-none focus:ring-4 transition-all bg-white ${
+                        errors.organization
+                          ? "border-red-500 focus:ring-red-300"
+                          : "border-amber-400 focus:ring-amber-300"
+                      }`}
+                      placeholder="Impresso Holding Ceylon"
+                    />
+                    <ErrorMessage message={errors.organization} />
+                  </div>
+
+                  <div className="flex items-center gap-6">
+                    <label className="flex items-center gap-4 cursor-pointer text-lg sm:text-xl">
+                      <input
+                        type="checkbox"
+                        checked={form.is_verified}
+                        onChange={(e) => setForm({ ...form, is_verified: e.target.checked })}
+                        className="w-7 h-7 sm:w-8 sm:h-8 text-orange-600 rounded focus:ring-orange-500"
+                      />
+                      <span className="flex items-center gap-3 font-bold text-orange-800">
+                        <ShieldCheck className="w-9 h-9 sm:w-10 sm:h-10 text-emerald-600" />
+                        Mark as Verified NGO
+                      </span>
+                    </label>
+                  </div>
+
+                  {form.is_verified && (
+                    <div>
+                      <label className="text-base sm:text-lg font-medium text-gray-700 mb-3 block">
+                        Verification Note
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={form.verification_note}
+                        onChange={(e) => setForm({ ...form, verification_note: e.target.value })}
+                        className="w-full px-5 sm:px-6 py-4 sm:py-5 text-base sm:text-lg border-2 border-gray-300 rounded-2xl focus:outline-none focus:ring-4 focus:ring-orange-300 bg-white"
+                        placeholder="Verified via registration documents and phone call on December 17, 2025"
+                      />
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Password Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <label className="flex items-center gap-3 text-base sm:text-lg font-medium text-gray-700 mb-3">
+                    <Lock className="w-6 h-6 sm:w-7 sm:h-7 text-orange-600" />
+                    Password <span className="text-orange-600">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    className={`w-full px-5 sm:px-6 py-4 sm:py-5 text-base sm:text-lg border-2 rounded-2xl focus:outline-none focus:ring-4 transition-all ${
+                      errors.password
+                        ? "border-red-500 focus:ring-red-300"
+                        : "border-gray-300 focus:ring-orange-300"
                     }`}
-                  placeholder="••••••••"
-                />
-                <ErrorMessage message={errors.password} />
-              </div>
+                    placeholder="••••••••"
+                  />
+                  <ErrorMessage message={errors.password} />
+                </div>
 
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <Lock size={18} />
-                  Confirm Password <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="password"
-                  value={form.password_confirmation}
-                  onChange={(e) => setForm({ ...form, password_confirmation: e.target.value })}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all ${errors.password_confirmation
-                      ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-rose-500"
+                <div>
+                  <label className="flex items-center gap-3 text-base sm:text-lg font-medium text-gray-700 mb-3">
+                    <Lock className="w-6 h-6 sm:w-7 sm:h-7 text-orange-600" />
+                    Confirm Password <span className="text-orange-600">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    value={form.password_confirmation}
+                    onChange={(e) => setForm({ ...form, password_confirmation: e.target.value })}
+                    className={`w-full px-5 sm:px-6 py-4 sm:py-5 text-base sm:text-lg border-2 rounded-2xl focus:outline-none focus:ring-4 transition-all ${
+                      errors.password_confirmation
+                        ? "border-red-500 focus:ring-red-300"
+                        : "border-gray-300 focus:ring-orange-300"
                     }`}
-                  placeholder="••••••••"
-                />
-                <ErrorMessage message={errors.password_confirmation} />
+                    placeholder="••••••••"
+                  />
+                  <ErrorMessage message={errors.password_confirmation} />
+                </div>
               </div>
-            </div>
 
-            {/* Submit Buttons */}
-            <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
-              <button
-                type="button"
-                onClick={() => navigate("/admin/users")}
-                className="px-8 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-medium"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-8 py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-xl hover:from-rose-600 hover:to-pink-600 transition-all font-medium shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-3"
-              >
-                {loading ? (
-                  <>Creating...</>
-                ) : (
-                  <>
-                    <UserPlus size={20} />
-                    Create User Account
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
+              {/* Buttons */}
+              <div className="flex flex-col sm:flex-row justify-end gap-4 sm:gap-6 pt-8 border-t-2 border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => navigate("/admin/users")}
+                  className="w-full sm:w-auto px-8 sm:px-10 py-4 sm:py-5 border-2 border-gray-300 rounded-3xl hover:bg-gray-50 transition-all font-bold text-base sm:text-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full sm:w-auto px-10 sm:px-12 py-4 sm:py-5 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white rounded-3xl font-bold text-lg sm:text-xl shadow-2xl hover:shadow-3xl transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3 sm:gap-4"
+                >
+                  {loading ? (
+                    "Creating..."
+                  ) : (
+                    <>
+                      <UserPlus className="w-7 h-7 sm:w-8 sm:h-8" />
+                      Create & Welcome User
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+
+          {/* Footer */}
+          <motion.div className="mt-16 sm:mt-20 bg-orange-800 text-white rounded-3xl p-8 sm:p-12 lg:p-16 text-center shadow-2xl">
+            <img
+              src="https://thumbs.dreamstime.com/b/delicious-sri-lankan-rice-curry-spread-lanka-food-photography-vibrant-kitchen-close-up-culinary-experience-explore-flavors-367829555.jpg"
+              alt="Beautiful Sri Lankan rice and curry — shared with love"
+              className="w-full max-w-4xl mx-auto rounded-3xl shadow-2xl mb-10"
+            />
+            <h3 className="text-4xl sm:text-5xl font-bold mb-8">FeedSriLanka Community ❤️</h3>
+            <p className="text-2xl sm:text-3xl mb-10 opacity-90">
+              Every new member brings us closer to ending hunger
+            </p>
+            <p className="text-xl sm:text-2xl opacity-80">
+              Thank you for growing our circle of kindness
+            </p>
+            <div className="mt-12 text-6xl sm:text-8xl">🍲🙏✨</div>
+          </motion.div>
         </div>
       </div>
     </AuthenticatedLayout>
