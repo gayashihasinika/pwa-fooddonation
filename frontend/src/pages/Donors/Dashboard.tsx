@@ -10,6 +10,8 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { useNavigate } from "react-router-dom";
 import CountUp from "react-countup";
 import api from "@/lib/api";
+import heroImage from "@/assets/images/hero-donor.jpeg";
+import emptyDonationsImage from "@/assets/images/empty-donations.jpeg";
 
 interface User { id: number; name: string | null; email: string; }
 interface Donation {
@@ -89,27 +91,36 @@ export default function Dashboard() {
         {showConfetti && <Confetti recycle={false} numberOfPieces={300} />}
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-          {/* Hero Greeting */}
-          <motion.div
-            initial={{ opacity: 0, y: -30 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-10 md:mb-16"
-          >
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-orange-800 mb-4 md:mb-6">
-              Welcome back,<br className="sm:hidden" /> {currentUser.name?.split(" ")[0] || "Kind Hero"}! ❤️
-            </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-orange-700 flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4">
-              Your kindness is feeding families today
-              {tracker.streakDays > 0 && (
-                <span className="flex items-center gap-2 mt-3 sm:mt-0">
-                  <Flame className="w-8 h-8 md:w-10 md:h-10 text-red-500 animate-pulse" />
-                  <span className="font-bold text-base sm:text-lg md:text-xl">
-                    {tracker.streakDays}-day streak!
-                  </span>
-                </span>
-              )}
-            </p>
-          </motion.div>
+          <div className="relative rounded-3xl overflow-hidden mb-16">
+            <img
+              src={heroImage}
+              className="absolute inset-0 w-full h-full object-cover opacity-80"
+              alt="Helping hands"
+            />
+            <div className="relative backdrop-blur-sm bg-white/40 p-10 md:p-16 text-center">
+              {/* Hero Greeting */}
+              <motion.div
+                initial={{ opacity: 0, y: -30 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center mb-10 md:mb-16"
+              >
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-orange-800 mb-4 md:mb-6">
+                  Welcome back,<br className="sm:hidden" /> {currentUser.name?.split(" ")[0] || "Kind Hero"}! ❤️
+                </h1>
+                <p className="text-lg sm:text-xl md:text-2xl text-orange-700 flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4">
+                  Your kindness is feeding families today
+                  {tracker.streakDays > 0 && (
+                    <span className="flex items-center gap-2 mt-3 sm:mt-0">
+                      <Flame className="w-8 h-8 md:w-10 md:h-10 text-red-500 animate-pulse" />
+                      <span className="font-bold text-base sm:text-lg md:text-xl">
+                        {tracker.streakDays}-day streak!
+                      </span>
+                    </span>
+                  )}
+                </p>
+              </motion.div>
+            </div>
+          </div>
 
           {/* Quick Action */}
           <div className="text-center mb-10 md:mb-16">
@@ -228,10 +239,30 @@ export default function Dashboard() {
             </h2>
 
             {activeDonations.length === 0 && completedDonations.length === 0 ? (
-              <div className="text-center py-16">
-                <Package className="w-24 h-24 md:w-32 md:h-32 text-gray-300 mx-auto mb-8" />
-                <p className="text-xl md:text-2xl text-gray-600">No donations yet</p>
-                <p className="text-base md:text-xl text-gray-500 mt-4">Your first donation will appear here!</p>
+              <div className="text-center py-20">
+                <img
+                  src={emptyDonationsImage}
+                  alt="No donations yet"
+                  className="w-56 md:w-72 mx-auto mb-10 opacity-90"
+                  loading="lazy"
+                />
+
+                <p className="text-2xl md:text-3xl font-bold text-gray-700 mb-3">
+                  No donations yet
+                </p>
+
+                <p className="text-base md:text-xl text-gray-500 mb-8">
+                  Start sharing kindness — your first donation will appear here 💛
+                </p>
+
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate("/donors/post-donation/post-donation-add")}
+                  className="bg-orange-600 text-white px-8 py-4 rounded-full text-lg font-bold shadow-lg"
+                >
+                  Post Your First Donation
+                </motion.button>
               </div>
             ) : (
               <>
@@ -337,8 +368,8 @@ export default function Dashboard() {
                     >
                       <Award
                         className={`mx-auto drop-shadow-lg ${badge.unlocked
-                            ? "w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 text-yellow-600"
-                            : "w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 text-gray-400"
+                          ? "w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 text-yellow-600"
+                          : "w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 text-gray-400"
                           }`}
                       />
                     </motion.div>

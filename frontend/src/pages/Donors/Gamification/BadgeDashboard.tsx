@@ -3,19 +3,20 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
 import Confetti from "react-confetti";
-import { 
-  Trophy, 
-  Star, 
-  Sparkles, 
-  Crown, 
-  Flame, 
-  Zap, 
+import {
+  Trophy,
+  Star,
+  Sparkles,
+  Crown,
+  Flame,
+  Zap,
   Award,
   RefreshCw,
   Heart
 } from "lucide-react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import api from "@/lib/api";
+import impactImage from "@/assets/images/donation-impact.jpg";
 
 interface Badge {
   id: number;
@@ -54,7 +55,7 @@ export default function BadgeDashboard() {
     setChecking(true);
     try {
       const { data } = await api.post("/donors/gamification/check-and-assign");
-      
+
       if (data.awarded_badges && data.awarded_badges.length > 0) {
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 8000);
@@ -112,7 +113,19 @@ export default function BadgeDashboard() {
               Every badge tells a story of hope. Every point brings a meal to someone in need ❤️
             </p>
           </motion.div>
-
+          {/* Impact Hero Image */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="relative rounded-3xl overflow-hidden mb-20"
+          >
+            <img
+              src={impactImage}
+              alt="Food donation impact"
+              className="w-full h-80 md:h-[420px] object-cover opacity-80"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-orange-200/70 via-transparent to-transparent" />
+          </motion.div>
           {/* Impact Summary */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

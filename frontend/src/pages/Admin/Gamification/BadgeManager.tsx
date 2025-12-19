@@ -1,4 +1,4 @@
-// src/pages/Admin/Gamification/BadgeManager.tsx — FULLY RESPONSIVE & EMOTIONAL
+// src/pages/Admin/Gamification/BadgeManager.tsx
 import React, { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
@@ -18,6 +18,9 @@ import {
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import api from "@/lib/api";
 import { Link } from "react-router-dom";
+import badgeImg from "@/assets/images/badge1.jpg";
+import badgeImg2 from "@/assets/images/badge2.jpg";
+import badgeImg3 from "@/assets/images/badge3.jpg";
 
 interface Badge {
   id: number;
@@ -156,17 +159,17 @@ export default function BadgeManager() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 rounded-3xl overflow-hidden shadow-3xl mb-12 sm:mb-16 border-8 border-white"
           >
             <img
-              src="https://images.unsplash.com/photo-1552667466-07770ae38d58?q=80&w=2070"
+              src={badgeImg}
               alt="Donor receiving badge with joy"
               className="w-full h-64 sm:h-80 object-cover"
             />
             <img
-              src="https://images.unsplash.com/photo-1578269174936-2709b6aeb913?q=80&w=2071"
+              src={badgeImg2}
               alt="Sparkling achievement badges"
               className="w-full h-64 sm:h-80 object-cover"
             />
             <img
-              src="https://images.unsplash.com/photo-1557804506-669a6e9220c2?q=80&w=2074"
+              src={badgeImg3}
               alt="Celebrating kindness and giving"
               className="w-full h-64 sm:h-80 object-cover"
             />
@@ -397,23 +400,6 @@ export default function BadgeManager() {
               </>
             )}
           </AnimatePresence>
-
-          {/* Footer */}
-          <motion.div className="mt-20 bg-orange-800 text-white rounded-3xl p-8 sm:p-12 text-center shadow-2xl">
-            <img
-              src="https://images.unsplash.com/photo-1557804506-669a6e9220c2?q=80&w=2074"
-              alt="Celebrating donor achievements with badges"
-              className="w-full max-w-5xl mx-auto rounded-3xl shadow-2xl mb-12"
-            />
-            <h3 className="text-4xl sm:text-5xl font-bold mb-8">FeedSriLanka Gamification ❤️</h3>
-            <p className="text-2xl sm:text-3xl mb-10 opacity-90">
-              Badges turn generosity into celebration
-            </p>
-            <p className="text-xl sm:text-2xl opacity-80">
-              Every badge earned inspires more donors to give
-            </p>
-            <div className="mt-12 text-6xl sm:text-8xl">🏆✨🙏</div>
-          </motion.div>
         </div>
       </div>
     </AuthenticatedLayout>

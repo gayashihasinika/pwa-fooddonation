@@ -63,7 +63,7 @@ export default function DonationAdd() {
   const [lat, setLat] = useState<string>("");
   const [lon, setLon] = useState<string>("");
   const [showThanks, setShowThanks] = useState(false);
-const [earnedPoints, setEarnedPoints] = useState(0);
+  const [earnedPoints, setEarnedPoints] = useState(0);
 
 
 
@@ -117,36 +117,36 @@ const [earnedPoints, setEarnedPoints] = useState(0);
     return Object.keys(errs).length === 0;
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!validate()) {
-    toast.error("Please fix the errors");
-    return;
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) {
+      toast.error("Please fix the errors");
+      return;
+    }
 
-  const formData = new FormData();
-  Object.entries(form).forEach(([key, value]) => {
-    if (key === "images" || key === "allergy_tags") return;
-    formData.append(key, String(value));
-  });
-  form.allergy_tags.forEach((tag) => formData.append("allergy_tags[]", tag));
-  form.images.forEach((file) => formData.append("images[]", file));
+    const formData = new FormData();
+    Object.entries(form).forEach(([key, value]) => {
+      if (key === "images" || key === "allergy_tags") return;
+      formData.append(key, String(value));
+    });
+    form.allergy_tags.forEach((tag) => formData.append("allergy_tags[]", tag));
+    form.images.forEach((file) => formData.append("images[]", file));
 
-  try {
-    const response = await api.post("/donors/donations", formData);
-    const points = response.data.points_earned || 0;
-    setEarnedPoints(points);
-    setShowThanks(true);
+    try {
+      const response = await api.post("/donors/donations", formData);
+      const points = response.data.points_earned || 0;
+      setEarnedPoints(points);
+      setShowThanks(true);
 
-    // Auto redirect after 3 seconds
-    setTimeout(() => {
-      navigate("/donors/post-donation/post-donation-list");
-    }, 3000);
+      // Auto redirect after 3 seconds
+      setTimeout(() => {
+        navigate("/donors/post-donation/post-donation-list");
+      }, 3000);
 
-  } catch (err: any) {
-    toast.error(err.response?.data?.message || "Failed to post donation");
-  }
-};
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to post donation");
+    }
+  };
 
   const showMapFromAddress = async () => {
     const address = form.pickup_address.trim();
@@ -594,66 +594,66 @@ const handleSubmit = async (e: React.FormEvent) => {
           </Card>
         </motion.div>
       </div>
-     {/* SUCCESS THANK YOU POP-UP — PERFECT DISPLAY, NO CUT-OFF */}
-<AnimatePresence>
-  {showThanks && (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
-    >
-      <motion.div
-        initial={{ scale: 0.9, y: 30, opacity: 0 }}
-        animate={{ scale: 1, y: 0, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="bg-white rounded-3xl shadow-3xl w-full max-w-xl mx-4 my-8 p-6 md:p-8 text-center border-8 border-orange-200 max-h-screen overflow-y-auto"
-      >
-        {/* Smaller Bouncing Heart */}
-        <motion.div
-          animate={{ scale: [1, 1.25, 1] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-          className="text-6xl sm:text-7xl md:text-8xl mb-4"
-        >
-          ❤️
-        </motion.div>
-
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-orange-700 mb-4">
-          Thank You So Much!
-        </h2>
-
-        <p className="text-base sm:text-lg text-gray-700 mb-6 leading-relaxed px-4">
-          Your donation "<span className="font-bold text-orange-600">{form.title || "of kindness"}</span>"<br />
-          will bring warmth and hope to a family in need.
-        </p>
-
-        {earnedPoints > 0 && (
+      {/* SUCCESS THANK YOU POP-UP — PERFECT DISPLAY, NO CUT-OFF */}
+      <AnimatePresence>
+        {showThanks && (
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="inline-block bg-gradient-to-r from-yellow-300 to-amber-400 text-yellow-900 px-6 py-3 rounded-full font-bold text-lg sm:text-xl shadow-2xl mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
           >
-            🎉 +{earnedPoints} Points Earned!
+            <motion.div
+              initial={{ scale: 0.9, y: 30, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="bg-white rounded-3xl shadow-3xl w-full max-w-xl mx-4 my-8 p-6 md:p-8 text-center border-8 border-orange-200 max-h-screen overflow-y-auto"
+            >
+              {/* Smaller Bouncing Heart */}
+              <motion.div
+                animate={{ scale: [1, 1.25, 1] }}
+                transition={{ repeat: Infinity, duration: 1.5 }}
+                className="text-6xl sm:text-7xl md:text-8xl mb-4"
+              >
+                ❤️
+              </motion.div>
+
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-orange-700 mb-4">
+                Thank You So Much!
+              </h2>
+
+              <p className="text-base sm:text-lg text-gray-700 mb-6 leading-relaxed px-4">
+                Your donation "<span className="font-bold text-orange-600">{form.title || "of kindness"}</span>"<br />
+                will bring warmth and hope to a family in need.
+              </p>
+
+              {earnedPoints > 0 && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="inline-block bg-gradient-to-r from-yellow-300 to-amber-400 text-yellow-900 px-6 py-3 rounded-full font-bold text-lg sm:text-xl shadow-2xl mb-6"
+                >
+                  🎉 +{earnedPoints} Points Earned!
+                </motion.div>
+              )}
+
+              {/* Smaller Image */}
+              <div className="w-full max-w-md mx-auto mb-6">
+                <img
+                  src="https://www.remitly.com/blog/wp-content/uploads/2023/09/sri-lanka-rice-and-curry-scaled.jpg"
+                  alt="Warm Sri Lankan meal"
+                  className="w-full h-48 sm:h-56 object-cover rounded-2xl shadow-xl"
+                />
+              </div>
+
+              <p className="text-base text-gray-600">
+                Redirecting to your donations in 3 seconds...
+              </p>
+            </motion.div>
           </motion.div>
         )}
-
-        {/* Smaller Image */}
-        <div className="w-full max-w-md mx-auto mb-6">
-          <img
-            src="https://www.remitly.com/blog/wp-content/uploads/2023/09/sri-lanka-rice-and-curry-scaled.jpg"
-            alt="Warm Sri Lankan meal"
-            className="w-full h-48 sm:h-56 object-cover rounded-2xl shadow-xl"
-          />
-        </div>
-
-        <p className="text-base text-gray-600">
-          Redirecting to your donations in 3 seconds...
-        </p>
-      </motion.div>
-    </motion.div>
-  )}
-</AnimatePresence>
+      </AnimatePresence>
     </AuthenticatedLayout>
   );
 }

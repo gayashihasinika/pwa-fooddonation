@@ -1,4 +1,4 @@
-// src/pages/Admin/Users/CreateUser.tsx — FULLY RESPONSIVE & EMOTIONAL WELCOME
+// src/pages/Admin/Users/CreateUser.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import api from "@/lib/api";
+import newmemberImg from '@/assets/images/newmember.jpg';
 
 interface Errors {
   name?: string;
@@ -113,7 +114,7 @@ export default function CreateUser() {
             className="relative rounded-3xl overflow-hidden shadow-3xl mb-10 sm:mb-12 border-8 border-white"
           >
             <img
-              src="https://peacewindsamerica.org/wp-content/uploads/2022/12/IMG_4753-scaled.jpg"
+              src={newmemberImg}
               alt="Volunteers welcoming new community members with food and kindness"
               className="w-full h-72 sm:h-96 lg:h-[500px] object-cover"
             />
@@ -371,23 +372,6 @@ export default function CreateUser() {
                 </button>
               </div>
             </form>
-          </motion.div>
-
-          {/* Footer */}
-          <motion.div className="mt-16 sm:mt-20 bg-orange-800 text-white rounded-3xl p-8 sm:p-12 lg:p-16 text-center shadow-2xl">
-            <img
-              src="https://thumbs.dreamstime.com/b/delicious-sri-lankan-rice-curry-spread-lanka-food-photography-vibrant-kitchen-close-up-culinary-experience-explore-flavors-367829555.jpg"
-              alt="Beautiful Sri Lankan rice and curry — shared with love"
-              className="w-full max-w-4xl mx-auto rounded-3xl shadow-2xl mb-10"
-            />
-            <h3 className="text-4xl sm:text-5xl font-bold mb-8">FeedSriLanka Community ❤️</h3>
-            <p className="text-2xl sm:text-3xl mb-10 opacity-90">
-              Every new member brings us closer to ending hunger
-            </p>
-            <p className="text-xl sm:text-2xl opacity-80">
-              Thank you for growing our circle of kindness
-            </p>
-            <div className="mt-12 text-6xl sm:text-8xl">🍲🙏✨</div>
           </motion.div>
         </div>
       </div>

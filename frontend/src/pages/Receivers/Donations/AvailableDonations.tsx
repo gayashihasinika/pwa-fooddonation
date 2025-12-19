@@ -1,4 +1,4 @@
-// src/pages/Receivers/Donations/AvailableDonations.tsx — FULLY RESPONSIVE & HOPEFUL
+// src/pages/Receivers/Donations/AvailableDonations.tsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -6,6 +6,10 @@ import { toast } from "react-hot-toast";
 import { Package, MapPin, Search, Heart } from "lucide-react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import api from "@/lib/api";
+import headerImage1 from '@/assets/images/header1.jpeg';
+import headerImage2 from '@/assets/images/header2.jpg';
+import headerImage3 from '@/assets/images/header3.webp';
+import headerImage4 from '@/assets/images/header4.jpg';
 
 interface DonationImage {
   id: number;
@@ -71,22 +75,22 @@ export default function AvailableDonations() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 rounded-3xl overflow-hidden shadow-3xl mb-12 lg:mb-16 border-8 border-white"
           >
             <img
-              src="https://www.globalgiving.org/pfil/56139/Sri_Lanka_food_Large.jpeg"
+              src={headerImage1}
               alt="Happy Sri Lankan family receiving food donation"
               className="w-full h-64 sm:h-80 lg:h-96 object-cover"
             />
             <img
-              src="https://jtsamerica.org/wp-content/uploads/2023/11/0d5b6714-eb7d-41bd-a5ed-8ff3b057669c-1-scaled.jpg"
+              src={headerImage2}
               alt="Community sharing food packages with smiles"
               className="w-full h-64 sm:h-80 lg:h-96 object-cover"
             />
             <img
-              src="https://thumbs.dreamstime.com/b/delicious-sri-lankan-rice-curry-spread-lanka-food-photography-vibrant-kitchen-close-up-culinary-experience-explore-flavors-367829555.jpg"
+              src={headerImage3}
               alt="Beautiful traditional Sri Lankan rice and curry spread"
               className="w-full h-64 sm:h-80 lg:h-96 object-cover hidden sm:block"
             />
             <img
-              src="https://d27735ao2xxhhe.cloudfront.net/blog/pro/rice-and-curry-exploring-sri-lankas-iconic-national-dish-1000x700679231d73fe971737634263.jpg"
+              src={headerImage4}
               alt="Warm inviting Sri Lankan home cooked meal"
               className="w-full h-64 sm:h-80 lg:h-96 object-cover hidden lg:block"
             />
@@ -140,7 +144,7 @@ export default function AvailableDonations() {
           {donations.length === 0 ? (
             <motion.div className="text-center py-16 lg:py-24 bg-white/90 backdrop-blur rounded-3xl shadow-2xl">
               <img
-                src="https://thumbs.dreamstime.com/b/delicious-sri-lankan-rice-curry-spread-lanka-food-photography-vibrant-kitchen-close-up-culinary-experience-explore-flavors-367829555.jpg"
+                src={headerImage3}
                 alt="Warm Sri Lankan meal waiting to be shared"
                 className="w-full max-w-xl lg:max-w-3xl mx-auto rounded-3xl shadow-2xl mb-10"
               />
@@ -216,23 +220,6 @@ export default function AvailableDonations() {
               ))}
             </div>
           )}
-
-          {/* Footer */}
-          <motion.div className="mt-20 bg-orange-800 text-white rounded-3xl p-10 lg:p-16 text-center shadow-2xl">
-            <img
-              src="https://d27735ao2xxhhe.cloudfront.net/blog/pro/rice-and-curry-exploring-sri-lankas-iconic-national-dish-1000x700679231d73fe971737634263.jpg"
-              alt="Beautiful Sri Lankan rice and curry — shared with love"
-              className="w-full max-w-4xl lg:max-w-5xl mx-auto rounded-3xl shadow-2xl mb-12"
-            />
-            <h3 className="text-4xl lg:text-5xl font-bold mb-8">FeedSriLanka ❤️</h3>
-            <p className="text-2xl lg:text-3xl mb-10 opacity-90">
-              Food shared with kindness reaches those who need it most
-            </p>
-            <p className="text-xl lg:text-2xl opacity-80">
-              Thank you for helping reduce waste and bring meals home
-            </p>
-            <div className="mt-12 text-6xl lg:text-8xl">🍲🙏✨</div>
-          </motion.div>
         </div>
       </div>
     </AuthenticatedLayout>

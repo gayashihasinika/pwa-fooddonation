@@ -1,4 +1,4 @@
-// src/pages/Admin/Users/UserList.tsx — FULLY RESPONSIVE WITH ADD NEW USER BUTTON
+// src/pages/Admin/Users/UserList.tsx
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -18,6 +18,9 @@ import {
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import type { User } from "@/types/index";
 import api from "@/lib/api";
+import userListImg1 from '@/assets/images/user1.jpg';
+import userListImg2 from '@/assets/images/user2.jpg';
+import userListImg3 from '@/assets/images/user3.jpg';
 
 const fetchUsers = async ({ search = "", role = "" }) => {
   const { data } = await api.get("/admin/users", {
@@ -58,17 +61,17 @@ export default function UserList() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 rounded-3xl overflow-hidden shadow-3xl mb-12 sm:mb-16 border-8 border-white"
           >
             <img
-              src="https://peacewindsamerica.org/wp-content/uploads/2022/12/IMG_4753-scaled.jpg"
+              src={userListImg1}
               alt="Volunteers distributing food packages with gratitude"
               className="w-full h-64 sm:h-80 object-cover"
             />
             <img
-              src="https://peacewindsamerica.org/wp-content/uploads/2022/12/IMG_4742-scaled.jpg"
+              src={userListImg2}
               alt="Community receiving food donations with warm smiles"
               className="w-full h-64 sm:h-80 object-cover"
             />
             <img
-              src="https://thumbs.dreamstime.com/b/delicious-sri-lankan-rice-curry-spread-lanka-food-photography-vibrant-kitchen-close-up-culinary-experience-explore-flavors-367829555.jpg"
+              src={userListImg3}
               alt="Beautiful traditional Sri Lankan rice and curry spread"
               className="w-full h-64 sm:h-80 object-cover"
             />
@@ -189,9 +192,9 @@ export default function UserList() {
                           </td>
                           <td className="px-6 py-5">
                             <span className={`px-6 py-3 rounded-full text-base font-bold ${user.role === "admin" ? "bg-purple-100 text-purple-800" :
-                                user.role === "donor" ? "bg-green-100 text-green-800" :
-                                  user.role === "receiver" ? "bg-blue-100 text-blue-800" :
-                                    "bg-orange-100 text-orange-800"
+                              user.role === "donor" ? "bg-green-100 text-green-800" :
+                                user.role === "receiver" ? "bg-blue-100 text-blue-800" :
+                                  "bg-orange-100 text-orange-800"
                               }`}>
                               {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                             </span>
@@ -267,9 +270,9 @@ export default function UserList() {
                       <div>
                         <p className="text-gray-600">Role</p>
                         <p className={`mt-2 px-4 py-2 rounded-full font-bold inline-block text-base ${user.role === "admin" ? "bg-purple-100 text-purple-800" :
-                            user.role === "donor" ? "bg-green-100 text-green-800" :
-                              user.role === "receiver" ? "bg-blue-100 text-blue-800" :
-                                "bg-orange-100 text-orange-800"
+                          user.role === "donor" ? "bg-green-100 text-green-800" :
+                            user.role === "receiver" ? "bg-blue-100 text-blue-800" :
+                              "bg-orange-100 text-orange-800"
                           }`}>
                           {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                         </p>
@@ -309,23 +312,6 @@ export default function UserList() {
               </div>
             </>
           )}
-
-          {/* Footer */}
-          <motion.div className="mt-20 bg-orange-800 text-white rounded-3xl p-10 sm:p-16 text-center shadow-2xl">
-            <img
-              src="https://thumbs.dreamstime.com/b/delicious-sri-lankan-rice-curry-spread-lanka-food-photography-vibrant-kitchen-close-up-culinary-experience-explore-flavors-367829555.jpg"
-              alt="Beautiful Sri Lankan rice and curry — shared with love"
-              className="w-full max-w-4xl sm:max-w-5xl mx-auto rounded-3xl shadow-2xl mb-10"
-            />
-            <h3 className="text-4xl sm:text-5xl font-bold mb-8">FeedSriLanka Community ❤️</h3>
-            <p className="text-2xl sm:text-3xl mb-10 opacity-90">
-              Together, donors, NGOs, and volunteers are feeding Sri Lanka
-            </p>
-            <p className="text-xl sm:text-2xl opacity-80">
-              Every member plays a vital role in reducing waste and spreading kindness
-            </p>
-            <div className="mt-12 text-6xl sm:text-8xl">🍲🙏✨</div>
-          </motion.div>
         </div>
       </div>
     </AuthenticatedLayout>

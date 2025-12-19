@@ -1,4 +1,4 @@
-// src/pages/Admin/Dashboard.tsx — PROFESSIONAL & EMOTIONAL IMPACT OVERVIEW
+// src/pages/Admin/Dashboard.tsx
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion"; // ← FIXED: Import motion
 import {
@@ -26,6 +26,9 @@ import {
 import { toast } from "react-hot-toast";
 import api from "@/lib/api";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import admindashboardImg1 from '@/assets/images/admindashboard1.jpg';
+import admindashboardImg2 from '@/assets/images/admindashboard2.jpg';
+import admindashboardImg3 from '@/assets/images/admindashboard3.jpg';
 
 interface Stats {
   totalUsers: number;
@@ -116,17 +119,17 @@ export default function AdminDashboard() {
             className="grid grid-cols-1 md:grid-cols-3 gap-6 rounded-3xl overflow-hidden shadow-3xl mb-16 border-8 border-white"
           >
             <img
-              src="https://peacewindsamerica.org/wp-content/uploads/2022/12/IMG_4753-scaled.jpg"
+              src={admindashboardImg1}
               alt="Volunteer delivering food packages to a grateful family in Sri Lanka"
               className="w-full h-80 object-cover"
             />
             <img
-              src="https://peacewindsamerica.org/wp-content/uploads/2022/12/IMG_4742-scaled.jpg"
+              src={admindashboardImg2}
               alt="Community members receiving essential food aid with smiles"
               className="w-full h-80 object-cover"
             />
             <img
-              src="https://thumbs.dreamstime.com/b/delicious-sri-lankan-rice-curry-spread-lanka-food-photography-vibrant-kitchen-close-up-culinary-experience-explore-flavors-367829555.jpg"
+              src={admindashboardImg3}
               alt="Vibrant and delicious traditional Sri Lankan rice and curry spread"
               className="w-full h-80 object-cover"
             />
@@ -263,23 +266,6 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
-
-          {/* Footer */}
-          <motion.div className="bg-orange-800 text-white rounded-3xl p-16 text-center shadow-2xl">
-            <img
-              src="https://i0.wp.com/theperfectcurry.com/wp-content/uploads/2024/10/sri-lankan-rice-and-curry-with-sri-lankan-sides.png"
-              alt="Beautiful Sri Lankan rice and curry — shared with love"
-              className="w-full max-w-5xl mx-auto rounded-3xl shadow-2xl mb-12"
-            />
-            <h3 className="text-5xl font-bold mb-8">FeedSriLanka ❤️</h3>
-            <p className="text-3xl mb-10 opacity-90">
-              Together, we're reducing food waste and feeding families across Sri Lanka
-            </p>
-            <p className="text-2xl opacity-80">
-              Every donation, every delivery — a story of kindness
-            </p>
-            <div className="mt-12 text-8xl">🍲🙏✨</div>
-          </motion.div>
         </div>
       </div>
     </AuthenticatedLayout>
