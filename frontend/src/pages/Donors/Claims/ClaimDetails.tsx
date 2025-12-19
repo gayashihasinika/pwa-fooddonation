@@ -1,10 +1,11 @@
-// src/pages/Donors/Claims/ClaimDetails.tsx — WARM, EMOTIONAL & BEAUTIFUL
+// src/pages/Donors/Claims/ClaimDetails.tsx
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { motion } from "framer-motion";
 import { ArrowLeft, Heart, Calendar, Users, Sparkles, Package } from "lucide-react";
+import impactImage from "@/assets/images/impact-hands.jpg";
 
 interface Claim {
     id: number;
@@ -142,6 +143,20 @@ export default function DonorClaimDetails() {
                             </span>
                         </p>
                     </motion.div>
+                    {/* Impact Image */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="rounded-3xl overflow-hidden shadow-2xl mb-16"
+                    >
+                        <img
+                            src={impactImage}
+                            alt="Hands receiving donated food"
+                            className="w-full h-72 md:h-96 object-cover"
+                        />
+                    </motion.div>
+
 
                     {/* Journey Indicator */}
                     <div className="bg-white/80 backdrop-blur rounded-3xl p-10 shadow-2xl mb-16">
@@ -157,10 +172,20 @@ export default function DonorClaimDetails() {
                             </div>
 
                             <div className="flex-1 h-2 bg-gray-300 relative hidden md:block">
-                                <div className={`absolute h-full transition-all duration-1000 ${claim.status === "pending" ? "w-1/2" :
-                                        claim.status === "accepted" ? "w-3/4" :
-                                            "w-full"
-                                    } bg-gradient-to-r from-orange-500 to-amber-500 rounded-full`} />
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{
+                                        width:
+                                            claim.status === "pending"
+                                                ? "50%"
+                                                : claim.status === "accepted"
+                                                    ? "75%"
+                                                    : "100%",
+                                    }}
+                                    transition={{ duration: 1.2, ease: "easeOut" }}
+                                    className="absolute h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full"
+                                />
+
                             </div>
 
                             <div className="text-center flex-1">
@@ -182,11 +207,11 @@ export default function DonorClaimDetails() {
                     {/* Gratitude Message for Completed */}
                     {claim.status === "completed" && (
                         <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="bg-gradient-to-r from-green-100 to-emerald-100 rounded-3xl p-10 text-center shadow-2xl mb-16"
+                            animate={{ y: [0, -8, 0] }}
+                            transition={{ repeat: Infinity, duration: 3 }}
                         >
                             <Heart className="w-16 h-16 text-green-600 mx-auto mb-6" />
+
                             <p className="text-2xl font-bold text-green-800 mb-4">
                                 Thank you for helping us today 🙏
                             </p>

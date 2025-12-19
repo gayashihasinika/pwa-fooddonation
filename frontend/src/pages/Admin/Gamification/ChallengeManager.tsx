@@ -1,4 +1,4 @@
-// src/pages/Admin/Gamification/ChallengeManager.tsx — POPUP FORM PERFECTLY FIXED & RESPONSIVE
+// src/pages/Admin/Gamification/ChallengeManager.tsx
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
@@ -15,6 +15,9 @@ import {
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import api from "@/lib/api";
 import { format } from "date-fns";
+import challengeImg1 from "@/assets/images/challenge1.jpg";
+import challengeImg2 from "@/assets/images/challenge2.webp";
+import challengeImg3 from "@/assets/images/challenge3.webp";
 
 interface Challenge {
   id: number;
@@ -154,17 +157,17 @@ export default function ChallengeManager() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 rounded-3xl overflow-hidden shadow-3xl mb-12 sm:mb-16 border-8 border-white"
           >
             <img
-              src="https://tzuchi-en-backend.storage.googleapis.com/content/images/2024/10/2-800-6.jpg"
+              src={challengeImg1}
               alt="Volunteers delivering food to families"
               className="w-full h-64 sm:h-80 object-cover"
             />
             <img
-              src="https://www.zakat.org/img/asset/cHVibGljLzIwMjUvMDIvc3JpbGFua2EtanVtYm90cm9uLWNvcHkuanBn/srilanka-jumbotron-copy.jpg?w=960&h=540&fit=crop-45-26-1&fm=webp&q=60&filt=0&s=ba1f8600c7004d733f9060e4179fcf1a"
+              src={challengeImg2}
               alt="Charity food distribution in Sri Lanka"
               className="w-full h-64 sm:h-80 object-cover"
             />
             <img
-              src="https://thumbs.dreamstime.com/b/traditional-sri-lankan-rice-curry-delight-lanka-food-photography-vibrant-colors-close-up-culinary-art-plate-showcases-367913327.jpg"
+              src={challengeImg3}
               alt="Traditional Sri Lankan rice and curry"
               className="w-full h-64 sm:h-80 object-cover"
             />
@@ -434,23 +437,6 @@ export default function ChallengeManager() {
               </>
             )}
           </AnimatePresence>
-
-          {/* Footer */}
-          <motion.div className="mt-20 bg-orange-800 text-white rounded-3xl p-12 text-center shadow-2xl">
-            <img
-              src="https://c8.alamy.com/comp/G5JP7N/rice-and-curry-sri-lankan-cuisine-G5JP7N.jpg"
-              alt="Traditional Sri Lankan rice and curry shared with love"
-              className="w-full max-w-5xl mx-auto rounded-3xl shadow-2xl mb-12"
-            />
-            <h3 className="text-5xl font-bold mb-8">FeedSriLanka Challenges ❤️</h3>
-            <p className="text-3xl mb-10 opacity-90">
-              Special events bring extra generosity
-            </p>
-            <p className="text-2xl opacity-80">
-              Thank you for inspiring donors during important times
-            </p>
-            <div className="mt-12 text-8xl">🍲🙏✨</div>
-          </motion.div>
         </div>
       </div>
     </AuthenticatedLayout>

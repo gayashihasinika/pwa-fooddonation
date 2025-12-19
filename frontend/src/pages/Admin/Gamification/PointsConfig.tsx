@@ -14,6 +14,9 @@ import {
 } from "lucide-react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import api from "@/lib/api";
+import pointsImg from "@/assets/images/points1.jpg";
+import pointsImg2 from "@/assets/images/points2.jpg";
+import pointsImg3 from "@/assets/images/points3.jpg";
 
 interface Config {
   id: number;
@@ -122,17 +125,17 @@ export default function PointsConfig() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 rounded-3xl overflow-hidden shadow-3xl mb-12 sm:mb-16 border-8 border-white"
           >
             <img
-              src="https://wpexperts.io/wp-content/uploads/2024/03/donation-for-woo-new-blogs_How-Gamification-Tools-Boost-Your-Donation-Success-copy.svg"
+              src={pointsImg}
               alt="Gamification boosting donations"
               className="w-full h-64 sm:h-80 object-contain bg-white"
             />
             <img
-              src="https://thumbs.dreamstime.com/b/earn-points-benefits-program-shopping-reward-bonus-customer-earning-gifts-marketing-loyalty-system-business-vector-icons-173575640.jpg"
+              src={pointsImg2}
               alt="Earning points and rewards"
               className="w-full h-64 sm:h-80 object-cover"
             />
             <img
-              src="https://livebeyond.org/wp-content/uploads/2025/11/Livebeyond-11.25-Blog-1200x900.png"
+              src={pointsImg3}
               alt="Celebrating generosity"
               className="w-full h-64 sm:h-80 object-cover"
             />
@@ -325,23 +328,6 @@ export default function PointsConfig() {
               </>
             )}
           </AnimatePresence>
-
-          {/* Footer */}
-          <motion.div className="mt-20 bg-orange-800 text-white rounded-3xl p-12 text-center shadow-2xl">
-            <img
-              src="https://d2g8igdw686xgo.cloudfront.net/97864857_1765613440705043_r."
-              alt="Warm meal shared with love"
-              className="w-full max-w-5xl mx-auto rounded-3xl shadow-2xl mb-12"
-            />
-            <h3 className="text-5xl font-bold mb-8">FeedSriLanka Rewards ❤️</h3>
-            <p className="text-3xl mb-10 opacity-90">
-              Points turn every donation into motivation
-            </p>
-            <p className="text-2xl opacity-80">
-              Thank you for building a culture of consistent kindness
-            </p>
-            <div className="mt-12 text-8xl">✨🏆🙏</div>
-          </motion.div>
         </div>
       </div>
     </AuthenticatedLayout>

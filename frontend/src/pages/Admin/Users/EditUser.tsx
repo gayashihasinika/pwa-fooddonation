@@ -1,4 +1,4 @@
-// src/pages/Admin/Users/EditUser.tsx — FULLY RESPONSIVE & EMOTIONAL
+// src/pages/Admin/Users/EditUser.tsx
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import type { User } from "@/types/index";
+import editImg from '@/assets/images/edituser.jpg';
 
 const fetchUser = async (id: string): Promise<User> => {
   const { data } = await api.get(`/admin/users/${id}`);
@@ -53,8 +54,8 @@ export default function EditUser() {
         variables.action === "suspend"
           ? "User suspended"
           : variables.action === "unsuspend"
-          ? "User unsuspended"
-          : "NGO verified successfully!";
+            ? "User unsuspended"
+            : "NGO verified successfully!";
       toast.success(msg);
       setShowSuspendDialog(false);
     },
@@ -94,6 +95,71 @@ export default function EditUser() {
     );
   }
 
+  // Dialogs (unchanged but responsive)
+  const SuspendDialog = ({ user, isPending, onConfirm, onClose }: any) => (
+    <>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 bg-black/60 z-50" onClick={onClose} />
+      <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl shadow-3xl max-w-lg w-full p-8 sm:p-10">
+          <div className="text-center mb-8">
+            <Ban className={user.is_suspended ? "text-emerald-600" : "text-red-600"} size={72} />
+            <h3 className="text-3xl sm:text-4xl font-bold mt-6">
+              {user.is_suspended ? "Unsuspend" : "Suspend"} {user.name}?
+            </h3>
+            <p className="text-gray-600 mt-4 text-base sm:text-lg">
+              {user.is_suspended
+                ? "This user will regain full access."
+                : "This user will be blocked from logging in."}
+            </p>
+          </div>
+          <div className="flex gap-4 justify-center">
+            <button onClick={onClose} className="px-6 sm:px-8 py-3 sm:py-4 border border-gray-300 rounded-xl hover:bg-gray-50 font-medium text-base sm:text-lg">
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              disabled={isPending}
+              className={`px-8 sm:px-10 py-3 sm:py-4 rounded-xl text-white font-bold text-base sm:text-lg ${user.is_suspended ? "bg-emerald-600 hover:bg-emerald-700" : "bg-red-600 hover:bg-red-700"
+                }`}
+            >
+              {isPending ? "Processing..." : user.is_suspended ? "Unsuspend" : "Suspend"}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </>
+  );
+
+  const DeleteDialog = ({ user, isPending, onConfirm, onClose }: any) => (
+    <>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 bg-black/60 z-50" onClick={onClose} />
+      <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl shadow-3xl max-w-lg w-full p-8 sm:p-10 border-4 border-red-200">
+          <div className="text-center">
+            <AlertCircle className="text-red-600 mx-auto" size={80} />
+            <h3 className="text-3xl sm:text-4xl font-bold text-red-800 mt-6">Delete Forever?</h3>
+            <p className="text-gray-700 mt-4 text-base sm:text-lg">
+              <strong>{user.name}</strong> will be <span className="text-red-600 font-bold">permanently deleted</span>.
+            </p>
+            <p className="text-red-600 font-bold text-xl sm:text-2xl mt-4">This cannot be undone.</p>
+          </div>
+          <div className="flex gap-4 justify-center mt-8">
+            <button onClick={onClose} className="px-8 sm:px-10 py-3 sm:py-4 border-2 border-gray-300 rounded-xl hover:bg-gray-50 font-medium text-base sm:text-lg">
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              disabled={isPending}
+              className="px-8 sm:px-10 py-3 sm:py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-base sm:text-lg flex items-center gap-3"
+            >
+              {isPending ? "Deleting..." : <><Trash2 size={20} /> Yes, Delete Forever</>}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </>
+  );
+
   return (
     <AuthenticatedLayout>
       <div className="min-h-screen bg-gradient-to-b from-orange-50 via-amber-50 to-yellow-50 py-6 px-4 sm:py-8">
@@ -105,7 +171,7 @@ export default function EditUser() {
             className="relative rounded-3xl overflow-hidden shadow-3xl mb-10 sm:mb-12 border-8 border-white"
           >
             <img
-              src="https://peacewindsamerica.org/wp-content/uploads/2022/12/IMG_4753-scaled.jpg"
+              src={editImg}
               alt="Volunteers welcoming new community members with food and kindness"
               className="w-full h-72 sm:h-96 lg:h-[500px] object-cover"
             />
@@ -233,11 +299,10 @@ export default function EditUser() {
             {/* Suspend Button */}
             <button
               onClick={() => setShowSuspendDialog(true)}
-              className={`p-8 rounded-3xl text-white shadow-2xl hover:shadow-3xl transition-all text-center ${
-                user.is_suspended
+              className={`p-8 rounded-3xl text-white shadow-2xl hover:shadow-3xl transition-all text-center ${user.is_suspended
                   ? "bg-gradient-to-br from-green-500 to-emerald-600"
                   : "bg-gradient-to-br from-orange-500 to-red-600"
-              }`}
+                }`}
             >
               <Ban size={64} className="mx-auto mb-6" />
               <p className="text-3xl font-bold">
@@ -294,91 +359,9 @@ export default function EditUser() {
               />
             )}
           </AnimatePresence>
-
-          {/* Footer */}
-          <motion.div className="mt-20 bg-orange-800 text-white rounded-3xl p-12 text-center shadow-2xl">
-            <img
-              src="https://thumbs.dreamstime.com/b/delicious-sri-lankan-rice-curry-spread-lanka-food-photography-vibrant-kitchen-close-up-culinary-experience-explore-flavors-367829555.jpg"
-              alt="Beautiful Sri Lankan rice and curry — shared with love"
-              className="w-full max-w-5xl mx-auto rounded-3xl shadow-2xl mb-12"
-            />
-            <h3 className="text-5xl font-bold mb-8">FeedSriLanka Community ❤️</h3>
-            <p className="text-3xl mb-10 opacity-90">
-              Together, we're building a nation of kindness
-            </p>
-            <p className="text-2xl opacity-80">
-              Every user helps reduce waste and feed families
-            </p>
-            <div className="mt-12 text-8xl">🍲🙏✨</div>
-          </motion.div>
         </div>
       </div>
     </AuthenticatedLayout>
   );
 }
 
-// Dialogs (unchanged but responsive)
-const SuspendDialog = ({ user, isPending, onConfirm, onClose }: any) => (
-  <>
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 bg-black/60 z-50" onClick={onClose} />
-    <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-3xl max-w-lg w-full p-8 sm:p-10">
-        <div className="text-center mb-8">
-          <Ban className={user.is_suspended ? "text-emerald-600" : "text-red-600"} size={72} />
-          <h3 className="text-3xl sm:text-4xl font-bold mt-6">
-            {user.is_suspended ? "Unsuspend" : "Suspend"} {user.name}?
-          </h3>
-          <p className="text-gray-600 mt-4 text-base sm:text-lg">
-            {user.is_suspended
-              ? "This user will regain full access."
-              : "This user will be blocked from logging in."}
-          </p>
-        </div>
-        <div className="flex gap-4 justify-center">
-          <button onClick={onClose} className="px-6 sm:px-8 py-3 sm:py-4 border border-gray-300 rounded-xl hover:bg-gray-50 font-medium text-base sm:text-lg">
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={isPending}
-            className={`px-8 sm:px-10 py-3 sm:py-4 rounded-xl text-white font-bold text-base sm:text-lg ${
-              user.is_suspended ? "bg-emerald-600 hover:bg-emerald-700" : "bg-red-600 hover:bg-red-700"
-            }`}
-          >
-            {isPending ? "Processing..." : user.is_suspended ? "Unsuspend" : "Suspend"}
-          </button>
-        </div>
-      </div>
-    </motion.div>
-  </>
-);
-
-const DeleteDialog = ({ user, isPending, onConfirm, onClose }: any) => (
-  <>
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 bg-black/60 z-50" onClick={onClose} />
-    <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-3xl max-w-lg w-full p-8 sm:p-10 border-4 border-red-200">
-        <div className="text-center">
-          <AlertCircle className="text-red-600 mx-auto" size={80} />
-          <h3 className="text-3xl sm:text-4xl font-bold text-red-800 mt-6">Delete Forever?</h3>
-          <p className="text-gray-700 mt-4 text-base sm:text-lg">
-            <strong>{user.name}</strong> will be <span className="text-red-600 font-bold">permanently deleted</span>.
-          </p>
-          <p className="text-red-600 font-bold text-xl sm:text-2xl mt-4">This cannot be undone.</p>
-        </div>
-        <div className="flex gap-4 justify-center mt-8">
-          <button onClick={onClose} className="px-8 sm:px-10 py-3 sm:py-4 border-2 border-gray-300 rounded-xl hover:bg-gray-50 font-medium text-base sm:text-lg">
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={isPending}
-            className="px-8 sm:px-10 py-3 sm:py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-base sm:text-lg flex items-center gap-3"
-          >
-            {isPending ? "Deleting..." : <><Trash2 size={20} /> Yes, Delete Forever</>}
-          </button>
-        </div>
-      </div>
-    </motion.div>
-  </>
-);

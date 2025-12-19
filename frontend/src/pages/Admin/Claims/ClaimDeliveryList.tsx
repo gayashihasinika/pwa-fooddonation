@@ -1,4 +1,4 @@
-// src/pages/Admin/Claims/ClaimDeliveryList.tsx — EMOTIONAL & FULLY RESPONSIVE
+// src/pages/Admin/Claims/ClaimDeliveryList.tsx
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { format } from "date-fns";
@@ -278,23 +278,6 @@ export default function ClaimDeliveryList() {
               </div>
             </>
           )}
-
-          {/* Footer */}
-          <motion.div className="mt-20 bg-orange-800 text-white rounded-3xl p-12 text-center shadow-2xl">
-            <img
-              src="https://thumbs.dreamstime.com/b/delicious-sri-lankan-rice-curry-spread-lanka-food-photography-vibrant-kitchen-close-up-culinary-experience-explore-flavors-367829555.jpg"
-              alt="Warm meal delivered with love"
-              className="w-full max-w-5xl mx-auto rounded-3xl shadow-2xl mb-12"
-            />
-            <h3 className="text-5xl font-bold mb-8">FeedSriLanka Deliveries ❤️</h3>
-            <p className="text-3xl mb-10 opacity-90">
-              Every claim coordinated becomes a meal delivered
-            </p>
-            <p className="text-2xl opacity-80">
-              Thank you for connecting donors, volunteers, and families
-            </p>
-            <div className="mt-12 text-8xl">🚚🍲🙏</div>
-          </motion.div>
         </div>
       </div>
     </AuthenticatedLayout>

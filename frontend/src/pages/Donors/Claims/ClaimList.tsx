@@ -1,10 +1,14 @@
-// src/pages/Donors/Claims/ClaimList.tsx — WARM & EMOTIONAL
+// src/pages/Donors/Claims/ClaimList.tsx
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { Link } from "react-router-dom";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { motion, AnimatePresence } from "framer-motion";
 import { Truck, Heart, Calendar, Users, Sparkles } from "lucide-react";
+import claimHero from "@/assets/images/claim-hero.jpg";
+import emptyClaim from "@/assets/images/claim-empty.jpg";
+
+
 
 interface Claim {
     id: number;
@@ -32,15 +36,6 @@ export default function DonorClaimList() {
         }
     };
 
-    const getStatusAnimation = (status: string) => {
-        switch (status) {
-            case "pending": return "animate-pulse";
-            case "accepted": return "animate-heartbeat";
-            case "completed": return "animate-[sparkle_3s_ease-in-out]";
-            default: return "";
-        }
-    };
-
     if (isLoading) {
         return (
             <AuthenticatedLayout>
@@ -51,24 +46,55 @@ export default function DonorClaimList() {
         );
     }
 
+    const getStatusGlow = (status: string) => {
+        switch (status) {
+            case "pending":
+                return "shadow-[0_0_25px_rgba(245,158,11,0.6)]";
+            case "accepted":
+                return "shadow-[0_0_30px_rgba(16,185,129,0.7)]";
+            default:
+                return "";
+        }
+    };
+
+    const getHeartColor = (status: string) => {
+        switch (status) {
+            case "pending":
+                return "text-amber-100";
+            case "accepted":
+                return "text-emerald-100";
+            default:
+                return "text-white";
+        }
+    };
+
+
     return (
         <AuthenticatedLayout>
             <div className="min-h-screen bg-gradient-to-b from-orange-50 via-amber-50 to-yellow-50 py-12 px-4">
                 <div className="max-w-7xl mx-auto">
-                    {/* Hero Header */}
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-center mb-16"
-                    >
-                        <h1 className="text-5xl md:text-6xl font-extrabold text-orange-800 mb-6 flex items-center justify-center gap-4">
-                            <Truck className="w-16 h-16 text-orange-600" />
-                            Your Kindness in Action
-                        </h1>
-                        <p className="text-2xl text-orange-700">
-                            See who your donations have reached ❤️
-                        </p>
-                    </motion.div>
+                    <div className="relative rounded-3xl overflow-hidden mb-20">
+                        <img
+                            src={claimHero}
+                            className="absolute inset-0 w-full h-full object-cover opacity-20"
+                            alt="Food delivery impact"
+                        />
+                        <div className="relative p-16 text-center"></div>
+                        {/* Hero Header */}
+                        <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-center mb-16"
+                        >
+                            <h1 className="text-5xl md:text-6xl font-extrabold text-orange-800 mb-6 flex items-center justify-center gap-4">
+                                <Truck className="w-16 h-16 text-orange-600" />
+                                Your Kindness in Action
+                            </h1>
+                            <p className="text-2xl text-orange-700">
+                                See who your donations have reached ❤️
+                            </p>
+                        </motion.div>
+                    </div>
 
                     {/* Empty State */}
                     {claims.length === 0 ? (
@@ -77,7 +103,11 @@ export default function DonorClaimList() {
                             animate={{ opacity: 1, scale: 1 }}
                             className="text-center py-24 bg-white/80 backdrop-blur rounded-3xl shadow-2xl"
                         >
-                            <Truck className="w-32 h-32 text-orange-300 mx-auto mb-8" />
+                            <img
+                                src={emptyClaim}
+                                alt="No claims yet"
+                                className="w-72 mx-auto mb-10 opacity-90"
+                            />
                             <h2 className="text-4xl font-bold text-orange-800 mb-6">
                                 No Claims Yet
                             </h2>
@@ -105,16 +135,63 @@ export default function DonorClaimList() {
                                         {/* Header with Status */}
                                         <div className={`relative p-8 text-center ${getStatusStyle(claim.status)}`}>
                                             <motion.div
-                                                className={`inline-flex items-center gap-3 px-8 py-4 rounded-full font-bold text-lg shadow-2xl ${getStatusAnimation(claim.status)}`}
+                                                animate={
+                                                    claim.status === "pending"
+                                                        ? { scale: [1, 1.05, 1] }
+                                                        : {}
+                                                }
+                                                transition={
+                                                    claim.status === "pending"
+                                                        ? { repeat: Infinity, duration: 2 }
+                                                        : {}
+                                                }
+                                                className={`inline-flex items-center gap-3 px-8 py-4 rounded-full font-bold text-lg shadow-2xl ${getStatusGlow(claim.status)}`}
                                                 style={{
-                                                    background: claim.status === "pending" ? "linear-gradient(to right, #f59e0b, #eab308)" :
-                                                        claim.status === "accepted" ? "linear-gradient(to right, #10b981, #059669)" :
-                                                            "linear-gradient(to right, #3b82f6, #1d4ed8)"
+                                                    background:
+                                                        claim.status === "pending"
+                                                            ? "linear-gradient(135deg, #fbbf24, #f59e0b)"
+                                                            : claim.status === "accepted"
+                                                                ? "linear-gradient(135deg, #34d399, #10b981)"
+                                                                : "linear-gradient(135deg, #60a5fa, #3b82f6)",
                                                 }}
                                             >
-                                                <Heart className="w-7 h-7 text-white" />
+                                                <motion.div
+                                                    animate={
+                                                        claim.status === "accepted"
+                                                            ? { scale: [1, 1.2, 1] }
+                                                            : claim.status === "pending"
+                                                                ? { scale: [1, 1.1, 1] }
+                                                                : {}
+                                                    }
+                                                    transition={
+                                                        claim.status === "accepted"
+                                                            ? { repeat: Infinity, duration: 1.2 }
+                                                            : claim.status === "pending"
+                                                                ? { repeat: Infinity, duration: 2 }
+                                                                : {}
+                                                    }
+                                                    className={`rounded-full p-1 ${claim.status === "pending"
+                                                            ? "bg-amber-400/30"
+                                                            : claim.status === "accepted"
+                                                                ? "bg-emerald-400/30"
+                                                                : ""
+                                                        }`}
+                                                >
+                                                    <Heart
+                                                        className={`w-7 h-7 drop-shadow-lg ${getHeartColor(claim.status)}`}
+                                                        fill="currentColor"
+                                                    />
+                                                </motion.div>
                                                 {claim.status.toUpperCase()}
-                                                {claim.status === "completed" && <Sparkles className="w-7 h-7 text-white ml-2" />}
+                                                {claim.status === "completed" && (
+                                                    <motion.div
+                                                        whileHover={{ rotate: [0, 5, -5, 0] }}
+                                                        transition={{ duration: 0.5 }}
+                                                    >
+                                                        <Sparkles className="w-7 h-7 text-white ml-2" />
+                                                    </motion.div>
+                                                )}
+
                                             </motion.div>
                                         </div>
 
@@ -147,6 +224,14 @@ export default function DonorClaimList() {
                                             <p className="text-center text-gray-700 mt-8 italic text-lg">
                                                 Your kindness reached {claim.receiver.name} ❤️
                                             </p>
+                                            <motion.p
+                                                initial={{ opacity: 0 }}
+                                                whileInView={{ opacity: 1 }}
+                                                viewport={{ once: true }}
+                                                className="text-center text-sm text-gray-500 mt-6"
+                                            >
+                                                Because of you, a meal reached someone in need.
+                                            </motion.p>
 
                                             <Link
                                                 to={`/donor/claims/${claim.id}`}

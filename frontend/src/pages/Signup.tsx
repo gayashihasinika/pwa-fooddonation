@@ -6,6 +6,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { motion } from "framer-motion";
 import { HiLockClosed, HiMail, HiUser, HiPhone, HiEye, HiEyeOff } from "react-icons/hi";
 import { useLang } from "../context/LanguageContext";
+import signupimage from "../assets/images/signup.jpg";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -126,11 +127,10 @@ export default function Signup() {
           </p>
 
           <img
-            src="https://www.remitly.com/blog/wp-content/uploads/2023/09/sri-lanka-rice-and-curry-scaled.jpg"
+            src={signupimage}
             alt="Sri Lankan rice and curry"
             className="w-full h-40 object-cover rounded-2xl shadow-xl mx-auto mb-4"
           />
-
           <p className="text-md text-gray-600">
             Redirecting to login in 3 seconds...
           </p>
@@ -165,7 +165,7 @@ export default function Signup() {
           {/* Left: Image */}
           <div className="relative h-96 md:h-full">
             <img
-              src="https://www.remitly.com/blog/wp-content/uploads/2023/09/sri-lanka-rice-and-curry-scaled.jpg"
+              src={signupimage}
               alt="Delicious Sri Lankan rice and curry"
               className="absolute inset-0 w-full h-full object-cover"
             />
@@ -193,9 +193,8 @@ export default function Signup() {
                     value={form.name}
                     onChange={handleChange}
                     placeholder="Your full name"
-                    className={`w-full pl-14 pr-6 py-5 border-2 rounded-2xl focus:outline-none text-lg transition ${
-                      errors.name ? "border-red-500" : "border-orange-200 focus:border-orange-500"
-                    }`}
+                    className={`w-full pl-14 pr-6 py-5 border-2 rounded-2xl focus:outline-none text-lg transition ${errors.name ? "border-red-500" : "border-orange-200 focus:border-orange-500"
+                      }`}
                     required
                   />
                 </div>
@@ -213,9 +212,8 @@ export default function Signup() {
                     value={form.email}
                     onChange={handleChange}
                     placeholder="your@email.com"
-                    className={`w-full pl-14 pr-6 py-5 border-2 rounded-2xl focus:outline-none text-lg transition ${
-                      errors.email ? "border-red-500" : "border-orange-200 focus:border-orange-500"
-                    }`}
+                    className={`w-full pl-14 pr-6 py-5 border-2 rounded-2xl focus:outline-none text-lg transition ${errors.email ? "border-red-500" : "border-orange-200 focus:border-orange-500"
+                      }`}
                     required
                   />
                 </div>
@@ -233,9 +231,8 @@ export default function Signup() {
                     value={form.password}
                     onChange={handleChange}
                     placeholder="••••••••"
-                    className={`w-full pl-14 pr-16 py-5 border-2 rounded-2xl focus:outline-none text-lg transition ${
-                      errors.password ? "border-red-500" : "border-orange-200 focus:border-orange-500"
-                    }`}
+                    className={`w-full pl-14 pr-16 py-5 border-2 rounded-2xl focus:outline-none text-lg transition ${errors.password ? "border-red-500" : "border-orange-200 focus:border-orange-500"
+                      }`}
                     required
                   />
                   <button
@@ -260,9 +257,8 @@ export default function Signup() {
                     value={form.phone}
                     onChange={handleChange}
                     placeholder="Your phone number"
-                    className={`w-full pl-14 pr-6 py-5 border-2 rounded-2xl focus:outline-none text-lg transition ${
-                      errors.phone ? "border-red-500" : "border-orange-200 focus:border-orange-500"
-                    }`}
+                    className={`w-full pl-14 pr-6 py-5 border-2 rounded-2xl focus:outline-none text-lg transition ${errors.phone ? "border-red-500" : "border-orange-200 focus:border-orange-500"
+                      }`}
                   />
                 </div>
                 {errors.phone && <p className="text-red-600 text-sm mt-2 ml-2">{errors.phone}</p>}

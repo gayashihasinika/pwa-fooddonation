@@ -6,6 +6,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { motion } from "framer-motion";
 import { HiMail, HiLockClosed, HiEye, HiEyeOff } from "react-icons/hi";
 import { useLang } from "../context/LanguageContext";
+import signupimage from '../assets/images/signup.jpg';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -85,7 +86,7 @@ export default function Login() {
           </p>
 
           <img
-            src="https://www.remitly.com/blog/wp-content/uploads/2023/09/sri-lanka-rice-and-curry-scaled.jpg"
+            src={signupimage}
             alt="Sri Lankan rice and curry"
             className="w-full h-40 object-cover rounded-2xl shadow-xl mx-auto mb-4"
           />
@@ -143,7 +144,7 @@ export default function Login() {
           {/* Left: Warm Food Image */}
           <div className="relative h-96 md:h-full">
             <img
-              src="https://www.remitly.com/blog/wp-content/uploads/2023/09/sri-lanka-rice-and-curry-scaled.jpg"
+              src={signupimage}
               alt="Warm Sri Lankan rice and curry"
               className="absolute inset-0 w-full h-full object-cover"
             />

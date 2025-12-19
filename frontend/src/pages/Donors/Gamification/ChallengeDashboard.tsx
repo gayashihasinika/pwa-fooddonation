@@ -7,6 +7,7 @@ import { Flame, Lock, CheckCircle, Sparkles } from "lucide-react";
 import { toast } from "react-hot-toast";
 import Confetti from "react-confetti";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import challengesHeroImage from '@/assets/images/challenge-hero.jpg';
 
 interface Challenge {
   id: number;
@@ -58,20 +59,20 @@ export default function ChallengeDashboard() {
 
   const getStatusConfig = (status: string) => {
     switch (status) {
-      case "active": return { 
-        gradient: "from-orange-400 to-amber-500", 
+      case "active": return {
+        gradient: "from-orange-400 to-amber-500",
         border: "border-orange-500",
         text: "text-orange-700",
         message: "On its way to making a difference"
       };
-      case "completed": return { 
-        gradient: "from-green-400 to-emerald-500", 
+      case "completed": return {
+        gradient: "from-green-400 to-emerald-500",
         border: "border-green-500",
         text: "text-green-800",
         message: "Completed with love ❤️"
       };
-      case "upcoming": return { 
-        gradient: "from-gray-300 to-gray-400", 
+      case "upcoming": return {
+        gradient: "from-gray-300 to-gray-400",
         border: "border-gray-400",
         text: "text-gray-600",
         message: "Coming soon"
@@ -109,7 +110,17 @@ export default function ChallengeDashboard() {
               Complete missions, earn points, and feed more families across Sri Lanka ❤️
             </p>
           </motion.div>
-
+          <motion.img
+            src={challengesHeroImage}
+            alt="Helping people through challenges"
+            whileHover={{ scale: 1.05, rotate: 1 }}
+            whileTap={{ scale: 0.95, rotate: -1 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="mx-auto w-full max-w-lg object-contain rounded-xl shadow-2xl"
+          />
+          <br />
           {/* Impact Summary */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

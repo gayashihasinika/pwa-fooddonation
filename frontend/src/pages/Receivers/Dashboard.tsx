@@ -1,10 +1,11 @@
-// src/pages/Receiver/ReceiverDashboard.tsx — EMOTIONAL & HOPEFUL
+// src/pages/Receiver/ReceiverDashboard.tsx
 import { useEffect, useState } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import api from "@/lib/api";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
 import { Package, Heart, Calendar, MapPin } from "lucide-react";
+import herofamilyImage from '@/assets/images/hero-family-meal.jpg';
 
 interface Donation {
   id: number;
@@ -73,8 +74,8 @@ export default function ReceiverDashboard() {
             className="relative rounded-3xl overflow-hidden shadow-3xl mb-16 border-8 border-white"
           >
             <img
-              src="https://media.gettyimages.com/id/646182948/photo/sri-lankan-family-enjoying-meal-together.jpg?s=612x612&w=gi&k=20&c=IiZBhctxU7aIBE9OWi0fOAgE1jWKTkU693DZA3b1eac="
-              alt="Happy Sri Lankan family enjoying a warm meal together"
+              src={herofamilyImage}
+              alt="Happy family enjoying a meal together"
               className="w-full h-96 md:h-[600px] object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
@@ -87,6 +88,7 @@ export default function ReceiverDashboard() {
               </p>
             </div>
           </motion.div>
+
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16">
@@ -141,7 +143,7 @@ export default function ReceiverDashboard() {
                 className="text-center py-20"
               >
                 <img
-                  src="https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=10166435807063852"
+                  src={herofamilyImage}
                   alt="Community sharing food with gratitude"
                   className="w-full max-w-2xl mx-auto rounded-3xl shadow-2xl mb-10"
                 />
@@ -186,11 +188,10 @@ export default function ReceiverDashboard() {
                     </div>
 
                     <div className="mt-8 text-center">
-                      <span className={`inline-block px-8 py-4 rounded-full text-xl font-bold ${
-                        donation.status === "pending" ? "bg-yellow-100 text-yellow-800" :
+                      <span className={`inline-block px-8 py-4 rounded-full text-xl font-bold ${donation.status === "pending" ? "bg-yellow-100 text-yellow-800" :
                         donation.status === "approved" ? "bg-green-100 text-green-800" :
-                        "bg-blue-100 text-blue-800"
-                      }`}>
+                          "bg-blue-100 text-blue-800"
+                        }`}>
                         {donation.status.toUpperCase()}
                       </span>
                     </div>
@@ -204,27 +205,6 @@ export default function ReceiverDashboard() {
                 ))}
               </div>
             )}
-          </motion.div>
-
-          {/* Footer */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mt-20 bg-orange-800 text-white rounded-3xl p-16 text-center shadow-2xl"
-          >
-            <img
-              src="https://theperfectcurry.com/wp-content/uploads/2024/10/sri-lankan-rice-and-curry-with-sri-lankan-sides.png"
-              alt="Beautiful Sri Lankan rice and curry spread"
-              className="w-full max-w-4xl mx-auto rounded-3xl shadow-2xl mb-10"
-            />
-            <h3 className="text-5xl font-bold mb-8">FeedSriLanka ❤️</h3>
-            <p className="text-3xl mb-10 opacity-90">
-              No one should go hungry when food is shared with love
-            </p>
-            <p className="text-2xl opacity-80">
-              Thank you for trusting us to bring meals to your family
-            </p>
-            <div className="mt-12 text-8xl">🍲✨🙏</div>
           </motion.div>
         </div>
       </div>

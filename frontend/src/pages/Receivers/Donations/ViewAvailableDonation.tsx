@@ -1,4 +1,4 @@
-// src/pages/Receivers/Donations/ViewAvailableDonation.tsx — FINAL PERFECTION
+// src/pages/Receivers/Donations/ViewAvailableDonation.tsx
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -325,23 +325,6 @@ export default function ViewAvailableDonation() {
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* Footer */}
-          <motion.div className="bg-orange-800 text-white rounded-3xl p-12 text-center shadow-2xl">
-            <img
-              src="https://d27735ao2xxhhe.cloudfront.net/blog/pro/rice-and-curry-exploring-sri-lankas-iconic-national-dish-1000x700679231d73fe971737634263.jpg"
-              alt="Warm Sri Lankan rice and curry — shared with love"
-              className="w-full max-w-4xl mx-auto rounded-3xl shadow-2xl mb-10"
-            />
-            <h3 className="text-4xl sm:text-5xl font-bold mb-8">FeedSriLanka ❤️</h3>
-            <p className="text-2xl sm:text-3xl mb-10 opacity-90">
-              Every claimed meal reduces waste and brings hope
-            </p>
-            <p className="text-xl sm:text-2xl opacity-80">
-              Thank you for being part of this circle of kindness
-            </p>
-            <div className="mt-12 text-7xl sm:text-8xl">🍲🙏✨</div>
-          </motion.div>
         </div>
       </div>
     </AuthenticatedLayout>

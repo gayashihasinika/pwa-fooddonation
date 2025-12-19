@@ -1,4 +1,4 @@
-// src/pages/Admin/Claims/ClaimDeliveryDetails.tsx — EMOTIONAL & FULLY RESPONSIVE
+// src/pages/Admin/Claims/ClaimDeliveryDetails.tsx
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { format } from "date-fns";
+import claimdelivery from '@/assets/images/claimdelivery.jpg';
 
 interface Claim {
   id: number;
@@ -99,7 +100,7 @@ export default function ClaimDeliveryDetails() {
             className="relative rounded-3xl overflow-hidden shadow-3xl mb-12 border-8 border-white"
           >
             <img
-              src="https://peacewindsamerica.org/wp-content/uploads/2022/12/IMG_4753-scaled.jpg"
+              src={claimdelivery}
               alt="Volunteer delivering food with love and care"
               className="w-full h-72 sm:h-96 lg:h-[500px] object-cover"
             />

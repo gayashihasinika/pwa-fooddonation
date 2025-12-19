@@ -1,4 +1,4 @@
-// src/pages/Admin/Donations/DonationList.tsx — PERFECT TABLE, MANAGE BUTTON FIXED
+// src/pages/Admin/Donations/DonationList.tsx
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api";
@@ -15,6 +15,9 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import donationlistImg1 from '@/assets/images/donationlist.jpg';
+import donationlistImg2 from '@/assets/images/donationlist1.jpg';
+import donationlistImg3 from '@/assets/images/donationlist2.jpg';
 
 interface Donation {
   id: number;
@@ -83,17 +86,17 @@ export default function DonationList() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 rounded-3xl overflow-hidden shadow-3xl mb-12 sm:mb-16 border-8 border-white"
           >
             <img
-              src="https://peacewindsamerica.org/wp-content/uploads/2022/12/IMG_4753-scaled.jpg"
+              src={donationlistImg1}
               alt="Volunteers sharing food with love"
               className="w-full h-64 sm:h-80 object-cover"
             />
             <img
-              src="https://peacewindsamerica.org/wp-content/uploads/2022/12/IMG_4742-scaled.jpg"
+              src={donationlistImg3}
               alt="Grateful families receiving donations"
               className="w-full h-64 sm:h-80 object-cover"
             />
             <img
-              src="https://thumbs.dreamstime.com/b/delicious-sri-lankan-rice-curry-spread-lanka-food-photography-vibrant-kitchen-close-up-culinary-experience-explore-flavors-367829555.jpg"
+              src={donationlistImg2}
               alt="Beautiful rice and curry ready to be shared"
               className="w-full h-64 sm:h-80 object-cover"
             />
@@ -305,23 +308,6 @@ export default function DonationList() {
               ))
             )}
           </div>
-
-          {/* Footer */}
-          <motion.div className="mt-20 bg-orange-800 text-white rounded-3xl p-12 text-center shadow-2xl">
-            <img
-              src="https://thumbs.dreamstime.com/b/delicious-sri-lankan-rice-curry-spread-lanka-food-photography-vibrant-kitchen-close-up-culinary-experience-explore-flavors-367829555.jpg"
-              alt="Beautiful Sri Lankan rice and curry — shared with love"
-              className="w-full max-w-5xl mx-auto rounded-3xl shadow-2xl mb-12"
-            />
-            <h3 className="text-5xl font-bold mb-8">FeedSriLanka ❤️</h3>
-            <p className="text-3xl mb-10 opacity-90">
-              Every approved donation becomes a warm meal for a family
-            </p>
-            <p className="text-2xl opacity-80">
-              Thank you for helping reduce waste and spread kindness
-            </p>
-            <div className="mt-12 text-8xl">🍲🙏✨</div>
-          </motion.div>
         </div>
       </div>
     </AuthenticatedLayout>

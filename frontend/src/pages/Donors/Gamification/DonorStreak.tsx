@@ -1,8 +1,8 @@
-// src/pages/Donors/StreakDashboard.tsx — A CELEBRATION OF CONSISTENT KINDNESS
+// src/pages/Donors/StreakDashboard.tsx
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { motion} from "framer-motion";
+import { motion } from "framer-motion";
 import { Flame, Heart, Sparkles, Award, Calendar, Zap } from "lucide-react";
 import { toast } from "react-hot-toast";
 import Confetti from "react-confetti";
@@ -115,8 +115,8 @@ export default function DonorStreak() {
             </div>
 
             <p className="text-lg sm:text-xl text-orange-700">
-              {currentStreak < 7 
-                ? `Just ${7 - currentStreak} more days to earn 50 bonus points!` 
+              {currentStreak < 7
+                ? `Just ${7 - currentStreak} more days to earn 50 bonus points!`
                 : "Amazing! You're on fire 🔥"}
             </p>
           </motion.div>
@@ -124,9 +124,9 @@ export default function DonorStreak() {
           {/* Stats Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-16">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
+              initial={{ opacity: 10, y: 40 }}
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ repeat: Infinity, duration: 4 }}
               className="bg-white rounded-3xl p-8 text-center shadow-2xl border-4 border-orange-200"
             >
               <Heart className="w-16 h-16 text-red-500 mx-auto mb-4" />
@@ -135,9 +135,9 @@ export default function DonorStreak() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              initial={{ opacity: 10, y: 40 }}
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ repeat: Infinity, duration: 4 }}
               className="bg-white rounded-3xl p-8 text-center shadow-2xl border-4 border-orange-200"
             >
               <Calendar className="w-16 h-16 text-orange-600 mx-auto mb-4" />
@@ -146,9 +146,9 @@ export default function DonorStreak() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              initial={{ opacity: 10, y: 40 }}
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ repeat: Infinity, duration: 4 }}
               className="bg-white rounded-3xl p-8 text-center shadow-2xl border-4 border-orange-200"
             >
               <Sparkles className="w-16 h-16 text-amber-600 mx-auto mb-4" />
@@ -188,8 +188,15 @@ export default function DonorStreak() {
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${sevenDayProgress}%` }}
-                    className="h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full"
-                  />
+                    className="h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full relative overflow-hidden"
+                  >
+                    <motion.span
+                      className="absolute -right-2 top-0 w-4 h-4 bg-yellow-200 rounded-full"
+                      animate={{ x: [0, 10, 0] }}
+                      transition={{ repeat: Infinity, duration: 1.2 }}
+                    />
+                  </motion.div>
+
                 </div>
               </div>
 
@@ -212,8 +219,15 @@ export default function DonorStreak() {
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${monthlyProgress}%` }}
-                    className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
-                  />
+                    className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full relative overflow-hidden"
+                  >
+                    <motion.span
+                      className="absolute -right-2 top-0 w-4 h-4 bg-blue-700 rounded-full"
+                      animate={{ x: [0, 10, 0] }}
+                      transition={{ repeat: Infinity, duration: 1.2 }}
+                    />
+
+                  </motion.div>
                 </div>
               </div>
             </div>
