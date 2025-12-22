@@ -1,54 +1,62 @@
 <?php
-// backend/app/Http/Controllers/Receivers/ReceiverDashboardController.php
+
 namespace App\Http\Controllers\Receivers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Claim;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 class ReceiverDashboardController extends Controller
 {
-    // Get all donations claimed by the receiver
-    public function donations()
+    public function donations(): JsonResponse
     {
         $receiverId = Auth::id();
 
-        $donations = Claim::with(['donation'])
+        $claims = Claim::with(['donation.images', 'donation.user'])
             ->where('receiver_id', $receiverId)
             ->latest()
-            ->get()
-            ->map(function ($claim) {
-                return [
-                    'id' => $claim->id,
-                    'title' => $claim->donation->title,
-                    'quantity' => $claim->donation->quantity,
-                    'pickup_address' => $claim->donation->pickup_address,
-                    'status' => $claim->status,
-                    'created_at' => $claim->created_at->toDateTimeString(),
-                ];
-            });
+            ->get();
+
+        $donations = $claims->map(function ($claim) {
+            $donation = $claim->donation;
+            return [
+                'id' => $donation->id, // Use donation ID for navigation
+                'title' => $donation->title,
+                'quantity' => $claim->quantity ?? $donation->quantity, // Use claimed quantity if exists
+                'pickup_address' => $donation->pickup_address,
+                'status' => $claim->status,
+                'created_at' => $claim->created_at,
+                'images' => $donation->images,
+                'user' => $donation->user ? ['name' => $donation->user->name] : null,
+            ];
+        });
 
         return response()->json([
             'donations' => $donations
         ]);
     }
 
-    // Get dashboard stats for receiver
-    public function stats()
+    public function stats(): JsonResponse
     {
         $receiverId = Auth::id();
 
         $totalRequests = Claim::where('receiver_id', $receiverId)->count();
         $approvedRequests = Claim::where('receiver_id', $receiverId)
-            ->where('status', 'approved')->count();
+            ->where('status', 'accepted')
+            ->count();
         $pendingRequests = Claim::where('receiver_id', $receiverId)
-            ->where('status', 'pending')->count();
+            ->where('status', 'pending')
+            ->count();
+        $receivedRequests = Claim::where('receiver_id', $receiverId)
+            ->where('status', 'delivered')
+            ->count();
 
         return response()->json([
             'totalRequests' => $totalRequests,
             'approvedRequests' => $approvedRequests,
             'pendingRequests' => $pendingRequests,
+            'receivedRequests' => $receivedRequests,
         ]);
     }
 }
