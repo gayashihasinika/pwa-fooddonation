@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PublicDonationController;
 
 // Donor Controllers
 use App\Http\Controllers\Donors\DonationController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Donors\DonorClaimController;
 // Receiver Controllers
 use App\Http\Controllers\Receivers\ReceiverDonationController;
 use App\Http\Controllers\Receivers\ReceiverDashboardController;
+use App\Http\Controllers\Receivers\ReceiverClaimDonationController;
 
 // Admin Controllers
 use App\Http\Controllers\Admin\AdminDonationController;
@@ -32,6 +34,7 @@ Route::get('/test', function () {
 });
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/public/donations/{id}', [PublicDonationController::class, 'show']);
 
 // Protected route to get current user
 Route::middleware('auth:sanctum')->get('/users/me', function (Request $request) {
@@ -150,5 +153,8 @@ Route::middleware('auth:sanctum')->prefix('receivers')->group(function () {
     Route::get('/donations', [ReceiverDonationController::class, 'index']);
     Route::get('/donations/{id}', [ReceiverDonationController::class, 'show']);
     Route::post('/donations/{id}/claim', [ReceiverDonationController::class, 'claim']); 
-});
 
+// Use consistent naming: claimed-donations
+    Route::get('/claimed-donations', [ReceiverClaimDonationController::class, 'index']);
+    Route::get('/claimed-donations/{id}', [ReceiverClaimDonationController::class, 'show']);
+});

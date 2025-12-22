@@ -4,6 +4,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 // Public pages
 import LandingPage from "./pages/LandingPage";
+import PublicDonationDetails from "@/pages/PublicDonationDetails";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 
@@ -56,7 +57,9 @@ import AdminStreaks from "./pages/Admin/Gamification/AdminStreaks";
 import ReceiversDonations from "./pages/Receivers/Donations/AvailableDonations";
 // View Available Donation page
 import ViewAvailableDonation from "./pages/Receivers/Donations/ViewAvailableDonation";
-
+// Approved Donations page
+import ApprovedDonations from "./pages/Receivers/RequestDonations/ApprovedDonations";
+import ApprovedDonationDetails from "./pages/Receivers/RequestDonations/ApprovedDonationDetails";
 
 
 
@@ -67,6 +70,7 @@ export default function App() {
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/donations/:id" element={<PublicDonationDetails />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
 
@@ -178,6 +182,9 @@ export default function App() {
         {/* Available Donations route */}
         <Route path="/receivers/donations" element={<ReceiversDonations />} />
         <Route path="/receivers/donations/:id" element={<ViewAvailableDonation />} />
+        {/* Approved Donations route */}
+        <Route path="/receivers/request-donations" element={<ApprovedDonations />} />
+        <Route path="/receivers/claimed-donations/:id" element={<ApprovedDonationDetails />} />
       </Routes>
     </Router>
   );

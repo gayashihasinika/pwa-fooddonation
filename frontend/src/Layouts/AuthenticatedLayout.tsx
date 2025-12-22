@@ -119,7 +119,7 @@ export default function AuthenticatedLayout({ children }: Props) {
         items: [
           { icon: <Home />, label: "Dashboard", path: "/receivers/dashboard" },
           { icon: <Package />, label: "Available Donations", path: "/receivers/donations" },
-          { icon: <ClipboardList />, label: "My Requests", path: "/receivers/requests" },
+          { icon: <ClipboardList />, label: "My Requests", path: "/receivers/request-donations" },
           { icon: <Bell />, label: "Notifications", path: "/receivers/notifications" },
         ],
       },
