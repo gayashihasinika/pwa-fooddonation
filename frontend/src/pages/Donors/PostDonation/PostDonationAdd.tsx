@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import thankyouImage from "@/assets/images/thankyou.jpg";
 
 type AuthUser = { id: number; name?: string; email?: string };
 
@@ -64,7 +65,8 @@ export default function DonationAdd() {
   const [lon, setLon] = useState<string>("");
   const [showThanks, setShowThanks] = useState(false);
   const [earnedPoints, setEarnedPoints] = useState(0);
-
+  const [submitting, setSubmitting] = useState(false);
+  const [serverErrors, setServerErrors] = useState<string[]>([]);
 
 
   useEffect(() => {
@@ -80,15 +82,6 @@ export default function DonationAdd() {
 
   const handleSelectChange = (name: string, value: string) => {
     setForm({ ...form, [name]: value });
-  };
-
-  const handleAllergyChange = (tag: string) => {
-    setForm((prev) => ({
-      ...prev,
-      allergy_tags: prev.allergy_tags.includes(tag)
-        ? prev.allergy_tags.filter((t) => t !== tag)
-        : [...prev.allergy_tags, tag],
-    }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,19 +103,28 @@ export default function DonationAdd() {
 
   const validate = () => {
     const errs: Record<string, string> = {};
-    if (!form.title.trim()) errs.title = "Please enter a title";
-    if (!form.pickup_address.trim()) errs.pickup_address = "Please enter pickup address";
-    if (form.quantity < 1) errs.quantity = "Quantity must be at least 1";
+
+    if (!form.title.trim()) errs.title = "Please enter a title for your donation";
+    if (form.quantity < 1) errs.quantity = "Quantity must be at least 1 serving";
+    if (!form.pickup_address.trim()) errs.pickup_address = "Please enter a pickup address";
+    if (!form.food_category) errs.food_category = "Please select a food category";
+    if (!form.freshness_level) errs.freshness_level = "Please select freshness level";
+    if (form.images.length > 5) errs.images = "Maximum 5 images allowed";
+
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setServerErrors([]); // Clear previous server errors
+
     if (!validate()) {
-      toast.error("Please fix the errors");
+      toast.error("Please fix the highlighted errors");
       return;
     }
+
+    setSubmitting(true);
 
     const formData = new FormData();
     Object.entries(form).forEach(([key, value]) => {
@@ -138,13 +140,23 @@ export default function DonationAdd() {
       setEarnedPoints(points);
       setShowThanks(true);
 
-      // Auto redirect after 3 seconds
       setTimeout(() => {
         navigate("/donors/post-donation/post-donation-list");
       }, 3000);
-
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to post donation");
+      const message = err.response?.data?.message || "Something went wrong. Please try again.";
+
+      // If backend returns field-specific errors (Laravel validation)
+      if (err.response?.data?.errors) {
+        const fieldErrors = Object.values(err.response.data.errors).flat() as string[];
+        setServerErrors(fieldErrors);
+        toast.error("Please check the errors below");
+      } else {
+        setServerErrors([message]);
+        toast.error(message);
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -228,7 +240,24 @@ export default function DonationAdd() {
               </CardTitle>
               <p className="text-gray-600 mt-2">Fill in the details below</p>
             </CardHeader>
-
+            {/* Server Errors Summary */}
+            {serverErrors.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-red-50 border-4 border-red-300 rounded-2xl p-6 mb-8"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <AlertCircle className="w-8 h-8 text-red-600" />
+                  <p className="text-xl font-bold text-red-800">Please Fix These Errors</p>
+                </div>
+                <ul className="list-disc list-inside text-red-700 space-y-1">
+                  {serverErrors.map((error, i) => (
+                    <li key={i}>{error}</li>
+                  ))}
+                </ul>
+              </motion.div>
+            )}
             <CardContent className="px-6 md:px-12 pb-12">
               <form onSubmit={handleSubmit} className="space-y-10">
                 {/* Title */}
@@ -244,12 +273,17 @@ export default function DonationAdd() {
                     value={form.title}
                     onChange={handleChange}
                     placeholder="e.g., Fresh Rice & Curry for 10 people"
-                    className="text-lg py-6 rounded-xl border-gray-300 focus:ring-rose-500"
+                    className={`text-lg py-6 rounded-xl ${errors.title ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-rose-500"}`}
                   />
-                  {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
+                  {errors.title && (
+                    <p className="text-red-500 text-sm flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.title}
+                    </p>
+                  )}
                 </motion.div>
 
-                {/* Description */}
+                {/* Description - Optional, no error needed */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -269,6 +303,7 @@ export default function DonationAdd() {
 
                 {/* Grid: Quantity + Expiry */}
                 <div className="grid md:grid-cols-2 gap-8">
+                  {/* Quantity */}
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -284,10 +319,17 @@ export default function DonationAdd() {
                       value={form.quantity}
                       onChange={handleChange}
                       min={1}
-                      className="text-lg py-6"
+                      className={`text-lg py-6 ${errors.quantity ? "border-red-500 focus:ring-red-500" : ""}`}
                     />
+                    {errors.quantity && (
+                      <p className="text-red-500 text-sm flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" />
+                        {errors.quantity}
+                      </p>
+                    )}
                   </motion.div>
 
+                  {/* Expiry Date - Optional, but show error if invalid format */}
                   <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -295,99 +337,109 @@ export default function DonationAdd() {
                     className="space-y-2"
                   >
                     <Label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                      <CalendarDays className="text-rose-600" /> Expiry Date
+                      <CalendarDays className="text-rose-600" /> Expiry Date (Optional)
                     </Label>
                     <Input
                       type="date"
                       name="expiry_date"
                       value={form.expiry_date}
                       onChange={handleChange}
-                      className="py-6"
+                      className={`py-6 ${errors.expiry_date ? "border-red-500 focus:ring-red-500" : ""}`}
                     />
+                    {errors.expiry_date && (
+                      <p className="text-red-500 text-sm flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" />
+                        {errors.expiry_date}
+                      </p>
+                    )}
                   </motion.div>
                 </div>
 
-                {/* SIMPLE & BEAUTIFUL ADDRESS FIELD — LIKE ALL OTHERS */}
+                {/* Pickup Address */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="space-y-6"
+                  className="space-y-4"
                 >
-                  <div className="space-y-4">
-                    <Label className="text-xl font-bold flex items-center gap-3">
-                      <MapPin className="text-rose-600" /> Pickup Location
-                    </Label>
+                  <Label className="text-xl font-bold flex items-center gap-3">
+                    <MapPin className="text-rose-600" /> Pickup Location
+                  </Label>
 
-                    {/* Address Input + Show Map Button */}
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      <div className="flex-1">
-                        <Input
-                          name="pickup_address"
-                          value={form.pickup_address}
-                          onChange={handleChange}
-                          placeholder="e.g., No. 123, Temple Road, Colombo 07"
-                          className="text-lg py-6 bg-white border-gray-300 focus:ring-rose-500"
-                        />
-                      </div>
-
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="lg"
-                        className="whitespace-nowrap shadow-lg hover:shadow-xl font-bold flex items-center gap-2"
-                        onClick={showMapFromAddress}
-                      >
-                        <Search className="w-5 h-5" />
-                        Show on Map
-                      </Button>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1 space-y-2">
+                      <Input
+                        name="pickup_address"
+                        value={form.pickup_address}
+                        onChange={handleChange}
+                        placeholder="e.g., No. 123, Temple Road, Colombo 07"
+                        className={`text-lg py-6 bg-white ${errors.pickup_address ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-rose-500"}`}
+                      />
+                      {errors.pickup_address && (
+                        <p className="text-red-500 text-sm flex items-center gap-1">
+                          <AlertCircle className="w-4 h-4" />
+                          {errors.pickup_address}
+                        </p>
+                      )}
                     </div>
 
-                    {mapPreviewUrl && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.8 }}
-                        className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-rose-100 bg-gray-50"
-                      >
-                        <iframe
-                          src={`https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(lon) - 0.02},${parseFloat(lat) - 0.02},${parseFloat(lon) + 0.02},${parseFloat(lat) + 0.02}&layer=mapnik&marker=${lat},${lon}`}
-                          width="100%"
-                          height="520"
-                          frameBorder="0"
-                          title="Your Pickup Location"
-                          className="rounded-3xl"
-                          allowFullScreen
-                          loading="lazy"
-                        />
-
-                        {/* Animated Red Pin */}
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                          <motion.div
-                            animate={{ y: [0, -30, 0] }}
-                            transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-                            className="relative"
-                          >
-                            <div className="absolute inset-0 bg-red-500/60 rounded-full blur-2xl animate-ping" />
-                            <div className="relative w-20 h-20 bg-red-600 rounded-full border-6 border-white shadow-2xl flex items-center justify-center">
-                              <MapPin className="w-12 h-12 text-white" fill="white" />
-                            </div>
-                          </motion.div>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => setMapPreviewUrl("")}
-                          className="absolute top-4 right-4 bg-white/90 hover:bg-white text-gray-700 rounded-full p-3 shadow-lg hover:shadow-xl transition z-10"
-                        >
-                          <X className="w-6 h-6" />
-                        </button>
-                      </motion.div>
-                    )}
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="lg"
+                      className="whitespace-nowrap shadow-lg hover:shadow-xl font-bold flex items-center gap-2"
+                      onClick={showMapFromAddress}
+                    >
+                      <Search className="w-5 h-5" />
+                      Show on Map
+                    </Button>
                   </div>
+
+                  {mapPreviewUrl && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.8 }}
+                      className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-rose-100 bg-gray-50"
+                    >
+                      <iframe
+                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(lon) - 0.02},${parseFloat(lat) - 0.02},${parseFloat(lon) + 0.02},${parseFloat(lat) + 0.02}&layer=mapnik&marker=${lat},${lon}`}
+                        width="100%"
+                        height="520"
+                        frameBorder="0"
+                        title="Your Pickup Location"
+                        className="rounded-3xl"
+                        allowFullScreen
+                        loading="lazy"
+                      />
+
+                      {/* Animated Red Pin */}
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <motion.div
+                          animate={{ y: [0, -30, 0] }}
+                          transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                          className="relative"
+                        >
+                          <div className="absolute inset-0 bg-red-500/60 rounded-full blur-2xl animate-ping" />
+                          <div className="relative w-20 h-20 bg-red-600 rounded-full border-6 border-white shadow-2xl flex items-center justify-center">
+                            <MapPin className="w-12 h-12 text-white" fill="white" />
+                          </div>
+                        </motion.div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setMapPreviewUrl("")}
+                        className="absolute top-4 right-4 bg-white/90 hover:bg-white text-gray-700 rounded-full p-3 shadow-lg hover:shadow-xl transition z-10"
+                      >
+                        <X className="w-6 h-6" />
+                      </button>
+                    </motion.div>
+                  )}
+
                 </motion.div>
 
-                {/* Preferred Time */}
+                {/* Preferred Time - Optional */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -395,12 +447,18 @@ export default function DonationAdd() {
                   className="space-y-2"
                 >
                   <Label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                    <Clock className="text-rose-600" /> Preferred Pickup Time
+                    <Clock className="text-rose-600" /> Preferred Pickup Time (Optional)
                   </Label>
-                  <Input type="time" name="preferred_pickup_time" value={form.preferred_pickup_time} onChange={handleChange} className="py-6" />
+                  <Input
+                    type="time"
+                    name="preferred_pickup_time"
+                    value={form.preferred_pickup_time}
+                    onChange={handleChange}
+                    className="py-6"
+                  />
                 </motion.div>
 
-                {/* Food Category — Also Fixed */}
+                {/* Food Category - REQUIRED */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -408,56 +466,30 @@ export default function DonationAdd() {
                   className="space-y-2"
                 >
                   <Label className="text-lg font-semibold text-gray-700">Food Category</Label>
-
                   <div className="relative">
                     <Select value={form.food_category} onValueChange={(v) => handleSelectChange("food_category", v)}>
-                      <SelectTrigger className="py-6 text-lg">
+                      <SelectTrigger className={`py-6 text-lg ${errors.food_category ? "border-red-500" : ""}`}>
                         <SelectValue placeholder="Select food type" />
                       </SelectTrigger>
-
-                      <SelectContent className="z-50 bg-white shadow-2xl border border-gray-200 rounded-xl min-w-[280px]" position="popper" sideOffset={8}>
-                        <SelectItem value="rice" className="py-3 px-4 hover:bg-rose-50">Rice & Curry</SelectItem>
-                        <SelectItem value="bread" className="py-3 px-4 hover:bg-rose-50">Bread & Bakery</SelectItem>
-                        <SelectItem value="packaged" className="py-3 px-4 hover:bg-rose-50">Packaged Food</SelectItem>
-                        <SelectItem value="event_food" className="py-3 px-4 hover:bg-rose-50">Event/Party Food</SelectItem>
-                        <SelectItem value="curry" className="py-3 px-4 hover:bg-rose-50">Curry Only</SelectItem>
-                        <SelectItem value="other" className="py-3 px-4 hover:bg-rose-50">Other</SelectItem>
+                      <SelectContent className="z-50 bg-white shadow-2xl border border-gray-200 rounded-xl min-w-[280px]">
+                        <SelectItem value="rice">Rice & Curry</SelectItem>
+                        <SelectItem value="bread">Bread & Bakery</SelectItem>
+                        <SelectItem value="packaged">Packaged Food</SelectItem>
+                        <SelectItem value="event_food">Event/Party Food</SelectItem>
+                        <SelectItem value="curry">Curry Only</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
+                  {errors.food_category && (
+                    <p className="text-red-500 text-sm flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.food_category}
+                    </p>
+                  )}
                 </motion.div>
 
-                {/* Allergy Tags */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 }}
-                  className="space-y-4"
-                >
-                  <Label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                    <AlertCircle className="text-amber-600" /> Allergy Information (Optional)
-                  </Label>
-                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                      {["nuts", "dairy", "gluten", "eggs", "soy", "seafood"].map((tag) => (
-                        <label key={tag} className="flex items-center gap-3 cursor-pointer group">
-                          <input
-                            type="checkbox"
-                            value={tag}
-                            checked={form.allergy_tags.includes(tag)}
-                            onChange={() => handleAllergyChange(tag)}
-                            className="w-6 h-6 text-rose-600 rounded focus:ring-rose-500"
-                          />
-                          <span className="text-gray-700 font-medium capitalize group-hover:text-rose-600 transition">
-                            {tag}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-
-                {/* Freshness Level — FIXED WITH PROPER Z-INDEX */}
+                {/* Freshness Level - REQUIRED */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -467,33 +499,27 @@ export default function DonationAdd() {
                   <Label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
                     <Droplet className="text-blue-600" /> Freshness Level
                   </Label>
-
                   <div className="relative">
                     <Select value={form.freshness_level} onValueChange={(v) => handleSelectChange("freshness_level", v)}>
-                      <SelectTrigger className="py-6 text-lg">
+                      <SelectTrigger className={`py-6 text-lg ${errors.freshness_level ? "border-red-500" : ""}`}>
                         <SelectValue placeholder="How fresh is your food?" />
                       </SelectTrigger>
-
-                      {/* THIS IS THE FIX — High z-index + proper positioning */}
-                      <SelectContent className="z-50 bg-white shadow-2xl border border-gray-200 rounded-xl min-w-[300px]"
-                        position="popper"
-                        sideOffset={8}
-                      >
-                        <SelectItem value="freshly_cooked" className="py-3 px-4 hover:bg-rose-50 cursor-pointer">
-                          Freshly Cooked Today
-                        </SelectItem>
-                        <SelectItem value="yesterdays_leftover" className="py-3 px-4 hover:bg-rose-50 cursor-pointer">
-                          Yesterday's Leftover
-                        </SelectItem>
-                        <SelectItem value="packaged_sealed" className="py-3 px-4 hover:bg-rose-50 cursor-pointer">
-                          Factory Sealed
-                        </SelectItem>
+                      <SelectContent className="z-50 bg-white shadow-2xl border border-gray-200 rounded-xl min-w-[300px]">
+                        <SelectItem value="freshly_cooked">Freshly Cooked Today</SelectItem>
+                        <SelectItem value="yesterdays_leftover">Yesterday's Leftover</SelectItem>
+                        <SelectItem value="packaged_sealed">Factory Sealed</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
+                  {errors.freshness_level && (
+                    <p className="text-red-500 text-sm flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.freshness_level}
+                    </p>
+                  )}
                 </motion.div>
 
-                {/* Images Upload */}
+                {/* Images Upload - Optional, but show error if too many */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -501,7 +527,7 @@ export default function DonationAdd() {
                   className="space-y-4"
                 >
                   <Label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                    <UploadCloud className="text-rose-600" /> Upload Photos (Up to 5)
+                    <UploadCloud className="text-rose-600" /> Upload Photos (Up to 5, Optional)
                   </Label>
                   <div
                     className="border-2 border-dashed border-rose-200 bg-rose-50 rounded-2xl p-12 text-center hover:border-rose-400 hover:bg-rose-100 transition-all duration-300 cursor-pointer group relative overflow-hidden"
@@ -573,6 +599,12 @@ export default function DonationAdd() {
                       ))}
                     </div>
                   )}
+                  {errors.images && (
+                    <p className="text-red-500 text-sm flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.images}
+                    </p>
+                  )}
                 </motion.div>
 
                 {/* Submit Button */}
@@ -584,9 +616,21 @@ export default function DonationAdd() {
                 >
                   <Button
                     type="submit"
-                    className="w-full py-8 text-2xl font-bold bg-gradient-to-r from-rose-600 via-orange-500 to-amber-600 hover:from-rose-700 hover:to-amber-700 text-white rounded-3xl shadow-2xl transform transition-all duration-300 hover:scale-105 active:scale-95"
+                    disabled={submitting}
+                    className="w-full py-8 text-2xl font-bold bg-gradient-to-r from-rose-600 via-orange-500 to-amber-600 hover:from-rose-700 hover:to-amber-700 disabled:opacity-70 text-white rounded-3xl shadow-2xl transform transition-all duration-300 hover:scale-105 active:scale-95"
                   >
-                    Publish My Donation
+                    {submitting ? (
+                      <span className="flex items-center gap-3">
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full"
+                        />
+                        Publishing Your Kindness...
+                      </span>
+                    ) : (
+                      "Publish My Donation"
+                    )}
                   </Button>
                 </motion.div>
               </form>
@@ -641,7 +685,7 @@ export default function DonationAdd() {
               {/* Smaller Image */}
               <div className="w-full max-w-md mx-auto mb-6">
                 <img
-                  src="https://www.remitly.com/blog/wp-content/uploads/2023/09/sri-lanka-rice-and-curry-scaled.jpg"
+                  src={thankyouImage}
                   alt="Warm Sri Lankan meal"
                   className="w-full h-48 sm:h-56 object-cover rounded-2xl shadow-xl"
                 />

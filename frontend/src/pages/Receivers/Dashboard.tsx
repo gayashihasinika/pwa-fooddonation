@@ -10,7 +10,6 @@ import {
   Heart,
   Calendar,
   MapPin,
-  RefreshCw
 } from "lucide-react";
 import herofamilyImage from '@/assets/images/hero-family-meal.jpg';
 

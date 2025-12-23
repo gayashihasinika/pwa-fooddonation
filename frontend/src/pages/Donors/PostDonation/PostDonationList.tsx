@@ -42,6 +42,7 @@ export default function PostDonationList() {
   const [activeFilter, setActiveFilter] = useState<"all" | "active" | "claimed" | "expired">("all");
   const navigate = useNavigate();
   const [shareDonation, setShareDonation] = useState<Donation | null>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchDonations = async () => {
@@ -79,15 +80,26 @@ export default function PostDonationList() {
     navigate(`/donors/post-donation/post-donation-edit/${id}`);
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Delete this donation permanently?")) return;
+  const handleDelete = (id: number) => {
+    setDeleteId(id); // Open confirmation modal
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+
     try {
-      await api.delete(`/donors/donations/${id}`);
-      toast.success("Donation deleted");
-      setDonations(prev => prev.filter(d => d.id !== id));
+      await api.delete(`/donors/donations/${deleteId}`);
+      toast.success("Donation removed successfully ❤️");
+      setDonations(prev => prev.filter(d => d.id !== deleteId));
+      setDeleteId(null);
     } catch {
-      toast.error("Failed to delete");
+      toast.error("Failed to delete donation");
+      setDeleteId(null);
     }
+  };
+
+  const cancelDelete = () => {
+    setDeleteId(null);
   };
 
   const totalMealsThisMonth = donations
@@ -281,7 +293,7 @@ export default function PostDonationList() {
                             Edit
                           </button>
                           <button
-                            onClick={() => handleDelete(donation.id)}
+                            onClick={() => handleDelete(donation.id)} // ← Changed to open modal
                             className="bg-gradient-to-r from-red-600 to-rose-600 text-white py-4 rounded-2xl font-bold shadow-xl flex items-center justify-center gap-2 hover:shadow-2xl transition"
                           >
                             <Trash2 className="w-5 h-5" />
@@ -379,6 +391,62 @@ export default function PostDonationList() {
                 </div>
               </motion.div>
             </>
+          )}
+        </AnimatePresence>
+        {/* CUSTOM DELETE CONFIRMATION MODAL */}
+        <AnimatePresence>
+          {deleteId !== null && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4"
+              onClick={cancelDelete}
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="bg-white rounded-3xl shadow-3xl max-w-md w-full p-8 text-center border-8 border-orange-200"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="text-8xl mb-6"
+                >
+                  ⚠️
+                </motion.div>
+
+                <h3 className="text-3xl font-extrabold text-orange-800 mb-4">
+                  Are You Sure?
+                </h3>
+
+                <p className="text-xl text-gray-700 mb-8 leading-relaxed">
+                  This donation will be <span className="font-bold text-red-600">permanently removed</span>.<br />
+                  Once deleted, it cannot be recovered.
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                  <button
+                    onClick={confirmDelete}
+                    className="px-10 py-6 text-xl font-bold bg-red-600 hover:bg-red-700 text-white rounded-3xl shadow-xl transition"
+                  >
+                    Yes, Delete It
+                  </button>
+                  <button
+                    onClick={cancelDelete}
+                    className="px-10 py-6 text-xl font-bold border-4 border-orange-600 text-orange-700 hover:bg-orange-50 rounded-3xl transition"
+                  >
+                    No, Keep It
+                  </button>
+                </div>
+                <p className="text-sm text-gray-500 mt-8">
+                  Thank you for your kindness ❤️
+                </p>
+              </motion.div>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
