@@ -92,12 +92,17 @@ export default function PostDonationEdit() {
   }, [id, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setForm(prev => ({
-      ...prev,
-      [name]: name === "quantity" ? Math.max(1, Number(value) || 1) : value,
-    }));
+    const { name, value, type } = e.target;
+
+    if (name === "quantity") {
+      // Make sure we use Math.floor and parse as integer
+      const quantity = Math.max(1, Math.floor(Number(value) || 1));
+      setForm(prev => ({ ...prev, quantity }));
+    } else {
+      setForm(prev => ({ ...prev, [name]: value }));
+    }
   };
+
 
   const handleSelectChange = (name: string, value: string) => {
     setForm(prev => ({ ...prev, [name]: value }));
