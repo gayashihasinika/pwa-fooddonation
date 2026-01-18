@@ -27,6 +27,12 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminChallengeProgressController;
 use App\Http\Controllers\Admin\AdminStreakController;
 
+// Volunteer Controllers
+use App\Http\Controllers\Volunteers\DeliveryTaskController;
+use App\Http\Controllers\Volunteers\VolunteerDashboardController;
+use App\Http\Controllers\Volunteers\AcceptedTasksController;
+
+
 Route::get('/test', function () {
     return response()->json([
         'message' => 'Hello from Laravel API 🚀'
@@ -158,3 +164,21 @@ Route::middleware('auth:sanctum')->prefix('receivers')->group(function () {
     Route::get('/claimed-donations', [ReceiverClaimDonationController::class, 'index']);
     Route::get('/claimed-donations/{id}', [ReceiverClaimDonationController::class, 'show']);
 });
+
+
+// Volunteer-specific routes
+Route::middleware('auth:sanctum')->prefix('volunteers')->group(function () {
+
+// Volunteer Dashboard    
+    Route::get('/dashboard/stats', [VolunteerDashboardController::class, 'stats']);
+
+// Delivery Task Routes    
+    Route::get('/delivery-tasks', [DeliveryTaskController::class, 'index']);
+    Route::get('/delivery-tasks/{id}', [DeliveryTaskController::class, 'show']);
+    Route::post('/delivery-tasks/{claim}/accept', [DeliveryTaskController::class, 'accept']);
+
+    Route::get('/accepted-tasks', [AcceptedTasksController::class, 'acceptedTasks']);
+    Route::get('/accepted-tasks/{id}', [AcceptedTasksController::class, 'show']);
+
+});
+
