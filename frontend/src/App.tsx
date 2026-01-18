@@ -62,6 +62,15 @@ import ApprovedDonations from "./pages/Receivers/RequestDonations/ApprovedDonati
 import ApprovedDonationDetails from "./pages/Receivers/RequestDonations/ApprovedDonationDetails";
 
 
+// Volunteers
+// Volunteer Delivery Tasks page
+import VolunteerDeliveryTasks from "./pages/Volunteers/DeliveryTasks";
+import DeliveryTaskDetails from "./pages/Volunteers/DeliveryTaskDetails";
+// Accepted Tasks page
+import AcceptedTasks from "./pages/Volunteers/AcceptedTasks";
+import AcceptedTasksDetails from "./pages/Volunteers/AcceptedTasksDetails";
+
+
 
 
 export default function App() {
@@ -185,6 +194,42 @@ export default function App() {
         {/* Approved Donations route */}
         <Route path="/receivers/request-donations" element={<ApprovedDonations />} />
         <Route path="/receivers/claimed-donations/:id" element={<ApprovedDonationDetails />} />
+
+
+        {/* Volunteer Delivery Tasks */}
+        <Route
+          path="/volunteers/delivery-tasks"
+          element={
+            <ProtectedRoute allowedRoles={["volunteer"]}>
+              <VolunteerDeliveryTasks />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/volunteers/delivery-tasks/:id"
+          element={
+            <ProtectedRoute allowedRoles={["volunteer"]}>
+              <DeliveryTaskDetails />
+            </ProtectedRoute>
+          }
+        />
+        {/* Accepted Tasks */}
+        <Route
+          path="/volunteers/accepted-tasks"
+          element={
+            <ProtectedRoute allowedRoles={["volunteer"]}>
+              <AcceptedTasks />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/volunteers/accepted-tasks/:id"
+          element={
+            <ProtectedRoute allowedRoles={["volunteer"]}>
+              <AcceptedTasksDetails />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );
