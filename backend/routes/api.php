@@ -17,6 +17,7 @@ use App\Http\Controllers\Donors\DonorClaimController;
 use App\Http\Controllers\Receivers\ReceiverDonationController;
 use App\Http\Controllers\Receivers\ReceiverDashboardController;
 use App\Http\Controllers\Receivers\ReceiverClaimDonationController;
+use App\Http\Controllers\Receivers\AcceptedDonationController;
 
 // Admin Controllers
 use App\Http\Controllers\Admin\AdminDonationController;
@@ -159,6 +160,10 @@ Route::middleware('auth:sanctum')->prefix('receivers')->group(function () {
     Route::get('/donations', [ReceiverDonationController::class, 'index']);
     Route::get('/donations/{id}', [ReceiverDonationController::class, 'show']);
     Route::post('/donations/{id}/claim', [ReceiverDonationController::class, 'claim']); 
+
+// Receiver Accepted Donations Routes
+Route::get('/accepted-donations', [AcceptedDonationController::class, 'index']);
+    Route::get('/accepted-donations/{id}', [AcceptedDonationController::class, 'show']);
 
 // Use consistent naming: claimed-donations
     Route::get('/claimed-donations', [ReceiverClaimDonationController::class, 'index']);
