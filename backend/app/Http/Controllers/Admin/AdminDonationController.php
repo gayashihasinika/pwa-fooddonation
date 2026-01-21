@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Donation;
+use App\Notifications\DonationStatusNotification;
+use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -47,47 +49,80 @@ class AdminDonationController extends Controller
         ]);
     }
 
-    /**
-     * Approve a pending donation
-     */
-    public function approve($id)
-    {
-        $donation = Donation::findOrFail($id);
+   public function approve($id, SmsService $sms)
+{
+    $donation = Donation::with('user')->findOrFail($id);
 
-        if ($donation->status !== 'pending') {
-            return response()->json([
-                'error' => 'Only pending donations can be approved'
-            ], 400);
-        }
-
-        $donation->update(['status' => 'approved']);
-
+    if ($donation->status !== 'pending') {
         return response()->json([
-            'message' => 'Donation approved successfully',
-            'donation' => $donation->fresh()
-        ]);
+            'error' => 'Only pending donations can be approved'
+        ], 400);
     }
 
-    /**
-     * Reject a suspicious donation (keeps it visible but marked)
-     */
-    public function reject($id)
-    {
-        $donation = Donation::findOrFail($id);
+    $donation->update(['status' => 'approved']);
 
-        if ($donation->status !== 'pending') {
-            return response()->json([
-                'error' => 'Only pending donations can be rejected'
-            ], 400);
-        }
+    // 🔔 Notify DONOR
+    $donation->user->notify(
+        new DonationStatusNotification($donation, 'approved')
+    );
 
-        $donation->update(['status' => 'rejected']);
-
-        return response()->json([
-            'message' => 'Donation rejected (marked as suspicious)',
-            'donation' => $donation->fresh()
-        ]);
+    if ($donation->user->phone) {
+        $sms->send(
+            $donation->user->phone,
+            "Your donation '{$donation->title}' has been APPROVED. Thank you!"
+        );
     }
+
+    // 🔔 Notify RECEIVERS
+    $receivers = \App\Models\User::where('role', 'receiver')->get();
+
+    foreach ($receivers as $receiver) {
+        $receiver->notify(
+            new DonationStatusNotification($donation, 'available')
+        );
+
+        if ($receiver->phone) {
+            $sms->send(
+                $receiver->phone,
+                "New donation '{$donation->title}' available. Log in to claim it!"
+            );
+        }
+    }
+
+    return response()->json([
+        'message' => 'Donation approved and notifications sent',
+        'donation' => $donation->fresh()
+    ]);
+}
+
+
+
+public function reject($id, SmsService $sms)
+{
+    $donation = Donation::with('user')->findOrFail($id);
+
+    if ($donation->status !== 'pending') {
+        return response()->json(['error' => 'Only pending donations can be rejected'], 400);
+    }
+
+    $donation->update(['status' => 'rejected']);
+
+    $donation->user->notify(
+        new DonationStatusNotification($donation, 'rejected')
+    );
+
+    if ($donation->user->phone) {
+        $sms->send(
+            $donation->user->phone,
+            "Your donation '{$donation->title}' was REJECTED. Please review details."
+        );
+    }
+
+    return response()->json([
+        'message' => 'Donation rejected and donor notified',
+        'donation' => $donation->fresh()
+    ]);
+}
 
     /**
      * Permanently delete a donation (including images)

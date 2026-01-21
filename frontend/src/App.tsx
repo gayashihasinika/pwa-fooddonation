@@ -55,6 +55,8 @@ import AdminStreaks from "./pages/Admin/Gamification/AdminStreaks";
 //Receivers
 // Available Donations page
 import ReceiversDonations from "./pages/Receivers/Donations/AvailableDonations";
+// Accepted Donations page
+import AcceptedDonations from "./pages/Receivers/Donations/AcceptedDonations";
 // View Available Donation page
 import ViewAvailableDonation from "./pages/Receivers/Donations/ViewAvailableDonation";
 // Approved Donations page
@@ -191,6 +193,15 @@ export default function App() {
         {/* Available Donations route */}
         <Route path="/receivers/donations" element={<ReceiversDonations />} />
         <Route path="/receivers/donations/:id" element={<ViewAvailableDonation />} />
+        {/* Accepted Donations route */}
+        <Route
+          path="/receivers/accepted-donations"
+          element={
+            <ProtectedRoute allowedRoles={["receiver"]}>
+              <AcceptedDonations />
+            </ProtectedRoute>
+          }
+        />
         {/* Approved Donations route */}
         <Route path="/receivers/request-donations" element={<ApprovedDonations />} />
         <Route path="/receivers/claimed-donations/:id" element={<ApprovedDonationDetails />} />

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Donation;
 use App\Models\Claim;
 use Illuminate\Http\Request;
+use App\Notifications\DonationClaimedNotification;
 
 class ReceiverDonationController extends Controller
 {
@@ -19,9 +20,6 @@ class ReceiverDonationController extends Controller
             $q->whereNull('expiry_date')
               ->orWhere('expiry_date', '>=', now()->format('Y-m-d'));
         });
-
-        // Remove claims filter if you don't have claims table yet
-        // ->whereDoesntHave('claims', fn($q) => $q->where('status', 'accepted'));
 
         // Search
         if ($request->filled('search')) {
@@ -80,22 +78,23 @@ public function claim(Request $request, $id)
 {
     $receiver = auth()->user();
 
-    // Check donation
-    $donation = Donation::findOrFail($id);
+    $donation = Donation::with('user')->findOrFail($id);
 
-    // Prevent claiming own donation
     if ($donation->user_id === $receiver->id) {
-        return response()->json(['message' => 'You cannot claim your own donation'], 403);
+        return response()->json([
+            'message' => 'You cannot claim your own donation'
+        ], 403);
     }
 
-    // Prevent multiple claims
     $alreadyClaimed = Claim::where('donation_id', $id)
         ->where('receiver_id', $receiver->id)
         ->whereIn('status', ['pending', 'accepted'])
         ->exists();
 
     if ($alreadyClaimed) {
-        return response()->json(['message' => 'You already claimed this donation'], 409);
+        return response()->json([
+            'message' => 'You already claimed this donation'
+        ], 409);
     }
 
     $claim = Claim::create([
@@ -105,10 +104,24 @@ public function claim(Request $request, $id)
         'claimed_at' => now(),
     ]);
 
+    /* 🔔 NOTIFY DONOR */
+    $donor = $donation->user;
+
+    \Log::info('🔔 Donation claimed', [
+        'donor_id' => $donor->id,
+        'phone' => $donor->phone,
+    ]);
+
+    $donor->notify(
+        new DonationClaimedNotification($donation, $receiver)
+    );
+
     return response()->json([
         'message' => 'Donation claimed successfully',
         'claim' => $claim
     ], 201);
 }
+
+
 
 }
