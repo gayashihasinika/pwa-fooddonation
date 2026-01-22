@@ -28,16 +28,6 @@ export default function DeliveryTasks() {
     }
   };
 
-  const acceptTask = async (id: number) => {
-    try {
-      await api.post(`/volunteers/delivery-tasks/${id}/accept`);
-      fetchTasks();
-    } catch (error) {
-      console.error("Failed to accept task:", error);
-      // ← you can add toast notification here
-    }
-  };
-
   const formatDate = (date?: string) => {
     if (!date) return "N/A";
     return new Date(date).toLocaleDateString("en-GB", {
@@ -151,14 +141,6 @@ export default function DeliveryTasks() {
                       >
                         View Details
                         <ChevronRight className="ml-1.5 h-4 w-4" />
-                      </Button>
-
-                      <Button
-                        className="flex-1 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700
-                                 shadow-md hover:shadow-lg transition-all duration-300"
-                        onClick={() => acceptTask(task.id)}
-                      >
-                        Accept Task
                       </Button>
                     </div>
                   </div>

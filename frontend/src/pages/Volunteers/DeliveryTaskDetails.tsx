@@ -21,6 +21,9 @@ export default function DeliveryTaskDetails() {
     const [task, setTask] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [accepting, setAccepting] = useState(false);
+
 
     useEffect(() => {
         api.get(`/volunteers/delivery-tasks/${id}`)
@@ -147,8 +150,8 @@ export default function DeliveryTaskDetails() {
                                                     key={idx}
                                                     onClick={() => setCurrentImageIndex(idx)}
                                                     className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${idx === currentImageIndex
-                                                            ? "border-orange-500 shadow-md"
-                                                            : "border-transparent opacity-70 hover:opacity-100"
+                                                        ? "border-orange-500 shadow-md"
+                                                        : "border-transparent opacity-70 hover:opacity-100"
                                                         }`}
                                                 >
                                                     <img
@@ -203,6 +206,11 @@ export default function DeliveryTaskDetails() {
                                     <InfoItem icon={<Tag />} label="Category" value={task.donation.category || "—"} color="orange" />
                                 </div>
                             </div>
+                            {successMessage && (
+                                <div className="mb-6 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm">
+                                    ✅ {successMessage}
+                                </div>
+                            )}
 
                             {/* Actions */}
                             <div className="mt-10 pt-7 border-t border-gray-100 flex flex-col sm:flex-row gap-4">
@@ -215,14 +223,23 @@ export default function DeliveryTaskDetails() {
                                 </Button>
 
                                 <Button
-                                    className="flex-1 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 shadow-md hover:shadow-lg transition-all"
-                                    onClick={() => {
-                                        // Add your accept task API call here
-                                        alert("Task accepted! (Add real accept logic here)");
+                                    disabled={accepting || successMessage !== null}
+                                    className="flex-1 bg-gradient-to-r from-orange-500 to-amber-600"
+                                    onClick={async () => {
+                                        try {
+                                            setAccepting(true);
+                                            const res = await api.post(`/volunteers/delivery-tasks/${task.id}/accept`);
+                                            setSuccessMessage(res.data.message);
+                                        } catch (error: any) {
+                                            setSuccessMessage(error?.response?.data?.message || "Failed to accept task");
+                                        } finally {
+                                            setAccepting(false);
+                                        }
                                     }}
                                 >
-                                    Accept This Delivery Task
+                                    {accepting ? "Accepting..." : "Accept This Delivery Task"}
                                 </Button>
+
                             </div>
                         </div>
                     </div>
