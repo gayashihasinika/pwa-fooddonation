@@ -29,6 +29,10 @@ public function donations() {
     return $this->hasMany(Donation::class, 'user_id');
 }
 
+public function routeNotificationForSms()
+    {
+        return $this->phone;
+    }
 
 
 

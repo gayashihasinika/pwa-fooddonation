@@ -22,8 +22,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
 {
-    Notification::extend('sms', function ($app) {
-        return new SmsChannel();
-    });
+    
 }
 }
