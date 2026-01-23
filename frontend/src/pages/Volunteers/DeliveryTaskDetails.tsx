@@ -228,7 +228,7 @@ export default function DeliveryTaskDetails() {
                                     onClick={async () => {
                                         try {
                                             setAccepting(true);
-                                            const res = await api.post(`/volunteers/delivery-tasks/${task.id}/accept`);
+                                            const res = await api.post(`/volunteers/delivery-tasks/${task.id}/accept`)
                                             setSuccessMessage(res.data.message);
                                         } catch (error: any) {
                                             setSuccessMessage(error?.response?.data?.message || "Failed to accept task");

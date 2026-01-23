@@ -7,6 +7,8 @@ use App\Models\Claim;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\VolunteerAssignedNotification;
+use Illuminate\Support\Facades\Log;
+
 
 class DeliveryTaskController extends Controller
 {
@@ -41,44 +43,39 @@ class DeliveryTaskController extends Controller
     }
 
 
-public function accept(Claim $claim)
+public function accept($claimId)
 {
-    if ($claim->volunteer_id) {
+    $claim = Claim::where('id', $claimId)
+        ->whereNull('volunteer_id')
+        ->lockForUpdate()
+        ->first();
+
+    if (!$claim) {
         return response()->json([
-            'message' => 'This delivery task is already assigned to another volunteer.'
+            'message' => 'This delivery task is no longer available.'
         ], 409);
     }
 
     $claim->update([
         'volunteer_id' => Auth::id(),
-        'status' => 'picked_up',
-        'picked_up_at' => now(),
+        'status' => 'accepted',
     ]);
-
-    $volunteer = Auth::user();
 
     $claim->load(['donation.donor', 'receiver']);
 
-$donor = $claim->donation?->donor;
-$receiver = $claim->receiver;
-
-
+    $volunteer = Auth::user();
     $notification = new VolunteerAssignedNotification($volunteer->name);
 
-    // ✅ LOG MUST BE INSIDE METHOD
-    \Log::info('🔔 Sending VolunteerAssignedNotification', [
-        'claim_id' => $claim->id,
-        'donor_id' => $donor?->id,
-        'receiver_id' => $receiver?->id,
-    ]);
-
-    $donor?->notify($notification);
-    $receiver?->notify($notification);
+    $claim->donation?->donor?->notify($notification);
+    $claim->receiver?->notify($notification);
 
     return response()->json([
-        'message' => 'Delivery task accepted. Donor and receiver have been notified successfully.'
+        'message' => 'Delivery task accepted successfully.',
+        'claim_id' => $claim->id,
+        'status' => $claim->status,
     ]);
 }
+
 
 
 

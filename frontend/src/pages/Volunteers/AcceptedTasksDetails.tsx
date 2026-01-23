@@ -20,6 +20,48 @@ export default function AcceptedTaskDetails() {
     const navigate = useNavigate();
     const [task, setTask] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [updating, setUpdating] = useState(false);
+
+    const markAsPickedUp = async () => {
+    try {
+        setUpdating(true);
+
+        const res = await api.post(
+            `/volunteers/accepted-tasks/${task.id}/mark-as-picked-up`
+        );
+
+        setTask((prev: any) => ({
+            ...prev,
+            status: res.data.status,
+            picked_up_at: new Date().toISOString(),
+        }));
+    } catch (err) {
+        alert("Failed to mark as picked up");
+    } finally {
+        setUpdating(false);
+    }
+};
+
+const markAsDelivered = async () => {
+    try {
+        setUpdating(true);
+
+        const res = await api.post(
+            `/volunteers/accepted-tasks/${task.id}/mark-as-delivered`
+        );
+
+        setTask((prev: any) => ({
+            ...prev,
+            status: res.data.status,
+            delivered_at: new Date().toISOString(),
+        }));
+    } catch (err) {
+        alert("Failed to complete delivery");
+    } finally {
+        setUpdating(false);
+    }
+};
+
 
     useEffect(() => {
         api
@@ -195,23 +237,26 @@ export default function AcceptedTaskDetails() {
                                 </Button>
 
                                 {/* Example conditional actions - customize as needed */}
-                                {task.status === "accepted" && (
-                                    <Button
-                                        className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-md"
-                                        onClick={() => {/* API call to mark as picked up */ }}
-                                    >
-                                        Mark as Picked Up
-                                    </Button>
-                                )}
+                               {task.status === "accepted" && (
+    <Button
+        disabled={updating}
+        className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600"
+        onClick={markAsPickedUp}
+    >
+        {updating ? "Updating..." : "Mark as Picked Up"}
+    </Button>
+)}
 
-                                {task.status === "picked_up" && (
-                                    <Button
-                                        className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-md"
-                                        onClick={() => {/* API call to mark as delivered */ }}
-                                    >
-                                        Complete Delivery
-                                    </Button>
-                                )}
+{task.status === "picked_up" && (
+    <Button
+        disabled={updating}
+        className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600"
+        onClick={markAsDelivered}
+    >
+        {updating ? "Updating..." : "Complete Delivery"}
+    </Button>
+)}
+
                             </div>
                         </div>
                     </div>

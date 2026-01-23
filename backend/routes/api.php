@@ -184,6 +184,8 @@ Route::middleware('auth:sanctum')->prefix('volunteers')->group(function () {
 
     Route::get('/accepted-tasks', [AcceptedTasksController::class, 'acceptedTasks']);
     Route::get('/accepted-tasks/{id}', [AcceptedTasksController::class, 'show']);
+    Route::post('/accepted-tasks/{id}/mark-as-picked-up', [AcceptedTasksController::class, 'markAsPickedUp']);
+    Route::post('/accepted-tasks/{id}/mark-as-delivered', [AcceptedTasksController::class, 'markAsDelivered']);
 
 });
 
