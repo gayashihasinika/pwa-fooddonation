@@ -108,8 +108,7 @@ export default function AuthenticatedLayout({ children }: Props) {
         items: [
           { icon: <Home />, label: "Dashboard", path: "/volunteers/dashboard" },
           { icon: <Truck />, label: "Delivery Tasks", path: "/volunteers/delivery-tasks" },
-          { icon: <MessageSquare />, label: "Messages", path: "/volunteers/messages" },
-          { icon: <Bell />, label: "Notifications", path: "/volunteers/notifications" },
+          { icon: <ClipboardList />, label: "Accepted Tasks", path: "/volunteers/accepted-tasks" },
         ],
       },
     ],
