@@ -337,7 +337,7 @@ export default function DonationAdd() {
                     className="space-y-2"
                   >
                     <Label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                      <CalendarDays className="text-rose-600" /> Expiry Date (Optional)
+                      <CalendarDays className="text-rose-600" /> Expiry Date 
                     </Label>
                     <Input
                       type="date"

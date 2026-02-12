@@ -172,7 +172,6 @@ export default function UserList() {
                         <th className="px-6 py-5 text-left text-base font-bold text-orange-800">Role</th>
                         <th className="px-6 py-5 text-left text-base font-bold text-orange-800">Organization</th>
                         <th className="px-6 py-5 text-left text-base font-bold text-orange-800">Status</th>
-                        <th className="px-6 py-5 text-left text-base font-bold text-orange-800">Verification</th>
                         <th className="px-6 py-5 text-right text-base font-bold text-orange-800">Actions</th>
                       </tr>
                     </thead>
@@ -208,20 +207,6 @@ export default function UserList() {
                             ) : (
                               <span className="text-green-600 font-bold">Active</span>
                             )}
-                          </td>
-                          <td className="px-6 py-5">
-                            {user.role === "receiver" && (
-                              user.is_verified ? (
-                                <span className="flex items-center gap-2 text-emerald-600 font-bold">
-                                  <ShieldCheck className="w-5 h-5" /> Verified
-                                </span>
-                              ) : (
-                                <span className="flex items-center gap-2 text-amber-600 font-bold">
-                                  <AlertCircle className="w-5 h-5" /> Pending
-                                </span>
-                              )
-                            )}
-                            {user.role !== "receiver" && "—"}
                           </td>
                           <td className="px-6 py-5 text-right">
                             <Link
