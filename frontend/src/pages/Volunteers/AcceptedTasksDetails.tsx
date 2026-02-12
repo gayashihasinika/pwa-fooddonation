@@ -23,44 +23,44 @@ export default function AcceptedTaskDetails() {
     const [updating, setUpdating] = useState(false);
 
     const markAsPickedUp = async () => {
-    try {
-        setUpdating(true);
+        try {
+            setUpdating(true);
 
-        const res = await api.post(
-            `/volunteers/accepted-tasks/${task.id}/mark-as-picked-up`
-        );
+            const res = await api.post(
+                `/volunteers/accepted-tasks/${task.id}/mark-as-picked-up`
+            );
 
-        setTask((prev: any) => ({
-            ...prev,
-            status: res.data.status,
-            picked_up_at: new Date().toISOString(),
-        }));
-    } catch (err) {
-        alert("Failed to mark as picked up");
-    } finally {
-        setUpdating(false);
-    }
-};
+            setTask((prev: any) => ({
+                ...prev,
+                status: res.data.status,
+                picked_up_at: new Date().toISOString(),
+            }));
+        } catch (err) {
+            alert("Failed to mark as picked up");
+        } finally {
+            setUpdating(false);
+        }
+    };
 
-const markAsDelivered = async () => {
-    try {
-        setUpdating(true);
+    const markAsDelivered = async () => {
+        try {
+            setUpdating(true);
 
-        const res = await api.post(
-            `/volunteers/accepted-tasks/${task.id}/mark-as-delivered`
-        );
+            const res = await api.post(
+                `/volunteers/accepted-tasks/${task.id}/mark-as-delivered`
+            );
 
-        setTask((prev: any) => ({
-            ...prev,
-            status: res.data.status,
-            delivered_at: new Date().toISOString(),
-        }));
-    } catch (err) {
-        alert("Failed to complete delivery");
-    } finally {
-        setUpdating(false);
-    }
-};
+            setTask((prev: any) => ({
+                ...prev,
+                status: res.data.status,
+                delivered_at: new Date().toISOString(),
+            }));
+        } catch (err) {
+            alert("Failed to complete delivery");
+        } finally {
+            setUpdating(false);
+        }
+    };
 
 
     useEffect(() => {
@@ -237,25 +237,25 @@ const markAsDelivered = async () => {
                                 </Button>
 
                                 {/* Example conditional actions - customize as needed */}
-                               {task.status === "accepted" && (
-    <Button
-        disabled={updating}
-        className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600"
-        onClick={markAsPickedUp}
-    >
-        {updating ? "Updating..." : "Mark as Picked Up"}
-    </Button>
-)}
+                                {task.status === "accepted" && (
+                                    <Button
+                                        disabled={updating}
+                                        className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600"
+                                        onClick={markAsPickedUp}
+                                    >
+                                        {updating ? "Updating..." : "Mark as Picked Up"}
+                                    </Button>
+                                )}
 
-{task.status === "picked_up" && (
-    <Button
-        disabled={updating}
-        className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600"
-        onClick={markAsDelivered}
-    >
-        {updating ? "Updating..." : "Complete Delivery"}
-    </Button>
-)}
+                                {task.status === "picked_up" && (
+                                    <Button
+                                        disabled={updating}
+                                        className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600"
+                                        onClick={markAsDelivered}
+                                    >
+                                        {updating ? "Updating..." : "Complete Delivery"}
+                                    </Button>
+                                )}
 
                             </div>
                         </div>
