@@ -47,11 +47,17 @@ export default function BadgeManager() {
   const [editingBadge, setEditingBadge] = useState<Badge | null>(null);
 
   const [formData, setFormData] = useState({
-    code: "",
-    title: "",
-    description: "",
-    points_reward: "",
-  });
+  code: "",
+  title: "",
+  description: "",
+  points_reward: "",
+  category: "",
+  tier: "",
+  rarity: "common",
+  unlock_rule_type: "",
+  unlock_value: "",
+  is_active: true,
+});
 
   useEffect(() => {
     fetchBadges();

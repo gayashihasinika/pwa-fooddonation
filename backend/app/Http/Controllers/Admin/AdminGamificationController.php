@@ -29,7 +29,7 @@ class AdminGamificationController extends Controller
     /**
      * Create a new badge
      */
-    public function storeBadge(Request $request)
+   public function storeBadge(Request $request)
 {
     $data = $request->validate([
         'code' => 'required|unique:badges,code',
@@ -37,13 +37,18 @@ class AdminGamificationController extends Controller
         'description' => 'nullable|string',
         'icon' => 'nullable|string',
         'points_reward' => 'required|integer|min:0',
-        'category' => 'required|string',
+        'category' => 'nullable|string',
         'tier' => 'nullable|integer|min:1',
         'rarity' => 'nullable|in:common,rare,epic,legendary',
         'unlock_rule_type' => 'nullable|string',
         'unlock_value' => 'nullable|integer|min:1',
         'is_active' => 'nullable|boolean',
     ]);
+
+    $data['category'] = $data['category'] ?? 'donation';
+    $data['tier'] = $data['tier'] ?? 1;
+    $data['rarity'] = $data['rarity'] ?? 'common';
+    $data['is_active'] = $data['is_active'] ?? true;
 
     $badge = Badge::create($data);
 
