@@ -1,4 +1,3 @@
-// frontend/src/pages/Signup.tsx
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +5,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { motion } from "framer-motion";
 import { HiMail, HiLockClosed, HiEye, HiEyeOff } from "react-icons/hi";
 import { useLang } from "../context/LanguageContext";
-import signupimage from '../assets/images/signup.jpg';
+import signupimage from "../assets/images/signup.jpg";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -29,7 +28,6 @@ export default function Login() {
 
       const { access_token, role, user } = res.data;
 
-      // Store token & user
       localStorage.setItem("auth_token", access_token);
       localStorage.setItem("authUser", JSON.stringify(user));
       localStorage.setItem("user_role", role);
@@ -40,7 +38,6 @@ export default function Login() {
         sessionStorage.setItem("user_role", role);
       }
 
-      // ROLE-SPECIFIC WELCOME MESSAGE
       let welcomeMessage = "";
       let roleIcon = "❤️";
 
@@ -74,7 +71,7 @@ export default function Login() {
           </motion.div>
 
           <h3 className="text-2xl font-bold text-orange-700 mb-4">
-            Login Successful! 🎉
+            {t("welcomeBack")} 🎉
           </h3>
 
           <p className="text-lg text-gray-800 mb-4">
@@ -102,7 +99,6 @@ export default function Login() {
         }
       );
 
-      // After 3 seconds: close toast + redirect
       setTimeout(() => {
         toast.dismiss(toastId);
         redirectUser(role);
@@ -141,44 +137,48 @@ export default function Login() {
         className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden"
       >
         <div className="grid md:grid-cols-2">
-          {/* Left: Warm Food Image */}
+          
+          {/* Left Side */}
           <div className="relative h-96 md:h-full">
             <img
               src={signupimage}
-              alt="Warm Sri Lankan rice and curry"
+              alt="Warm Sri Lankan food"
               className="absolute inset-0 w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
             <div className="absolute bottom-10 left-10 text-white">
               <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                Welcome Back to FeedSriLanka ❤️
+                {t("leftTitle")}
               </h2>
               <p className="text-xl opacity-90">
-                Continue your journey of kindness and connection
+                {t("leftDesc")}
               </p>
             </div>
           </div>
 
-          {/* Right: Login Form */}
+          {/* Right Side Form */}
           <div className="p-8 md:p-12 lg:p-16">
             <h2 className="text-4xl font-bold text-orange-800 text-center mb-4">
-              Welcome Back!
+              {t("welcomeBack")}
             </h2>
             <p className="text-center text-gray-600 mb-10">
-              Log in to continue making a difference
+              {t("loginSubtitle")}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+
               {/* Email */}
               <motion.div variants={fadeUp} initial="hidden" animate="visible">
-                <label className="block text-lg font-semibold text-gray-700 mb-2">Email</label>
+                <label className="block text-lg font-semibold text-gray-700 mb-2">
+                  {t("email")}
+                </label>
                 <div className="relative">
                   <HiMail className="absolute left-4 top-5 text-orange-600" size={24} />
                   <input
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="your@email.com"
+                    placeholder={t("email")}
                     className="w-full pl-14 pr-6 py-5 border-2 border-orange-200 rounded-2xl focus:border-orange-500 focus:outline-none text-lg"
                     required
                   />
@@ -187,7 +187,9 @@ export default function Login() {
 
               {/* Password */}
               <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.1 }}>
-                <label className="block text-lg font-semibold text-gray-700 mb-2">Password</label>
+                <label className="block text-lg font-semibold text-gray-700 mb-2">
+                  {t("password")}
+                </label>
                 <div className="relative">
                   <HiLockClosed className="absolute left-4 top-5 text-orange-600" size={24} />
                   <input
@@ -208,7 +210,7 @@ export default function Login() {
                 </div>
               </motion.div>
 
-              {/* Remember Me + Forgot */}
+              {/* Remember + Forgot */}
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
@@ -217,10 +219,10 @@ export default function Login() {
                     onChange={() => setRememberMe(!rememberMe)}
                     className="w-5 h-5 text-orange-600 rounded focus:ring-orange-500"
                   />
-                  <span className="text-gray-700">Remember me</span>
+                  <span className="text-gray-700">{t("rememberMe")}</span>
                 </label>
                 <span className="text-orange-600 hover:underline cursor-pointer text-sm">
-                  Forgot password?
+                  {t("forgotPassword")}
                 </span>
               </div>
 
@@ -231,18 +233,18 @@ export default function Login() {
                 animate="visible"
                 transition={{ delay: 0.2 }}
                 type="submit"
-                className="w-full py-6 mt-8 text-2xl font-bold text-white bg-gradient-to-r from-orange-600 to-amber-500 rounded-2xl shadow-2xl hover:shadow-3xl transition transform hover:scale-105"
+                className="w-full py-6 mt-8 text-2xl font-bold text-white bg-gradient-to-r from-orange-600 to-amber-500 rounded-2xl shadow-2xl transition transform hover:scale-105"
               >
-                Login
+                {t("login")}
               </motion.button>
 
               <p className="text-center text-gray-600 mt-8">
-                New to FeedSriLanka?{" "}
+                {t("noAccount")}{" "}
                 <span
                   onClick={() => navigate("/signup")}
                   className="text-orange-700 font-bold hover:underline cursor-pointer"
                 >
-                  Create an account
+                  {t("signup")}
                 </span>
               </p>
             </form>

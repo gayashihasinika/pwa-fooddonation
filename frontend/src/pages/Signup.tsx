@@ -1,4 +1,3 @@
-// frontend/src/pages/Signup.tsx
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -35,7 +34,6 @@ export default function Signup() {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  // Real-time validation
   const validateField = (name: string, value: string) => {
     let error = "";
 
@@ -70,7 +68,6 @@ export default function Signup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Final validation before submit
     validateField("name", form.name);
     validateField("email", form.email);
     validateField("password", form.password);
@@ -83,70 +80,11 @@ export default function Signup() {
     try {
       await axios.post("http://127.0.0.1:8001/api/register", form);
 
-      // ROLE-SPECIFIC SUCCESS MESSAGE
-      let roleMessage = "";
-      let roleIcon = "❤️";
+      toast.success("Account created successfully 🎉");
 
-      if (form.role === "donor") {
-        roleMessage = "Thank you for your generosity! Your donations will feed families and reduce food waste across Sri Lanka 🍲";
-        roleIcon = "🍲";
-      } else if (form.role === "receiver") {
-        roleMessage = "Welcome! We're here to help connect you with warm meals from kind donors near you 🤝";
-        roleIcon = "🤝";
-      } else if (form.role === "volunteer") {
-        roleMessage = "Thank you for your heart of service! Your help delivering food brings hope to many 🙏";
-        roleIcon = "🙏";
-      }
-
-      const toastId = toast.custom(
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.8, opacity: 0 }}
-          className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-w-sm w-full text-center border-4 border-orange-200"
-        >
-          <motion.div
-            animate={{ y: [0, -15, 0] }}
-            transition={{ repeat: Infinity, duration: 2 }}
-            className="text-7xl mb-4"
-          >
-            {roleIcon}
-          </motion.div>
-
-          <h3 className="text-2xl font-bold text-orange-700 mb-4">
-            Welcome to FeedSriLanka! 🎉
-          </h3>
-
-          <p className="text-lg text-gray-800 mb-4">
-            Hello <span className="font-bold text-orange-600">{form.name}</span>,<br />
-            Your account has been created successfully!
-          </p>
-
-          <p className="text-md text-gray-700 mb-6 leading-relaxed">
-            {roleMessage}
-          </p>
-
-          <img
-            src={signupimage}
-            alt="Sri Lankan rice and curry"
-            className="w-full h-40 object-cover rounded-2xl shadow-xl mx-auto mb-4"
-          />
-          <p className="text-md text-gray-600">
-            Redirecting to login in 3 seconds...
-          </p>
-        </motion.div>,
-        {
-          duration: 3000,
-          position: "top-center",
-          style: { marginTop: "80px" },
-        }
-      );
-
-      // Close toast after 3s and redirect
       setTimeout(() => {
-        toast.dismiss(toastId);
         navigate("/login");
-      }, 3000);
+      }, 2000);
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Signup failed. Please try again.");
     }
@@ -162,29 +100,40 @@ export default function Signup() {
         className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden"
       >
         <div className="grid md:grid-cols-2">
-          {/* Left: Image */}
+          {/* Left Image */}
           <div className="relative h-96 md:h-full">
             <img
               src={signupimage}
-              alt="Delicious Sri Lankan rice and curry"
+              alt="Signup"
               className="absolute inset-0 w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
             <div className="absolute bottom-10 left-10 text-white">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4">Join FeedSriLanka ❤️</h2>
-              <p className="text-xl opacity-90">Together, we reduce food waste and feed families across Sri Lanka</p>
+              <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                {t("createAccount")}
+              </h2>
+              <p className="text-xl opacity-90">
+                {t("signupSubtitle")}
+              </p>
             </div>
           </div>
 
-          {/* Right: Form */}
+          {/* Form */}
           <div className="p-8 md:p-12 lg:p-16">
-            <h2 className="text-4xl font-bold text-orange-800 text-center mb-4">Create Your Account</h2>
-            <p className="text-center text-gray-600 mb-10">Join thousands making a difference every day</p>
+            <h2 className="text-4xl font-bold text-orange-800 text-center mb-4">
+              {t("createAccount")}
+            </h2>
+            <p className="text-center text-gray-600 mb-10">
+              {t("signupSubtitle")}
+            </p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Name */}
+              
+              {/* Full Name */}
               <motion.div variants={fadeUp} initial="hidden" animate="visible">
-                <label className="block text-lg font-semibold text-gray-700 mb-2">Full Name</label>
+                <label className="block text-lg font-semibold text-gray-700 mb-2">
+                  {t("fullName")}
+                </label>
                 <div className="relative">
                   <HiUser className="absolute left-4 top-5 text-orange-600" size={24} />
                   <input
@@ -192,18 +141,18 @@ export default function Signup() {
                     name="name"
                     value={form.name}
                     onChange={handleChange}
-                    placeholder="Your full name"
-                    className={`w-full pl-14 pr-6 py-5 border-2 rounded-2xl focus:outline-none text-lg transition ${errors.name ? "border-red-500" : "border-orange-200 focus:border-orange-500"
-                      }`}
+                    placeholder={t("enterName")}
+                    className="w-full pl-14 pr-6 py-5 border-2 border-orange-200 rounded-2xl focus:border-orange-500 focus:outline-none text-lg"
                     required
                   />
                 </div>
-                {errors.name && <p className="text-red-600 text-sm mt-2 ml-2">{errors.name}</p>}
               </motion.div>
 
               {/* Email */}
-              <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.1 }}>
-                <label className="block text-lg font-semibold text-gray-700 mb-2">Email</label>
+              <motion.div variants={fadeUp} initial="hidden" animate="visible">
+                <label className="block text-lg font-semibold text-gray-700 mb-2">
+                  {t("email")}
+                </label>
                 <div className="relative">
                   <HiMail className="absolute left-4 top-5 text-orange-600" size={24} />
                   <input
@@ -211,18 +160,18 @@ export default function Signup() {
                     name="email"
                     value={form.email}
                     onChange={handleChange}
-                    placeholder="your@email.com"
-                    className={`w-full pl-14 pr-6 py-5 border-2 rounded-2xl focus:outline-none text-lg transition ${errors.email ? "border-red-500" : "border-orange-200 focus:border-orange-500"
-                      }`}
+                    placeholder={t("enterEmail")}
+                    className="w-full pl-14 pr-6 py-5 border-2 border-orange-200 rounded-2xl focus:border-orange-500 focus:outline-none text-lg"
                     required
                   />
                 </div>
-                {errors.email && <p className="text-red-600 text-sm mt-2 ml-2">{errors.email}</p>}
               </motion.div>
 
               {/* Password */}
-              <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.2 }}>
-                <label className="block text-lg font-semibold text-gray-700 mb-2">Password</label>
+              <motion.div variants={fadeUp} initial="hidden" animate="visible">
+                <label className="block text-lg font-semibold text-gray-700 mb-2">
+                  {t("createPassword")}
+                </label>
                 <div className="relative">
                   <HiLockClosed className="absolute left-4 top-5 text-orange-600" size={24} />
                   <input
@@ -231,8 +180,7 @@ export default function Signup() {
                     value={form.password}
                     onChange={handleChange}
                     placeholder="••••••••"
-                    className={`w-full pl-14 pr-16 py-5 border-2 rounded-2xl focus:outline-none text-lg transition ${errors.password ? "border-red-500" : "border-orange-200 focus:border-orange-500"
-                      }`}
+                    className="w-full pl-14 pr-16 py-5 border-2 border-orange-200 rounded-2xl focus:border-orange-500 focus:outline-none text-lg"
                     required
                   />
                   <button
@@ -243,12 +191,13 @@ export default function Signup() {
                     {showPassword ? <HiEyeOff size={24} /> : <HiEye size={24} />}
                   </button>
                 </div>
-                {errors.password && <p className="text-red-600 text-sm mt-2 ml-2">{errors.password}</p>}
               </motion.div>
 
               {/* Phone */}
-              <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.3 }}>
-                <label className="block text-lg font-semibold text-gray-700 mb-2">Phone (Optional)</label>
+              <motion.div variants={fadeUp} initial="hidden" animate="visible">
+                <label className="block text-lg font-semibold text-gray-700 mb-2">
+                  {t("phoneOptional")}
+                </label>
                 <div className="relative">
                   <HiPhone className="absolute left-4 top-5 text-orange-600" size={24} />
                   <input
@@ -256,38 +205,40 @@ export default function Signup() {
                     name="phone"
                     value={form.phone}
                     onChange={handleChange}
-                    placeholder="Your phone number"
-                    className={`w-full pl-14 pr-6 py-5 border-2 rounded-2xl focus:outline-none text-lg transition ${errors.phone ? "border-red-500" : "border-orange-200 focus:border-orange-500"
-                      }`}
+                    placeholder={t("enterPhone")}
+                    className="w-full pl-14 pr-6 py-5 border-2 border-orange-200 rounded-2xl focus:border-orange-500 focus:outline-none text-lg"
                   />
                 </div>
-                {errors.phone && <p className="text-red-600 text-sm mt-2 ml-2">{errors.phone}</p>}
               </motion.div>
 
-              {/* Role & Organization — unchanged */}
-              <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.4 }}>
-                <label className="block text-lg font-semibold text-gray-700 mb-2">I am a...</label>
+              {/* Role */}
+              <motion.div variants={fadeUp} initial="hidden" animate="visible">
+                <label className="block text-lg font-semibold text-gray-700 mb-2">
+                  {t("role")}
+                </label>
                 <select
                   name="role"
                   value={form.role}
                   onChange={handleChange}
-                  className="w-full px-6 py-5 border-2 border-orange-200 rounded-2xl focus:border-orange-500 focus:outline-none text-lg bg-white"
+                  className="w-full px-6 py-5 border-2 border-orange-200 rounded-2xl focus:border-orange-500 focus:outline-none text-lg"
                 >
-                  <option value="donor">Food Donor</option>
-                  <option value="receiver">Food Receiver</option>
-                  <option value="volunteer">Volunteer</option>
+                  <option value="donor">{t("donor")}</option>
+                  <option value="receiver">{t("receiver")}</option>
+                  <option value="volunteer">{t("volunteer")}</option>
                 </select>
               </motion.div>
 
               {(form.role === "donor" || form.role === "volunteer") && (
-                <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.5 }}>
-                  <label className="block text-lg font-semibold text-gray-700 mb-2">Organization (Optional)</label>
+                <motion.div variants={fadeUp} initial="hidden" animate="visible">
+                  <label className="block text-lg font-semibold text-gray-700 mb-2">
+                    {t("organizationOptional")}
+                  </label>
                   <input
                     type="text"
                     name="organization"
                     value={form.organization}
                     onChange={handleChange}
-                    placeholder="Your organization name"
+                    placeholder={t("organizationName")}
                     className="w-full px-6 py-5 border-2 border-orange-200 rounded-2xl focus:border-orange-500 focus:outline-none text-lg"
                   />
                 </motion.div>
@@ -298,20 +249,19 @@ export default function Signup() {
                 variants={fadeUp}
                 initial="hidden"
                 animate="visible"
-                transition={{ delay: 0.6 }}
                 type="submit"
-                className="w-full py-6 mt-10 text-2xl font-bold text-white bg-gradient-to-r from-orange-600 to-amber-500 rounded-2xl shadow-2xl hover:shadow-3xl transition transform hover:scale-105"
+                className="w-full py-6 mt-10 text-2xl font-bold text-white bg-gradient-to-r from-orange-600 to-amber-500 rounded-2xl shadow-2xl transition transform hover:scale-105"
               >
-                Create Account
+                {t("createAccount")}
               </motion.button>
 
               <p className="text-center text-gray-600 mt-8">
-                Already have an account?{" "}
+                {t("alreadyAccount")}{" "}
                 <span
                   onClick={() => navigate("/login")}
                   className="text-orange-700 font-bold hover:underline cursor-pointer"
                 >
-                  Login here
+                  {t("loginHere")}
                 </span>
               </p>
             </form>
